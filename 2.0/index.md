@@ -66,7 +66,7 @@ ThinkJS includes 1500+ test cases with the code coverage at 95%. Every change ha
 
 #### Supports CLI to run cron job
 
-`Action` in ThinkJS can both response to user request and the CLI invoke. With this feature, we can excute cron job more easily.
+`Action` in ThinkJS can both response to user request and the CLI invoke. With this feature, we can execute cron job more easily.
 
 #### Hooks and Middlewares
 
@@ -118,7 +118,7 @@ On the other hand, ThinkJS choosed to provide the full set of solutions. But not
 
 Sails is another Node.js framework that also provides complete solution. It's convinient because of the encapsulation of databases, REST APIs and security features.
 
-But Sails still uses callbacks in asynchronous code. That's too hard to develop, and can't use ES6/7 fetaure naturally in the projects.
+But Sails still uses callbacks in asynchronous code. That's too hard to develop, and can't use ES6/7 feature naturally in the projects.
 
 #### Disadvantages
 
