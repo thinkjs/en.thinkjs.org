@@ -74,9 +74,9 @@ Adapter configure is parse by `parseAdapterConfig` method in [think-helper](http
 
 ```js
 const helper = require('think-helper');
-const viewConfig = think.config('view'); // 获取 view adapter 的详细配置
+const viewConfig = think.config('view'); // get view adapter configure
 
-const nunjucks = helper.parseAdatperConfig(viewConfig); // 获取 nunjucks 的配置，默认 type 为 nunjucks
+const nunjucks = helper.parseAdatperConfig(viewConfig); // to get the default adapter configure
 /**
 {
   type: 'nunjucks',
@@ -87,7 +87,7 @@ const nunjucks = helper.parseAdatperConfig(viewConfig); // 获取 nunjucks 的�
 }
 */
 
-const ejs = helper.parseAdatperConfig(viewConfig, 'ejs') // 获取 ejs 的配置
+const ejs = helper.parseAdatperConfig(viewConfig, 'ejs') 
 /**
 {
   handle: ejs,
@@ -100,22 +100,18 @@ const ejs = helper.parseAdatperConfig(viewConfig, 'ejs') // 获取 ejs 的配置
 */
 ```
 
-通过 `parseAdapterConfig` 方法就可以拿到对应类型的配置，然后就可以调用对应的 `handle`，传入配置然后执行了。
+You can call `parseAdapterConfig` to get configure and use `handle` to run.
+But most of the time you don't need to do this by yourself, the Extend method normally will do the job.
 
-当然，配置解析并不需要使用者在项目中具体调用，一般都是在插件对应的方法里已经处理。
+### Adapter Usage
 
-### Adapter 使用
+Adapter usually work with Extend and implement a type of interface with different implementation. For example: view Adapter（think-view-nunjucks、think-view-ejs）work with [think-view](https://github.com/thinkjs/think-view) Extend。
+Extend think-view provide neccesary method for template rendering, inside the render method will call Adapter's `handle` to readlly do the job for a specific template engine.
 
-Adapter 都是一类功能的不同实现，一般是不能独立使用的，而是配合对应的扩展一起使用。如：view Adapter（think-view-nunjucks、think-view-ejs）配合 [think-view](https://github.com/thinkjs/think-view) 扩展进行使用。
+### Create Project Adapter
+Besides third-party Adapter, we can create Adapter in project. Put your implementation file in `src/adapter/` folder (or `src/common/adapter/` for multi-module project), take `src/adapter/cache/xcache.js` for instance，ThinkJS will accept it as cache Adapter of type `xcache`，this file should implement the cache interface。
 
-项目安装 think-view 扩展后，提供了对应的方法来渲染模板，但渲染不同的模板需要的模板引擎有对应的 Adapter 来实现，也就是配置中的 `handle` 字段。
-
-### 项目中创建 Adapter
-
-除了引入外部的 Adapter 外，项目内也可以创建 Adapter 来使用。Adapter 文件放在 `src/adapter/` 目录下（多模块项目放在 `src/common/adapter/`），如：`src/adapter/cache/xcache.js`，表示加了一个名为 `xcache` 的 cache Adapter 类型，然后该文件实现 cache 类型一样的接口即可。
-
-实现完成后，就可以直接通过字符串引用这个 Adapter 了，如：
-
+The last thing is to turn it on:
 ```js
 exports.cache = {
   type: 'file',
@@ -126,6 +122,5 @@ exports.cache = {
 }
 ```
 
-### 推荐的 Adapter
-
-框架推荐的 Adapter 为 <https://github.com/thinkjs/think-awesome#adapters>。
+### Recommended Adapter
+Bellow link show all available framework adapter list <https://github.com/thinkjs/think-awesome#adapters>。
