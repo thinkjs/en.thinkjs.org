@@ -116,7 +116,7 @@ The last thing is to turn it on:
 exports.cache = {
   type: 'file',
   xcache: {
-    handle: 'xcache', //这里配置字符串，项目启动时会自动查找 src/adapter/cache/xcache.js 文件
+    handle: 'xcache', // set handle to string, so that system will match to src/adapter/cache/xcache.js file as implementation.
     ...
   }
 }
