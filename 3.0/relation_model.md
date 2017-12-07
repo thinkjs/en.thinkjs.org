@@ -1,6 +1,7 @@
 ## 关系数据库
+## Relation Model
 
-
+During project development, you always need to manipulate database tables, thus involes CRUD operations. Spelling SQL statements manually is very troublesome.Meanwhile，you also need pay attention to the security issue like SQL injection.
 在项目开发中，经常需要操作数据库（如：增删改查等功能），手工拼写 SQL 语句非常麻烦，同时还要注意 SQL 注入等安全问题。为此框架提供了模型功能，方便操作数据库。
 
 ### 扩展模型功能
@@ -70,7 +71,7 @@ exports.model = {
     user: 'root', // 用户名
     password: '', // 密码
     database: '', // 数据库
-    host: '127.0.0.1', // host 
+    host: '127.0.0.1', // host
     port: 3306, // 端口
     connectionLimit: 1, // 连接池的连接个数，默认为 1
     prefix: '', // 数据表前缀，如果一个数据库里有多个项目，那项目之间的数据表可以通过前缀来区分
@@ -112,7 +113,7 @@ exports.model = {
     user: 'root', // 用户名
     password: '', // 密码
     database: '', // 数据库
-    host: '127.0.0.1', // host 
+    host: '127.0.0.1', // host
     port: 3211, // 端口
     connectionLimit: 1, // 连接池的连接个数，默认为 1
     prefix: '', // 数据表前缀，如果一个数据库里有多个项目，那项目之间的数据表可以通过前缀来区分
@@ -156,7 +157,7 @@ think.model('user', 'sqlite'); // 获取模型的实例，修改数据库的类�
 think.model('user', { // 获取模型的实例，修改类型并添加其他的参数
   type: 'sqlite',
   aaa: 'bbb'
-}); 
+});
 think.model('user', {}, 'admin'); // 获取模型的实例，指定为 admin 模块（多模块项目下有效）
 ```
 #### ctx.model
@@ -222,7 +223,7 @@ const user2 = think.model('admin/user'); // 实例化后台的 user 模型
 * [join](/doc/3.0/relation_model.html#toc-48b) 指定 SQL 语句中的 join
 * [union](/doc/3.0/relation_model.html#toc-ad1) 指定 SQL 语句中的 union
 * [having](/doc/3.0/relation_model.html#toc-be2) 指定 SQL 语句中的 having
-* [cache](/doc/3.0/relation_model.html#toc-fb8) 设置查询缓存 
+* [cache](/doc/3.0/relation_model.html#toc-fb8) 设置查询缓存
 
 #### 添加数据
 
@@ -516,7 +517,7 @@ module.exports = class extends think.Model {
       },
       comment: { // 配置跟评论的关联关系
 
-      } 
+      }
     }
   }
 }
@@ -585,7 +586,7 @@ module.exports = class extends think.Model {
     return {
       cate: {
         // rModel 为关联模型的实例，model 为当前模型的实例
-        field: (rModel, model) => { 
+        field: (rModel, model) => {
           return 'id,name'
         }
       }
@@ -724,7 +725,7 @@ module.exports = class extends think.Model {
 module.exports = class extends think.Model {
   async getList() {
     // 让 user 复用当前的 Apdater handle 实例，这样后续可以复用同一个数据库连接
-    const user = this.model('user').db(this.db()); 
+    const user = this.model('user').db(this.db());
   }
 }
 ```
@@ -832,7 +833,7 @@ console.log(user.lastSql); // 打印最近一条的 sql 语句，如果没有则
 module.exports = class extends think.Model {
   async getList() {
     // 如果含有子目录，那么这里带上子目录，如： this.model('front/article')
-    const article = this.model('article'); 
+    const article = this.model('article');
     const data = await article.select();
     ...
   }
@@ -1045,7 +1046,7 @@ module.exports = class extends think.Model {
     //SELECT * FROM `think_user` WHERE ( `id` > 10 AND `id` < 20 )
     return this.where({id: {'>': 10, '<': 20}}).select();
   }
-  //修改逻辑为 OR 
+  //修改逻辑为 OR
   where2(){
     //SELECT * FROM `think_user` WHERE ( `id` < 10 OR `id` > 20 )
     return this.where({id: {'<': 10, '>': 20, _logic: 'OR'}}).select()
@@ -1168,7 +1169,7 @@ module.exports = class extends think.Model {
   getList(){
     //SELECT * FROM `think_user` LEFT JOIN think_cate ON think_group.cate_id=think_cate.id RIGHT JOIN think_tag ON think_group.tag_id=think_tag.id
     return this.join([
-      'think_cate ON think_group.cate_id=think_cate.id', 
+      'think_cate ON think_group.cate_id=think_cate.id',
       'RIGHT JOIN think_tag ON think_group.tag_id=think_tag.id'
     ]).select();
   }
@@ -1182,7 +1183,7 @@ module.exports = class extends think.Model {
   getList(){
     //SELECT * FROM `think_user` INNER JOIN `think_cate` AS c ON think_user.`cate_id`=c.`id`
     return this.join({
-      table: 'cate', 
+      table: 'cate',
       join: 'inner', //join 方式，有 left, right, inner 3 种方式
       as: 'c', // 表别名
       on: ['cate_id', 'id'] //ON 条件
@@ -1686,7 +1687,7 @@ module.exports = class extends think.Model {
 ```js
 module.exports = class extends think.Model {
   updateViewNums(id){
-    return this.where({id: id}).decrement('coins', 10); //将金币减 10 
+    return this.where({id: id}).decrement('coins', 10); //将金币减 10
   }
 }
 ```
@@ -1962,7 +1963,7 @@ module.exports = class extends think.Model {
 #### model.execute(sqlOptions)
 
 * `sqlOptions` {String | Object} 要操作的 sql 选项
-* `return` {Promise} 
+* `return` {Promise}
 
 执行 SQL 语句，`sqlOptions` 会通过 [parseSql](/doc/3.0/relation_model.html#toc-ec3) 方法解析，使用该方法执行 SQL 语句时需要自己处理安全问题。
 
