@@ -1,10 +1,9 @@
-## Cache / 缓存
+## Cache
+We often use diffrent kinds of cahce in application. Frame provide [think-cache](https://github.com/thinkjs/think-cache) extend and corresponding adapter to operate cache.
 
-在项目中，我们经常用到缓存的功能，并且可能要用到不同类型的缓存。框架通过 [think-cache](https://github.com/thinkjs/think-cache) 扩展和对应的 Adapter 来操作缓存。
+### Configure extend width adapter
 
-### 配置扩展和 Adapter
-
-修改扩展配置文件 `src/config/extend.js`（多模块项目为 `src/common/config/extend.js`），添加下面的配置：
+Add following configuration in `src/config/extend.js` (or `src/common/config/extend.js` in multi-module project):
 
 ```js
 const cache = require('think-cache');
@@ -13,7 +12,7 @@ module.exports = [
 ]
 ```
 
-修改 Adapter 配置文件 `src/config/adapter.js`（多模块项目为 `src/common/config/adapter.js`），添加下面的配置：
+Modify `src/config/adapter.js`(or `src/common/config/adapter.js` in multi-module project):
 
 ```js
 const fileCache = require('think-cache-file');
@@ -21,44 +20,44 @@ const fileCache = require('think-cache-file');
 exports.cache = {
   type: 'file',
   common: {
-    timeout: 24 * 60 * 60 * 1000 // 单位：毫秒
+    timeout: 24 * 60 * 60 * 1000 // ms
   },
   file: {
     handle: fileCache,
-    cachePath: path.join(think.ROOT_PATH, 'runtime/cache'), // 缓存文件存放的路径
+    cachePath: path.join(think.ROOT_PATH, 'runtime/cache'), // cache file path
     pathDepth: 1,
-    gcInterval: 24 * 60 * 60 * 1000 // 清理过期缓存定时时间
+    gcInterval: 24 * 60 * 60 * 1000 // Interval to check if cache expires
   }
 }
 ```
-支持的缓存类型列表见：<https://github.com/thinkjs/think-awesome#cache>。
+Supported cache type refer to <https://github.com/thinkjs/think-awesome#cache>。
 
-### 注入的方法
+### Inject Methods
 
-添加 think-cache 扩展后，会注入 `think.cache`、`ctx.cache` 和 `controller.cache` 方法，其中 ctx.cache 和 controller.cache 都是 think.cache 方法的包装，会读取当前请求下对应的缓存配置。
+think-cache extend will inject `think.cache`, `ctx.cache` and  `controller.cache` method, inside ctx.cache and controller.cache will use think.cache, which will read the current request's cache configure.
 
-#### 获取缓存
+#### Get Cache
 
 ```js
 module.exports = class extends think.Controller {
-  // 获取缓存
+  // get
   async indexAction() {
     const data = await this.cache('name');
   }
-  // 指定缓存类型获取，从 redis 里获取缓存，需要配置对应的 adapter
+  // specify cache type, read from redis(think-cache-redis required)
   async index2Action() {
     const data = await this.cache('name', undefined, 'redis');
   }
 }
 ```
 
-操作缓存的时候一般都是先读取缓存，如果不存在，再从对应的地方获取然后再写入缓存，如果每次都这么操作会导致代码写起来很麻烦。支持 value 为函数的方式来读取缓存。
+Normally a cache operation involed try read the cache, or get data and set the cache value if cache is missed. As a short hand, wo support the following way:
 
 ```js
 module.exports = class extends think.Controller {
-  // 如果缓存存在，直接读取缓存
-  // 如果缓存不存在，则执行 value 函数，然后将返回值设置到缓存中并返回。
-  // 如果 value 函数里有异步操作，需要返回 Promise
+  // if cache exist, return it.
+  // if not exist, exicute the value function, the reutrn value will be resolve and cached.
+  // if value function is asynchronous, return Promise
   async indexAction() {
     const data = await this.cache('name', () => {
       return getDataFromApi();
@@ -67,19 +66,19 @@ module.exports = class extends think.Controller {
 }
 ```
 
-#### 设置缓存
+#### Set Cache
 
 ```js
 module.exports = class extends think.Controller {
-  // 设置缓存
+  // set cache
   async indexAction() {
      await this.cache('name', 'value');
   }
-  // 设置缓存，切换类型
+  // set cache of redis type
   async index2Action() {
     await this.cache('name', 'value', 'redis');
   }
-  // 设置缓存，切换类型
+  // set cache of redis type
   async index2Action() {
     await this.cache('name', 'value', {
       type: 'redis',
@@ -91,31 +90,29 @@ module.exports = class extends think.Controller {
 }
 ```
 
-#### 删除缓存
+#### delete cache
 
-将缓存值设置为 `null` 为删除缓存。
+set the cache valu to `null` means delete a cache.
 
 ```js
 module.exports = class extends think.Controller {
-  // 删除缓存
+  // delete
   async indexAction() {
     await this.cache('name', null);
   }
-  // 删除缓存，切换类型
+  // delete cache of redis type
   async index2Action() {
     await this.cache('name', null, 'redis');
   }
 }
 ```
 
-### 缓存 gc
+### cache gc
+Some cache container allows to set expires time, like Mencache and Redis, expired data will be deleted automaticly. But containers like File or Db don't provide this feature, in which case we need to handle the cleaning ourself.
 
-有些缓存容器在设置值的时候可以设置超时时间，如：Memcache、Redis，这样数据会自动过期然后删除。但有些缓存容器是没有自动删除的功能的，如：File、Db 等，这个时候就需要处理缓存过期后的清理。
+We define `gcInterval` to specify the interval to check if cache expires, the minimum time is 1 hour. It means wo excecute the `gc` method every one hour, the clean logic define by each module and will be call by [think-gc](https://github.com/thinkjs/think-gc).
 
-缓存过期清理添加了 `gcInterval` 配置用来配置清理的时间间隔，最小为一个小时。表示为：一个小时执行一次缓存容器的 `gc` 方法，具体的清理逻辑在缓存的 gc 方法中定义，由 [think-gc](https://github.com/thinkjs/think-gc) 模块负责调度。
+### FAQ
 
-### 常见问题
-
-#### 数据可以缓存在 Node.js 的内存中么？
-
-理论上是可以的，但并不建议这么做。当缓存数据量暴涨时会导致内存占用量过大，进而影响用户请求的处理，得不偿失。
+#### Can I use Node.js menory to cache data?
+Theoretically, yes you can, but it is not suggested. Use memory to cache data will cause memory usage grows too large and affects normal user request, the loss outweights the gain.
