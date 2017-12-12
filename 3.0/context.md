@@ -1,11 +1,12 @@
-## Context / 上下文
+## Context
 
-Context 是 Koa 中处理用户请求中的一个对象，贯穿整个请求生命周期。一般在 middleware、controller、logic 中使用，简称为 `ctx`。
+Context, an instance provided by Koa, it is used across the whole lifecycle of user request. It is used within middleware, controller and logic, named `ctx` for short.
+
 
 ```js
-// 在 middleware 中使用 ctx 对象
+// use ctx in middleware
 module.exports = options => {
-  // 调用时 ctx 会作为第一个参数传递进来
+  // ctx use be passed in as the first params
   return (ctx, next) => {
     ...
   }
@@ -13,29 +14,27 @@ module.exports = options => {
 ```
 
 ```js
-// 在 controller 中使用 ctx 对象
+// use ctx in controller
 module.exports = class extends think.Controller {
   indexAction() {
-    // controller 中 ctx 作为类的属性存在，属性名为 ctx
-    // controller 实例化时会自动把 ctx 传递进来
     const ip = this.ctx.ip;
   }
 }
 ```
 
-框架里继承了该对象，并通过 Extend 机制扩展了很多非常有用的属性和方法。
+Framework inhert ctx and use Extend to add many useful propertis and methods.
 
-### Koa 内置 API
+### Koa builtin API
 
 #### ctx.req
 
-Node 的 [request](https://nodejs.org/api/http.html#http_class_http_incomingmessage) 对象。
+Node's [request](https://nodejs.org/api/http.html#http_class_http_incomingmessage) object.
 
 #### ctx.res
 
-Node 的 [response](https://nodejs.org/api/http.html#http_class_http_serverresponse) 对象。
+Node's [response](https://nodejs.org/api/http.html#http_class_http_serverresponse) object.
 
-**不支持** 绕开 Koa 对 response 的处理。 避免使用如下 node 属性:
+**No Supported** to use response bypass Koa, avoid to use the following properties:
 
 - `res.statusCode`
 - `res.writeHead()`
@@ -44,21 +43,20 @@ Node 的 [response](https://nodejs.org/api/http.html#http_class_http_serverrespo
 
 #### ctx.request
 
-Koa 的 [Request](http://koajs.com/#request) 对象。
+Koa‘s [Request](http://koajs.com/#request) class.
 
 #### ctx.response
 
-Koa 的 [Response](http://koajs.com/#response) 对象。
+Koa's [Response](http://koajs.com/#response) class.
 
 #### ctx.state
-
-在中间件之间传递信息以及将信息发送给模板时，推荐的命名空间。避免直接在 ctx 上加属性，这样可能会覆盖掉已有的属性，导致出现奇怪的问题。
+The suggest namespace for sharing data between middleware or sending message to template. We should avoid to put fields into ctx directly which may override existing properties and cuase weired issues.
 
 ```js
 ctx.state.user = await User.find(id);
 ```
 
-这样后续在 controller 里可以通过 `this.ctx.state.user` 来获取对应的值。
+We can get value in controller through `this.ctx.state.user`.
 
 ```js
 module.exports = class extends think.Controller {
@@ -70,19 +68,19 @@ module.exports = class extends think.Controller {
 
 #### ctx.app
 
-应用实例引用，等同于 `think.app`。
+Application instance, the same as `think.app`.
 
 #### ~~ctx.cookies.get(name, [options])~~
 
-获取 cookie，不建议使用，推荐 [ctx.cookie(name)](#toc-a67)
+Get cookie, deprecated, use [ctx.cookie(name)](#toc-a67) instead.
 
 #### ~~ctx.cookies.set(name, value, [options])~~
 
-设置 cookie，不建议使用，推荐 [ctx.cookie(name, value, options)](#toc-a67)
+Set cookie, deprecated, use [ctx.cookie(name, value, options)](#toc-a67) instead.
 
 #### ctx.throw([msg], [status], [properties])
 
-辅助方法，抛出包含 `.status` 属性的错误，默认为 `500`。该方法让 Koa 能够根据实际情况响应。并且支持如下组合：
+Helper method, throw error including `.status`, default is `500`. This method allows Koa to response accordingly which support the following combination:
 
 ```js
 ctx.throw(403)
@@ -91,7 +89,7 @@ ctx.throw(400, 'name required')
 ctx.throw('something exploded')
 ```
 
-例如 `this.throw('name required', 400)` 等价于：
+`this.throw('name required', 400)` is equivalent as bellow:
 
 ```js
 let err = new Error('name required');
@@ -99,36 +97,35 @@ err.status = 400;
 throw err;
 ```
 
-注意，这些是用户级别的错误，被标记了 `err.expose`，即这些消息可以用于响应客户端。显然，当你不想泄露失败细节的时候，不能用它来传递错误消息。
+Note, this is user scope error, `err.expose` is marked, so these message can be used to response client request. Apparently you won't use it to expose error message if you don't want to leak error detail.
 
-你可以传递一个 `properties` 对象，该对象会被合并到 error 中，有助于修改传递给上游中间件的极其友好的错误。
+You can passe `properties` object, which will be merged to error, to pass message to other middlewares with a nice defined error message.
 
 ```js
 ctx.throw(401, 'access_denied', { user: user });
 ctx.throw('access_denied', { user: user });
 ```
-
-Koa 使用 [http-errors](https://github.com/jshttp/http-errors) 创建错误对象。
+Koa use [http-errors](https://github.com/jshttp/http-errors) to create error object.
 
 #### ctx.assert(value, [msg], [status], [properties])
 
-当 `!value`为真时抛出错误的辅助方法，与 `.throw()` 相似。类似于 node 的 [assert()](http://nodejs.org/api/assert.html) 方法。
+Helper function to throw error When `!value` equals `true`, similar to `.throw()`. Also similar to node's [assert()](http://nodejs.org/api/assert.html) method.
 
 ```
 this.assert(this.user, 401, 'User not found. Please login!');
 ```
 
-Koa 使用 [http-assert](https://github.com/jshttp/http-assert) 实现断言.
+Koa use [http-assert](https://github.com/jshttp/http-assert) to assert.
 
 #### ctx.respond
 
-如不想使用 Koa 内置的 response 处理方法，可以设置 `ctx.respond = false;`。这时你可以自己设置原始的 `res` 对象来处理响应。
+If you don't want to use Koa's buildin response, just set `ctx.respond = false`. And then you can use the origin `res` object to response.
 
-注意这样使用是 __不__被 Koa 支持的，因为这样有可能会破坏 Koa 的中间件和 Koa 本身提供的功能。这种用法只是作为一种 hack ，为那些想要在Koa中使用传统的`fn(req, res)`的方法和中间件的人提供一种便捷方式。
+Note Koa __doesn't__ suuport this, becuase it may break Koa's middleware and Koa itself. It is a hack way, for those want to use traditional `fn(req, res)` method with middleware.
 
 #### ctx.header
 
-获取所有的 header 信息，等同于 `ctx.request.header`。
+Get all header message, equivalent to `ctx.request.header`.
 
 ```js
 const headers = ctx.headers;
@@ -136,11 +133,11 @@ const headers = ctx.headers;
 
 #### ctx.headers
 
-获取所有的 header 信息，等同于 `ctx.header`。
+Get all header information, equivalent to `ctx.header`.
 
 #### ctx.method
 
-获取请求类型，大写。如：`GET`、`POST`、`DELETE`。
+Get request type, uppercae. Like: `GET`, `POST`, `DELETE`.
 
 ```js
 const method = ctx.method;
@@ -148,7 +145,7 @@ const method = ctx.method;
 
 #### ctx.method=
 
-设置请求类型（并不会修改当前 HTTP 请求的真实类型），对有些中间件的场景下可能有用，如：`methodOverride()`。
+Set the request type (will not actually change HTTP request's type), may be useful for some middlewares, example: `methodOverride()`.
 
 ```js
 ctx.method = 'COMMAND';
@@ -156,15 +153,15 @@ ctx.method = 'COMMAND';
 
 #### ctx.url
 
-获取请求地址。
+Get request url.
 
 #### ctx.url=
 
-设置请求地址，对 URL rewrite 有用。
+Set request url, for URL rewrite.
 
 #### ctx.originalUrl
 
-获取原始的请求 URL
+Get original request URL.
 
 #### ctx.origin
 
@@ -282,13 +279,14 @@ Return the request socket.
 
 #### ctx.protocol
 
-获取请求的协议类型，值为 `https` 或者 `http`，当 `app.proxy` 配置为 true 值支持从 `X-Forwarded-Proto` header 里获取。
+Get request protocal, value is `https` or `http`, when `app.proxy` is ture then protocal value is retreive from `X-Forwarded-Proto` header.
 
-具体的判断策略为：如果 `req.socket.encrypted` 为真，那么直接返回 `https`，否则如果配置了 `app.proxy` 为 true，那么从 `X-Forwarded-Proto` header 里获取，默认值为 `http`。
+Specific details, if `req.socket.encrypted` is true, then return `https`, otherwise if `app.proxy` is true, return `X-Forwarded-Proto` header value, default value is `http`.
 
-这么做是因为有时候并不会让 Node.js 直接对外提供服务，而是在前面用 web server（如：nginx）挡一层，由 web server 来提供 HTTP(S) 服务，web server 与 Node.js 之间始终用 HTTP 交互。
+Usually we don't want Node.js to serve client directly, but using an extrat web server layout (like nginx). Web server provide HTTP(S) service, and communicate with Node.js with HTTP.
 
-这时候 Node.js 拿到的协议始终都是 `http`，真实的协议只有 web server 知道，所以要让 Node.js 拿到真实的协议时，就需要 webserver 与 Node.js 定义特殊的字段来获取，推荐的自定义 header 为 `X-Forwarded-Proto`。为了安全性，只有设置了 `app.proxy` 为 true 是才会这样获取（`production.js` 里默认配置了为 true）。
+In this situation, Node.js always use `https` as protocal, the actual protocal only known to web server. So we need to defined a special header for it, recommand `X-Forwarded-Proto`. For safty, only if `app.proxy` if true then protocal will read from this header (`production.js` default value is true).
+
 
 ```sh
 ssl on;
@@ -301,7 +299,7 @@ location = /index.js {
   proxy_set_header X-Real-IP $remote_addr;
   proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
   proxy_set_header Host $http_host;
-  proxy_set_header X-Forwarded-Proto "https"; # 这里告知 Node.js 当前协议是 https
+  proxy_set_header X-Forwarded-Proto "https"; # current Node.js protocol https
   proxy_set_header X-NginX-Proxy true;
   proxy_set_header Upgrade $http_upgrade;
   proxy_set_header Connection "upgrade";
@@ -693,17 +691,17 @@ Set the ETag of a response including the wrapped "s. Note that there is no corre
 ```js
 ctx.etag = crypto.createHash('md5').update(ctx.body).digest('hex');
 ```
-### 框架扩展 API
+### Framework Extend API
 
 #### ctx.module
 
-路由解析后的模块名，单模块项目下该属性值始终为空。默认是通过 [think-router](https://github.com/thinkjs/think-router) 模块解析。
+Get module name base on route parsing, this value is always empty on single module project. Default parsing logic is use [think-router](https://github.com/thinkjs/think-router) module.
 
 ```js
 module.exports = class extends think.Controller {
   __before() {
-    // 获取解析后的 module
-    // 由于 module 已经被 node 使用，所以这里建议变量名不要为 module
+    // get module
+    // Variable name module is used by node, use m instead
     const m = this.ctx.module;
   }
 }
@@ -711,12 +709,12 @@ module.exports = class extends think.Controller {
 
 #### ctx.controller
 
-路由解析后的控制器名，默认是通过 [think-router](https://github.com/thinkjs/think-router) 模块解析。
+Get controller name base on route parsing, parse by [think-router](https://github.com/thinkjs/think-router).
 
 ```js
 module.exports = class extends think.Controller {
   __before() {
-    // 获取解析后的 controller
+    // get controller
     const controller = this.ctx.controller;
   }
 }
@@ -724,12 +722,12 @@ module.exports = class extends think.Controller {
 
 #### ctx.action
 
-路由解析后的操作名，默认是通过 [think-router](https://github.com/thinkjs/think-router) 模块解析。
+Get action name base on route parsing, parse by [think-router](https://github.com/thinkjs/think-router) .
 
 ```js
 module.exports = class extends think.Controller {
   __before() {
-    // 获取解析后的 action
+    // get action
     const action = this.ctx.action;
   }
 }
@@ -737,7 +735,7 @@ module.exports = class extends think.Controller {
 
 #### ctx.userAgent
 
-可以通过 `ctx.userAgent` 属性获取用户的 userAgent。
+Get user agent.
 
 ```js
 const userAgent = ctx.userAgent;
@@ -748,7 +746,7 @@ if(userAgent.indexOf('spider')){
 
 #### ctx.isGet
 
-可以通过 `ctx.isGet` 判断当前请求类型是否是 `GET`。
+Judge whether current request method is `GET`.
 
 ```js
 const isGet = ctx.isGet;
@@ -759,7 +757,7 @@ if(isGet){
 
 #### ctx.isPost
 
-可以通过 `ctx.isPost` 判断当前请求类型是否是 `POST`。
+Judge whether current request method is `POST`.
 
 ```js
 const isPost = ctx.isPost;
@@ -770,7 +768,7 @@ if(isPost){
 
 #### ctx.isCli
 
-可以通过 `ctx.isCli` 判断当前请求类型是否是 `CLI`（命令行调用）。
+Judge whether current request type is `CLI` (call from command line).
 
 ```js
 const isCli = ctx.isCli;
@@ -781,10 +779,10 @@ if(isCli){
 
 #### ctx.referer(onlyHost)
 
-* `onlyHost` {Boolean} 是否只返回 host
+* `onlyHost` {Boolean} only return host
 * `return` {String}
 
-获取请求的 referer。
+get request referer.
 
 ```
 const referer1 = ctx.referer(); // http://www.thinkjs.org/doc.html
@@ -793,14 +791,14 @@ const referer2 = ctx.referer(true); // www.thinkjs.org
 
 #### ctx.referrer(onlyHost)
 
-等同于 `referer` 方法。
+equal to `referer`.
 
 #### ctx.isMethod(method)
 
-* `method` {String} 请求类型
+* `method` {String} type
 * `return` {Boolean}
 
-判断当前请求类型与 method 是否相同。
+Judge whether current request method equals to method value.
 
 ```js
 const isPut = ctx.isMethod('PUT');
@@ -808,10 +806,10 @@ const isPut = ctx.isMethod('PUT');
 
 #### ctx.isAjax(method)
 
-* `method` {String} 请求类型
+* `method` {String} request type
 * `return` {Boolean}
 
-判断是否是 ajax 请求（通过 header 中 `x-requested-with` 值是否为 `XMLHttpRequest` 判断），如果执行了 method，那么也会判断请求类型是否一致。
+Judge whether it is ajax request (by `x-requested-with` header value equals to `XMLHttpRequest`), if method is passed, this method will also do compare the request type equals to method value.
 
 ```js
 const isAjax = ctx.isAjax();
@@ -820,10 +818,10 @@ const isPostAjax = ctx.isAjax('POST');
 
 #### ctx.isJsonp(callbackField)
 
-* `callbackField` {String} callback 字段名，默认值为 `this.config('jsonpCallbackField')`
+* `callbackField` {String} callback field name，default value is `this.config('jsonpCallbackField')`
 * `return` {Boolean}
 
-判断是否是 jsonp 请求。
+Judge whether it is jsonp request.
 
 ```js
 const isJsonp = ctx.isJson('callback');
@@ -834,11 +832,11 @@ if(isJsonp){
 
 #### ctx.jsonp(data, callbackField)
 
-* `data` {Mixed} 要输出的数据
-* `callbackField` {String} callback 字段名，默认值为 `this.config('jsonpCallbackField')`
+* `data` {Mixed} output data
+* `callbackField` {String} callback field name，default value is `this.config('jsonpCallbackField')`
 * `return` {Boolean} false
 
-输出 jsonp 格式的数据，返回值为 false。可以通过配置 `jsonContentType` 指定返回的 `Content-Type`。
+Output jsonp format data, the return value is false. The `Content-Type` returned can be specified by configuring` jsonContentType`.
 
 ```js
 ctx.jsonp({name: 'test'});
@@ -851,10 +849,10 @@ jsonp111({
 
 #### ctx.json(data)
 
-* `data` {Mixed} 要输出的数据
+* `data` {Mixed} output data
 * `return` {Boolean} false
 
-输出 json 格式的数据，返回值为 false。可以通过配置 `jsonContentType` 指定返回的 `Content-Type`。
+Output json format data, the return value is false. The `Content-Type` returned can be specified by configuring` jsonContentType`.
 
 ```js
 ctx.json({name: 'test'});
@@ -867,11 +865,11 @@ ctx.json({name: 'test'});
 
 #### ctx.success(data, message)
 
-* `data` {Mixed} 要输出的数据
-* `message` {String} errmsg 字段的数据
+* `data` {Mixed} output data
+* `message` {String} errmsg field data
 * `return` {Boolean} false
 
-输出带有 `errno` 和 `errmsg` 格式的数据。其中 `errno` 值为 0，`errmsg` 值为 message。
+Output data with `errno` and` errmsg` formats. Where `errno` is 0 and` errmsg` is message.
 
 ```js
 {
@@ -880,14 +878,13 @@ ctx.json({name: 'test'});
   data: ...
 }
 ```
-
-字段名 `errno` 和 `errmsg` 可以通过配置 `errnoField` 和 `errmsgField` 来修改。
+The field names `errno` and` errmsg` can be modified by configuring `errnoField` and` errmsgField`.
 
 #### ctx.fail(errno, errmsg, data)
 
-* `errno` {Number} 错误号
-* `errmsg` {String} 错误信息
-* `data` {Mixed} 额外的错误数据
+* `errno` {Number} error number
+* `errmsg` {String} error message
+* `data` {Mixed} extra error data
 * `return` {Boolean} false
 
 ```js
@@ -898,67 +895,69 @@ ctx.json({name: 'test'});
 }
 ```
 
-字段名 `errno` 和 `errmsg` 可以通过配置 `errnoField` 和 `errmsgField` 来修改。
+The field names `errno` and` errmsg` can be modified by configuring `errnoField` and` errmsgField`.
+
 
 #### ctx.expires(time)
 
-* `time` {Number} 缓存的时间，单位是毫秒。可以 `1s`，`1m` 这样的时间
+* `time` {Number} cache time，unit is miliseconds. Support time format like `1s` or `1m`.
 * `return` {undefined}
 
-设置 `Cache-Control` 和 `Expires` 缓存头。
+set `Cache-Control` and `Expires` cache header.
 
 ```js
-ctx.expires('1h'); //缓存一小时
+ctx.expires('1h'); //cache 1 hour
 ```
 
 #### ctx.config(name, value, m)
 
-* `name` {Mixed} 配置名
-* `value` {Mixed} 配置值
-* `m` {String} 模块名，多模块项目下生效
+* `name` {Mixed} config name
+* `value` {Mixed} confg value
+* `m` {String} module name, for multi-module project
 * `return` {Mixed}
 
-获取、设置配置项，内部调用 `think.config` 方法。
+
+Get, set configuration items, internal call `think.config` method.
 
 ```js
-ctx.config('name'); //获取配置
-ctx.config('name', value); //设置配置值
-ctx.config('name', undefined, 'admin'); //获取 admin 模块下配置值，多模块项目下生效
+ctx.config('name'); //get config
+ctx.config('name', value); // get config
+ctx.config('name', undefined, 'admin'); //get admin module config, for multi-module project
 ```
 
 #### ctx.param(name, value)
 
-* `name` {String} 参数名
-* `value` {Mixed} 参数值
+* `name` {String} param name
+* `value` {Mixed} param value
 * `return` {Mixed}
 
-获取、设置 URL 上的参数值。由于 `get`、`query` 等名称已经被 Koa 使用，所以这里只能使用 param。
+Get, set the parameter value on the URL. Since the names get, query, etc. have been used by Koa, param can only be used here.
 
 ```js
-ctx.param('name'); //获取参数值，如果不存在则返回 undefined
-ctx.param(); //获取所有的参数值，包含动态添加的参数
-ctx.param('name1,name2'); //获取指定的多个参数值，中间用逗号隔开
-ctx.param('name', value); //重新设置参数值
-ctx.param({name: 'value', name2: 'value2'}); //重新设置多个参数值
+ctx.param('name'); //will undefined if 'name' is not exist
+ctx.param(); // Get all the parameter values, including dynamically added parameters
+ctx.param('name1,name2'); // Get the specified number of parameter values, separated by commas
+ctx.param('name', value); // Reset the parameter value
+ctx.param({name: 'value', name2: 'value2'}); // Reset multiple parameter values
 ```
 
 #### ctx.post(name, value)
 
-* `name` {String} 参数名
-* `value` {Mixed} 参数值
+* `name` {String} 
+* `value` {Mixed} 
 * `return` {Mixed}
 
-获取、设置 POST 数据。
+Get, Set post value.
 
 ```js
-ctx.post('name'); //获取 POST 值，如果不存在则返回 undefined
-ctx.post(); //获取所有的 POST 值，包含动态添加的数据
-ctx.post('name1,name2'); //获取指定的多个 POST 值，中间用逗号隔开
-ctx.post('name', value); //重新设置 POST 值
-ctx.post({name: 'value', name2: 'value2'}); //重新设置多个 POST 值
+ctx.post('name'); //Get the POST value, or undefined if it does not exist
+ctx.post(); //Get all the POST values, including dynamically added data
+ctx.post('name1,name2'); // Get the specified number of POST values, separated by commas
+ctx.post('name', value); // Reset the POST value
+ctx.post({name: 'value', name2: 'value2'}); //Reset multiple POST values
 ```
 
-有时候提交的数据是个复合的数据，这时候拿到的数据格式为下面的格式：
+Sometimes submitted data is a composite data, this time to get the data format is the following format:
 
 ```
 { action: 'create',
@@ -968,45 +967,44 @@ ctx.post({name: 'value', name2: 'value2'}); //重新设置多个 POST 值
 }
 ```
 
-实际上我们希望 `data` 字段数据为数组，这时候可以使用 [think-qs](https://github.com/thinkjs/think-qs) 中间件来支持这种数据格式。
+In fact, we want the data field data to be an array, which we can support using [think-qs] (https://github.com/thinkjs/think-qs) middleware.
 
 #### ctx.file(name, value)
 
-* `name` {String} 参数名
-* `value` {Mixed} 参数值
+* `name` {String} 
+* `value` {Mixed} 
 * `return` {Mixed}
 
-获取、设置文件数据，文件会保存在临时目录下，为了安全，请求结束后会删除。如果需要使用对应的文件，可以通过 `fs.rename` 方法移动到其他地方。
-
+Get, set the file data, the file will be saved in a temporary directory, for security, the request will be deleted after the end. If you need to use the corresponding file, you can use the `fs.rename` method to move to other places.
 ```js
-ctx.file('name'); //获取 FILE 值，如果不存在则返回 undefined
-ctx.file(); //获取所有的 FILE 值，包含动态添加的数据
-ctx.file('name', value); //重新设置 FILE 值
-ctx.file({name: 'value', name2: 'value2'}); //重新设置多个 FILE 值
+ctx.file('name'); // Get the FILE value, or undefined if it does not exist
+ctx.file(); // Get all the FILE values, including dynamically added data 
+ctx.file('name', value); // Reset the FILE value
+ctx.file({name: 'value', name2: 'value2'}); // Reset multiple FILE values
 ```
 
 文件的数据格式为：
 
 ```js
 {
-  "size": 287313, //文件大小
-  "path": "/var/folders/4j/g57qvmmd1lb_9h605w_d38_r0000gn/T/upload_fa6bf8c44179851f1cfec99544b4ef22", //临时存放的位置
-  "name": "An Introduction to libuv.pdf", //文件名
-  "type": "application/pdf", //类型
-  "mtime": "2017-07-02T07:55:23.763Z" //最后修改时间
+  "size": 287313, // file size
+  "path": "/var/folders/4j/g57qvmmd1lb_9h605w_d38_r0000gn/T/upload_fa6bf8c44179851f1cfec99544b4ef22", //temp location
+  "name": "An Introduction to libuv.pdf", // file name
+  "type": "application/pdf", // type
+  "mtime": "2017-07-02T07:55:23.763Z" // last modify time
 }
 ```
 
-文件上传是通过 [think-payload](https://github.com/thinkjs/think-payload) 模块解析的，可以配置限制文件大小之类的参数。
+File uploads are resolved by the [think-payload] (https://github.com/thinkjs/think-payload) module, which allows you to configure parameters such as file size restrictions.
 
 ```js
 const fs = require('fs');
 const path = require('path');
-const rename = think.promisify(fs.rename, fs); // 通过 promisify 方法把 rename 方法包装成 Promise 接口
+const rename = think.promisify(fs.rename, fs); // The promisify method renames the method to a Promise interface
 module.exports = class extends think.Controller {
   async indexAction(){
     const file = this.file('image');
-    // 如果上传的是 png 格式的图片文件，则移动到其他目录
+    // If you upload png format image file, move to another directory
     if(file && file.type === 'image/png') {
       const filepath = path.join(think.ROOT_PATH, 'runtime/upload/a.png');
       think.mkdir(path.dirname(filepath));
@@ -1020,52 +1018,54 @@ module.exports = class extends think.Controller {
 
 #### ctx.cookie(name, value, options)
 
-* `name` {String} Cookie 名
-* `value` {mixed} Cookie 值
-* `options` {Object} Cookie 配置项
+* `name` {String} Cookie name
+* `value` {mixed} Cookie value
+* `options` {Object} Cookie config
 * `return` {Mixed}
 
 获取、设置 Cookie 值。
 
 ```js
-ctx.cookie('name'); //获取 Cookie
-ctx.cookie('name', value); //设置 Cookie
-ctx.cookie(name, null); //删除 Cookie
+ctx.cookie('name'); //get Cookie
+ctx.cookie('name', value); //set Cookie
+ctx.cookie(name, null); //delete Cookie
 ctx.cookie(name, null, {
   path: '/'
 })
 ```
 
 设置 Cookie 时，如果 value 的长度大于 4094，则触发 `cookieLimit` 事件，该事件可以通过 `think.app.on("cookieLimit")` 来捕获。
-
 删除 Cookie 时，必须要设置 `domain`、`path` 等参数和设置的时候相同，否则因为浏览器的同源策略无法删除。
+When setting a cookie, if the length of value is greater than 4094, a `cookieLimit` event is fired, which can be captured via `think.app.on ("cookieLimit")`.
+
+When Delete cookie, you must set `domain`,`path` and other parameters and set the same time, otherwise the browser's homologous strategy will reject the delete action.
 
 #### ctx.service(name, m, ...args)
 
-* `name` {String} 要调用的 service 名称
-* `m` {String} 模块名，多模块项目下生效
+* `name` {String} service name
+* `m` {String} module name, only for multi-module project
 * `return` {Mixed}
 
-获取 service，如果是类则实例化，否则直接返回。等同于 [think.service](/doc/3.0/think.html#toc-014)。
+Get service, if the class is instantiated, or directly return. Equivalent to [think.service](/doc/3.0/think.html#toc-014).
 
 ```js
-// 获取 src/service/github.js 模块
+// get src/service/github.js module
 const github = ctx.service('github');
 ```
 
 #### ctx.download(filepath, filename)
 
-* `filepath` {String} 下载文件的路径
-* `filename` {String} 下载的文件名，如果没有则从 `filepath` 中获取。
+* `filepath` {String} download file path
+* `filename` {String} download file name, if not exist will get from `filepath`.
 
-下载文件，会通过 [content-disposition](https://github.com/jshttp/content-disposition) 模块设置 `Content-Disposition` 头信息。
+Download file will set `Content-Disposition` header base on [content-disposition](https://github.com/jshttp/content-disposition) module.
 
 ```js
 const filepath = path.join(think.ROOT_PATH, 'a.txt');
 ctx.download(filepath);
 ```
 
-如果文件名中含有中文导致乱码，那么可以自己手工指定 `Content-Disposition` 头信息，如：
+If the file name contains Chinese cause garbled, then you can manually specify the Content-Disposition header information, such as:
 
 ```js
 const userAgent = this.userAgent().toLowerCase();
