@@ -1,27 +1,27 @@
-## 快速入门
+## Quick start
 
-借助 ThinkJS 提供的脚手架，可以快速的创建一个项目。为了可以使用更多的 ES6 特性，框架要求 Node.js 的版本至少是 `6.x`，建议使用 [LTS 版本](https://nodejs.org/en/download/)。
+With the scaffolding provided by ThinkJS, you can quickly create a project. In order to be able to use more ES6 features, the framework requires Node.js to be at least `6.x`, and we suggest to use [LTS version](https://nodejs.org/en/download/).
 
-### 安装 ThinkJS 命令
+### Install ThinkJS
 
 
 ```sh
 $ npm install -g think-cli
 ```
 
-安装完成后，系统中会有 `thinkjs` 命令（可以通过 `thinkjs -V` 查看 think-cli 的版本号，此版本号非 thinkjs 的版本号）。如果找不到这个命令，请确认环境变量是否正确。
+After the installation is complete, there will be a `thinkjs` command in the system (think-cli's version number can be checked by `thinkjs -V`, which is not the version of thinkjs). If you can not find this command, confirm that the environment variables are correct.
 
-如果是从 `2.x` 升级，需要将之前的命令删除，然后重新安装。
+If you are upgrading from `2.x`, you need to delete the previous command and then reinstall it.
 
-### 卸载旧版本命令
+### Uninstall old version
 
 ```sh
 $ npm uninstall -g thinkjs
 ```
 
-### 创建项目
+### Create project
 
-执行 `thinkjs new [project_name]` 来创建项目，如：
+Execute `thinkjs new [project_name]` to create a project, such as:
 
 ```
 $ thinkjs new demo;
@@ -30,7 +30,7 @@ $ npm install;
 $ npm start; 
 ```
 
-执行完成后，控制台下会看到类似下面的日志：
+When done you will see following log message:
 
 ```
 [2017-06-25 15:21:35.408] [INFO] - Server running at http://127.0.0.1:8360
@@ -39,43 +39,44 @@ $ npm start;
 [2017-06-25 15:21:35.413] [INFO] - Workers: 8
 ```
 
-打开浏览器访问 `http://127.0.0.1:8360/`，如果是在远程机器上创建的项目，需要把 IP 换成对应的地址。
+Open browser to visit `http://127.0.0.1:8360/`, or to replace IP to specific address if project is create on a remote server.
 
-### 项目结构
 
-默认创建的项目结构如下：
+### Project structure
+
+The default project structure is as fellows:
 
 ```text
-|--- development.js   //开发环境下的入口文件
-|--- nginx.conf  //nginx 配置文件
+|--- development.js   // Development entry file
+|--- nginx.conf  //nginx config file
 |--- package.json
-|--- pm2.json //pm2 配置文件
-|--- production.js //生产环境下的入口文件
+|--- pm2.json //pm2 config file
+|--- production.js // Production entry file
 |--- README.md
 |--- src
-| |--- bootstrap  //启动自动执行目录 
-| | |--- master.js //Master 进程下自动执行
-| | |--- worker.js //Worker 进程下自动执行
-| |--- config  //配置文件目录
-| | |--- adapter.js  // adapter 配置文件 
-| | |--- config.js  // 默认配置文件 
-| | |--- config.production.js  //生产环境下的默认配置文件，和 config.js 合并 
-| | |--- extend.js  //extend 配置文件 
-| | |--- middleware.js //middleware 配置文件 
-| | |--- router.js //自定义路由配置文件
-| |--- controller  //控制器目录 
+| |--- bootstrap  // Auto-execute directory on start up
+| | |--- master.js // Execute in Master process 
+| | |--- worker.js // Execute in worker process
+| |--- config  // configuration directory
+| | |--- adapter.js  // adapter config
+| | |--- config.js  // default config file
+| | |--- config.production.js  // production environment default config file, will merge into config.js
+| | |--- extend.js  //extend config file
+| | |--- middleware.js // Middleware config file
+| | |--- router.js // Custom route config file 
+| |--- controller  // Controller folder
 | | |--- base.js
 | | |--- index.js
-| |--- service  //服务目录 
-| | |--- **.js //用户自己定义的服务
-| |--- logic //logic 目录
+| |--- service  // Service folder
+| | |--- **.js // User defined service
+| |--- logic //logic directory
 | | |--- index.js
-| |--- model //模型目录
+| |--- model // Model directory
 | | |--- index.js
-|--- view  //模板目录
+|--- view  // Template direcotry
 | |--- index_index.html
 |--- www
-| |--- static  //静态资源目录
+| |--- static  // static resource direcotry
 | | |--- css
 | | |--- img
 | | |--- js
