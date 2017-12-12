@@ -1,87 +1,88 @@
 ## Cookie
 
-由于 HTTP(S) 协议是一个无状态的协议，所以多次请求之间并不知道是来自同一个用户。这样就会带来很多问题，如：有些页面用户登录后才能访问，页面内容根据用户相关。
+Because the HTTP(S) protocol is a stateless protocol, multiple requests do not know from the same user. This will bring a lot of problems, such as: some page users can access after logging in, page content based on user-related.
 
-在早期时代，解决方案一般是生成一个随机 token，以后每次请求都会携带这个 token 来识别用户。这需要在 form 表单中插入一个包含 token 的隐藏域，或者放在 URL 请求的参数上。
+In the early days, the solution was to generate a random token, which will be carried on with every request to identify the user. This requires inserting a hidden field containing the token in the form, or on the parameters of the URL request.
 
-这种方式虽然能解决问题，但给开发带来很大的不便，也不利于页面地址的传播。为了解决这个问题，[RFC 2965](https://tools.ietf.org/html/rfc2965) 引用了 Cookie 机制，请求时携带 `Cookie` 头信息，响应时通过 `Set-Cookie` 字段设置 Cookie。
+Although this approach can solve the problem, but to bring great inconvenience to development, it is also not conducive to the spread of page addresses. To solve this problem, [RFC 2965](https://tools.ietf.org/html/rfc2965) Introduced cookie mechanism that carries `Cookie` headers when requested and sets cookies in response to the` Set-Cookie` field.
 
-### Cookie 格式
+### Cookie Format
 
-请求时 Cookie 格式为：
+Request cookie format:
 
 ```
-Cookie: name1=value1; name2=value2; name3=value3 //多个 Cookie 之间用 `; ` 隔开
+Cookie: name1=value1; name2=value2; name3=value3 //multiple Cookie seperate by `; `
 ```
-响应时 Cookie 格式为：
+
+Response Cookie format:
 
 ```
 Set-Cookie: key1=value1; path=path; domain=domain; max-age=max-age-in-seconds; expires=date-in-GMTString-format; secure; httponly
 Set-Cookie: key2=value2; path=path; domain=domain; max-age=max-age-in-seconds; expires=date-in-GMTString-format; secure; httponly
 ```
 
-* `key=value` 名称、值的键值对
-* `path=path` 设置在哪个路径下生效，大部分时候设置为 `/`，这样可以在所有路径下生效
-* `domain=domain` 设置在哪个域名下生效，会验证 domain 的合法性
-* `max-age=max-age-in-seconds` 存活时间，一般跟 expires 配套使用
-* `expires=date-in-GMTString-format` 失效日期
-* `secure` 只在 `HTTPS` 下生效
-* `httponly` 只在 HTTP 请求中携带，JS 无法获取
+* `key=value` name, value pair
+* `path=path` specify effective path, most of the time is `/`, which can take effect inall paths
+* `domain=domain` specify effctive domain, validation will be applied
+* `max-age=max-age-in-seconds` Suvival time, generally used with expires
+* `expires=date-in-GMTString-format` expires time
+* `secure` only take effect in `HTTPS`
+* `httponly` only carried in HTTP, can't fetch by JS
 
-如果不设置 `max-age` 和 `expires`，那么 Cookie 会随着浏览器的进程退出而销毁。对于不希望 JS 能够获取到 Cookie，一般设置 `httponly` 属性，比如：用户 Session 对应的 Cookie。
+If you do not set `max-age` and` expires`, cookies will be destroyed as the browser exits. For those who do not want JS to get a cookie, generally set `httponly` attribute, such as: the user Cookie corresponding Session.
 
-虽然标准里并没有对 Cookie 的大小限制的规定，但浏览器一般都会有限制，所以不能将太大的文本保存在 Cookie 中（一般不能超过 4K）。
+Although there are no cookie size restrictions in the standard, browsers generally have limitations, so you can not save too much text in cookies (typically no more than 4K).
 
-### 配置
+### Configuration
 
-框架中是通过 [cookies](https://github.com/pillarjs/cookies) 模块来进行 Cookie 的读取与设置的，支持如下的配置：
+Framework use [cookies](https://github.com/pillarjs/cookies) module to manipulate Cookie, support the following configurations:
 
-* `maxAge`: cookie的超时时间，表示当前时间（`Date.now()`）之后的毫秒数。
-* `expires`: `Date` 对象，表示cookie的到期时间（不指定的话，默认是在会话结束时过期）。
-* `path`: 字符串，表示 cookie 的路径（默认是`/`）。
-* `domain`: 字符串，表示 cookie 的域（没有默认值）。
-* `secure`: 布尔值，表示是否只通过 HTTPS 发送该 cookie（`false`时默认通过HTTP发送，`true`时默认通过HTTPS发送）。
-* `httpOnly`: 布尔值，表示是否只通过 HTTP(S)发送该 cookie，而不能被客户端的 JavaScript 访问到（默认是`true`）。
-* `sameSite`: 布尔值或字符串，表示是否该 cookie 是一个“同源” cookie（默认是`false`）。可以将其设置为`'strict'`，`'lax'`，或`true` （等价于`strict`）。
-* `signed`: 布尔值，表示是否要将该 cookie 签名（默认是`false`）。如果设为`true`，还会发送另一个带有`.sig`后缀的同名 cookie，值为一个 27 字节的 url-safe base64 SHA1 值，表示_cookie-name _ = _ cookie-value_的散列值，相对于第一个 [Keygrip](https://www.npmjs.com/package/keygrip) 键。 此签名密钥用于在下次接收到 cookie 时检测篡改。
-* `overwrite`: 布尔值，表示是否覆盖以前设置的同名 cookie（默认为false）。如果设为`true`，在同一个请求中设置的相同名称（不管路径或域）的所有 cookie 将在设置此 cookie 时从 Set-Cookie 头中过滤掉。
+* `maxAge`: The cookie's timeout, which indicates the number of milliseconds after the current time (`Date.now()`).
+* `expires`: `Date` object, which means the expiration time of the cookie (default is expired at the end of the session if not specified).
+* `path`: String, indicating the path to the cookie (default `/`).
+* `domain`: String, indicating the cookie's domain (no default).
+* `secure`: A Boolean value that indicates whether the cookie is only sent over HTTPS (the default is sent via HTTP when `false` is set, and the default is sent over HTTPS when `true` is set).
+* `httpOnly`: Boolean value indicating whether the cookie is to be sent over HTTP(S) only, but not from the client's JavaScript (default is `true`).
+* `sameSite`: Boolean or string indicating whether the cookie is a `Homologous` cookie (default is `false`). It can be set to `'strict'`,`'lax'`, or `true` (equivalent to `strict`).
+* `signed`: A Boolean value that indicates whether to sign the cookie (default is `false`). If set to true, another cookie of the same name with the .sig suffix will be sent as a 27-byte url-safe base64 SHA1 value indicating _cookie-name _ = _ cookie-value_ Hash value, relative to the first [Keygrip](https://www.npmjs.com/package/keygrip) key. This signing key is used to detect tampering the next time a cookie is received.
+* `overwrite`: Boolean value that indicates whether to overwrite the cookie of the same name previously set (defaults to false). If set to true, all cookies of the same name (regardless of path or domain) set in the same request will be filtered out of the Set-Cookie header when this cookie is set.
 
 
-如果需要修改上面的配置，可以在配置文件 `src/config/config.js` 中修改。如：
+If you need to modify the above configuration, you can modify the configuration file `src / config / config.js`. Such as:
 
 ```js
 module.exports = {
   cookie: {
     domain: '', 
     path: '/',
-    maxAge: 10 * 3600 * 1000, // 10个小时
+    maxAge: 10 * 3600 * 1000, // 10 hours
     signed: true,
-    keys: [] // 当 signed 为 true 时，使用 keygrip 库加密时的密钥
+    keys: [] // When signed is ture, the key used by keygrip library
   }
 }
 ```
 
-### 操作 cookie
+### manipulate cookie
 
-在 ctx、controller、logic 中，提供了 `cookie` 方法来操作 cookie。
+ctx、controller、logic provide `cookie` method to manipulate cookie.
 
-#### 获取 cookie
+#### get cookie
 
 ```js
 const theme = this.cookie('theme')
 ```
 
-#### 设置 cookie
+#### set cookie
 
 ```js
 this.cookie('theme', 'gray'); 
-this.cookie('theme', 'yellow', { // 设定 cookie 时指定额外的配置
+this.cookie('theme', 'yellow', { // set other configuration
   maxAge: 10 * 1000,
   path: '/theme'
 })
 ```
 
-#### 删除 cookie
+#### delete cookie
 
 ```js
 this.cookie('theme', null)
@@ -91,15 +92,15 @@ this.cookie('theme', null, {
 })
 ```
 
-删除 cookie 时需要和设置 cookie 时同样的 domain 和 path 配置，否则会因为不匹配导致 cookie 删除不成功。
+Deleting a cookie requires the same domain and path configuration as when setting a cookie, otherwise cookies will not be successfully deleted because of a mismatch.
 
-### 常见问题
+### FAQ
 
-#### 输出内容后能否再发送 cookie？
+#### Can I send cookie after content is output?
 
-由于发送 cookie 是通过 `Set-Cookie` header 字段来完成的，HTTP 协议中，规定 header 信息必须在内容之前发送，所以输出内容后不能再发送 cookie 信息。
+Because the sending cookie is done through the `Set-Cookie` header field, the HTTP protocol specifies that the header information must be sent before the content, so no cookie information can be sent after the content is output.
 
-如果强制在输出内容之后发送 cookie 等 header 信息，会出现类似下面的错误：
+If you force the header information such as a cookie to be sent after the content is output, something like the following error appears:
 
 ```
 [ERROR] - Error: Can't set headers after they are sent.
