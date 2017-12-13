@@ -44,7 +44,7 @@ Open browser to visit `http://127.0.0.1:8360/`, or to replace IP to specific add
 
 ### Project structure
 
-The default project structure is as fellows:
+The default project structure is as follows:
 
 ```text
 |--- development.js   // Development entry file
