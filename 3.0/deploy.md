@@ -196,10 +196,6 @@ Modern websites highly suggest using HTTPS to provide the security of the websit
 
 #### Why static resource is not accessible in production environment？
 
-创建项目时，会自动生成中间件配置 `src/config/middleware.js`（多模块项目文件为 `src/common/config/middleware.js`），里面有个 resource 中间件用来处理静态资源的请求，但这个中间件默认只在开发环境下开启的，线上环境是关闭的，所以会看到上线后静态资源访问不了的情况。
-
-线上环境静态资源请求推荐用 nginx 来处理，这样性能会更高，对 Node 服务的压力也会小一些。如果非要框架处理静态资源请求，那么可以把 `src/config/middleware.js` 里的配置打开即可。
-
 On project initiation, it will auto-generate middleware config file `src/config/middleware.js` (multi-module project `src/common/config/middleware.js`). There is a middleware for handling static resources request, but this middleware by default only for development environment, so you will see static resources can not access after going online.
 
 It is recommanded to use nginx to handle static resource online, of which performance will be higher and lower load for Node service. If you still want to use framework to deal with static resource requests, modify `src/config/middleware.js` to enable this middleware can do so.
