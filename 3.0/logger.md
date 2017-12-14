@@ -1,10 +1,10 @@
 ## Logger
 
-ThinkJS 通过 [think-logger3](https://npmjs.com/think-logger3) 模块实现了强大的日志功能，并提供适配器扩展，可以很方便的扩展内置的日志模块。系统默认使用 [log4js](https://github.com/nomiddlename/log4js-node) 模块作为底层日志记录模块，具有日志分级、日志分割、多进程等丰富的特性。
+ThinkJS implements powerful logging capabilities via the [think-logger3](https://npmjs.com/think-logger3) module and provides adapter extensions that easily extend the built-in logging module. By default, the [log4js](https://github.com/nomiddlename/log4js-node) module is used as the underlying logging module. It has many features such as log classification, log splitting and multi-process.
 
-### 基本使用
+### How To Use
 
-系统已经全局注入了 logger 对象 `think.logger`，其提供了 `debug`, `info`, `warn`, `error` 四种方法来输出日志，日志默认是输出至控制台中。
+System has been globally injected the logger object `think.logger`, it provides `debug`, `info`, `warn` and `error` four methods to output log, the default behaviour is to output to console.
 
 ```javascript
 think.logger.debug('debug message');
@@ -13,13 +13,14 @@ think.logger.warn('warning');
 think.logger.error(new Error('error'));
 ```
 
-### 基本配置
+### Confguration
 
-系统默认自带了 `Console`, `File`, `DateFile` 三种适配器。默认是使用 `Console` 将日志输出到控制台中。
+The system coms with `Console`, `File`, `DateFile` three adapter. The default is to use `Controle` to output logs to console.
 
-#### 文件
+#### File
 
-如果想要将日志输出到文件，将以下内容追加到 `src/config/adapter.js` 文件中：
+If you want to output log to file, add the following configurations into `src/config/adapter.js` file:
+
 ```javascript
 const path = require('path');
 const {File} = require('think-logger3');
@@ -37,17 +38,18 @@ exports.logger = {
 
 ```
 
-该配置表示系统会将日志写入到 `logs/xx.log` 文件中。当该文件超过 `maxLogSize` 值时，会创建一个新的文件 `logs/xx.log.1`。当日志文件数超过 `backups` 值时，旧的日志分块文件会被删除。文件类型目前支持如下参数：
+Then initial log would create a file called `debug.log`. After this file reached `maxLogSize`, a new file named `debug.log.1` will be created. After log file number reached `backups`, old log chunk file will be removed.
 
-- `filename`：日志文件地址
-- `maxLogSize`：单日志文件最大大小，单位为 KB，默认日志没有大小限制。
-- `backups`：最大分块地址文件数，默认为 5。
-- `absolute`：`filename` 是否为绝对路径地址，如果 `filename` 是绝对路径，`absolute` 的值需要设置为 `true`。
-- `layouts`：定义日志输出的格式。
+- `filename`: log filename
+- `maxLogSize`: The maximum size (in bytes) for a log file, if not provided then logs won't be rotated.
+- `backups`: The number of log files to keep after logSize has been reached (default 5)
+- `absolute`: If `filename` is a absolute path, the `absolute` value should be `true`.
+- `layout`: Layout defines the way how a log record is rendered. More layouts can see [here](https://log4js-node.github.io/log4js-node/layouts.html).
 
-#### 日期文件
+### DateFile
 
-如果想要将日志按照日期文件划分的话，将以下内容追加到 `src/config/adapter.js` 文件中：
+This adapter will log to a file, moving old log messages to timestamped files according to a specified pattern. For example:
+
 ```javascript
 const path = require('path');
 const {DateFile} = require('think-logger3');
@@ -66,26 +68,27 @@ exports.logger = {
 
 ```
 
-该配置会将日志写入到 `logs/xx.log` 文件中。隔天，该文件会被重命名为 `xx.log-2017-07-01`（时间以当前时间为准），然后会创建新的 `logs/xx.log` 文件。时间文件类型支持如下参数：
+Then initial log would create a file called `debug.log`. At midnight, the current `debug.log` file would be rename to `debug.log-2017-03-12`(for example), and a new `debug.log` file created.
 
-- `level`：日志等级
-- `filename`：日志文件地址
-- `absolute`：`filename` 是否为绝对路径地址，如果 `filename` 是绝对路径，`absolute` 的值需要设置为 `true`。
-- `pattern`：该参数定义时间格式字符串，新的时间文件会按照该格式格式化后追加到原有的文件名后面。目前支持如下格式化参数：
-    - `yyyy` - 四位数年份，也可以使用 `yy` 获取末位两位数年份
-    - `MM` - 数字表示的月份，有前导零
-    - `dd` - 月份中的第几天，有前导零的2位数字
-    - `hh` - 小时，24小时格式，有前导零
-    - `mm` - 分钟数，有前导零
-    - `ss` - 秒数，有前导零
-    - `SSS` - 毫秒数（不建议配置该格式以毫秒级来归类日志）
-    - `O` - 当前时区
-- `alwaysIncludePattern`：如果 `alwaysIncludePattern` 设置为 `true`，则初始文件直接会被命名为 `xx.log-2017-07-01`，然后隔天会生成 `xx.log-2017-07-02` 的新文件。
-- `layout`：定义日志输出的格式。
+- `level`: log level
+- `filename`: log base filename
+- `pattern`: date filename would append to filename. A new file is started whenever the pattern for the current log entry differs from that of the previous log entry. The following strings are recognised in the pattern:
+  - yyyy - the full year, use yy for just the last two digits
+  - MM - the month
+  - dd - the day of the month
+  - hh - the hour of the day (24-hour clock)
+  - mm - the minute of the hour
+  - ss - seconds
+  - SSS - milliseconds (although I'm not sure you'd want to roll your logs every millisecond)
+  - O - timezone (capital letter o)
+- `alwaysIncludePattern`: If `alwaysIncludePattern` is true, then the initial file will be `filename.2017-03-12` and no renaming will occur at midnight, but a new file will be written to with the name `filename.2017-03-13`.
+- `absolute`: If `filename` is a absolute path, the `absolute` value should be `true`.
+- `layout`: Layout defines the way how a log record is rendered. More layouts can see [here](https://log4js-node.github.io/log4js-node/layouts.html).
 
-### 高级配置
 
-如果以上配置都无法满足你的需求，你也可以直接提供 log4js 的配置。例如：
+### Advance
+
+If those adapter configuration can't satisfy your need, you can use this adapter and set config like log4js. For example:
 
 ```js
 const path = require('path');
@@ -119,15 +122,15 @@ exports.logger = {
   }
 };
 ```
-
-该配置表示将 `error` 级别以上的日志输出到 `oh-no-not-again.log` 文件，同时还将所有的日志输出到`all-the-logs.log` 文件中。除了 `handle` 属性，所有的配置都和 log4js 的一样，你可以在 [这里](https://log4js-node.github.io/log4js-node/api.html#configuration-object) 查看详细的配置项。
-
+ 
 另外需要注意的是，考虑到分类的用处比较少，我们不支持自定义日志分类，所以在 `categories` 中配置其它分类是无效的，但是默认分类需要存在。
+
+This configuration means that logs level above `error` will be output to` oh-no-not-again.log` and all logs will be output to `all-the-logs.log`. All properties are as same as log4js except `handle` property. You can see more configure properties on [log4js documentation](https://log4js-node.github.io/log4js-node/api.html#configuration-object).
 
 
 ### Level
 
-日志等级用来表示该日志的级别，目前支持如下级别：
+We support the following log level:
 
 - ALL
 - ERROR
@@ -137,7 +140,8 @@ exports.logger = {
 
 ### Layout
 
-`Console`, `File` 和 `DateFile` 类型都支持 `layout` 参数，表示输出日志的格式，值为对象，下面是一个简单的示例：
+
+`Console`, `File` and `DateFile` type supports `layout` paramter，to decide the output log format, of which value is and object, bellowing is an example:
 
 ```javascript
 const path = require('path');
@@ -158,36 +162,36 @@ module.exports = {
   }
 }
 ```
+Default `Console` output format is `%[[%d] [%z] [%p]%] - %m`, which is `[time] [pid] [log level] - log content`:
 
-默认的 `Console` 的输出格式是 `%[[%d] [%z] [%p]%] - %m`，即 `[时间] [进程ID] [日志等级] - 日志内容`。 目前 layout 支持如下参数：
-
-- `type`：目前支持如下类型
+- `type`：It supports the fellowing types:
     - basic
     - coloured
     - messagePassThrough
     - dummy
     - pattern
-    - 自定义输出类型可参考 [Adding your own layouts](https://log4js-node.github.io/log4js-node/layouts.html)
-    - `pattern`：输出格式字符串，目前支持如下格式化参数
-    - `%r` - `.toLocaleTimeString()` 输出的时间格式，例如 `下午5:13:04`。
-    - `%p` - 日志等级
-    - `%h` - 机器名称
-    - `%m` - 日志内容
-    - `%d` - 时间，默认以 ISO8601 规范格式化，可选规范有 `ISO8601`, `ISO8601_WITH_TZ_OFFSET`, `ABSOUTE`, `DATE` 或者任何可支持格式化的字串，例如 `%d{DATE}` 或者 `%d{yyyy/MM/dd-hh.mm.ss}`。
-    - `%%` - 输出 `%` 字符串
-    - `%n` - 换行
-    - `%z` - 从 `process.pid` 中获取的进程 ID
-    - `%[` - 颜色块开始区域
-    - `%]` - 颜色块结束区域
+    - customize output type refers to [Adding your own layouts](https://log4js-node.github.io/log4js-node/layouts.html)
+    - `pattern`：output format string, supports the following format parameters
+    - `%r` - `.toLocaleTimeString()` which look like `下午5:13:04`。
+    - `%p` - log level
+    - `%h` - host name
+    - `%m` - log mesage
+    - `%d` - time，default use ISO8601 format，available formats including `ISO8601`, `ISO8601_WITH_TZ_OFFSET`, `ABSOUTE`, `DATE` or other supported format string, such as `%d{DATE}` or `%d{yyyy/MM/dd-hh.mm.ss}`。
+    - `%%` - output `%` string
+    - `%n` - new line
+    - `%z` - get process ID from `process.pid`
+    - `%[` - begin color block
+    - `%]` - end color block
 
-### 自定义 handle
+### Customize Handle
 
 如果觉得提供的日志输出类型不满足大家的需求，可以自定义日志处理的 `handle`。自定义 handle 需要实现以下几个方法：
+If you feel that the type of log output provided does not meet your needs, you can implement handle yourself. Custom handle need to achieve the following methods:
 
 ```javascript
 module.exports = class {
   /**
-   * @param {Object}  config  {}  配置传入的参数
+   * @param {Object}  config  {}  configurations passed in
    */
   constructor(config) {
 
