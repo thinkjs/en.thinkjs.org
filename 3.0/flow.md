@@ -1,6 +1,6 @@
 ## 运行流程
 
-Node.js 提供了 [http](https://nodejs.org/api/http.html) 模块直接创建 HTTP 服务，用来响应用户的请求，比如 Node.js 官网提供的创建 HTTP 服务的例子：
+Node.js provide [http](https://nodejs.org/api/http.html) module to create HTTP service, used to respond to user requests, such as Node.js official website provide examples of creating HTTP services:
 
 ```js
 const http = require('http');
@@ -18,74 +18,72 @@ server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
 });
 ```
- ThinkJS 也是调用 `http.createServer` 的方式来创建服务的，所以整个运行流程包含了启动服务和响应用户请求二个部分。
+ThinkJS also use `http.createServer` to create service, so the whole process contains two parts to start service and respond to user requests.
 
-### 系统服务启动
+### Start System Service
 
-* 执行 `npm start` 或者 `node development.js`
-* 实例化 ThinkJS 里的 [Application](https://github.com/thinkjs/thinkjs/blob/3.0/lib/application.js) 类，执行 `run` 方法。
-* 根据不同的环境（Master 进程、Worker 进程、命令行调用）处理不同的逻辑
-* 如果是 Master 进程
-    - 加载配置文件，生成 `think.config` 和 `think.logger` 对象。
-    - 加载文件 `src/bootstrap/master.js` 文件
-    - 如果配置文件监听服务，那么开始监听文件的变化，目录为 `src/`。
-    - 文件修改后，如果配置文件编译服务，那么会对文件进行编译，编译到 `app/` 目录下。
-    - 根据配置 `workers` 来 fork 对应数目的 Worker。Worker 进程启动完成后，触发 `appReady` 事件。（可以通过 `think.app.on("appReady")` 来捕获）
-    - 如果文件发生了新的修改，那么会触发编译，然后杀掉所有的 Worker 进程并重新 fork。
-* 如果是 Worker 进程
-    - 加载配置文件，生成 `think.config` 和 `think.logger` 对象。
-    - 加载 Extend，为框架提供更多的功能，配置文件为 `src/config/extend.js`。
-    - 获取当前项目的模块列表，放在 `think.app.modules` 上，如果为单模块，那么值为空数组。
-    - 加载项目里的 controller 文件（`src/controller/*.js`），放在 `think.app.controllers` 对象上。
-    - 加载项目里的 logic 文件（`src/logic/*.js`），放在 `think.app.logics` 对象上。
-    - 加载项目里的 model 文件（`src/model/*.js`），放在 `think.app.models` 对象上。
-    - 加载项目里的 service 文件（`src/service/*.js`），放在 `think.app.services` 对象上。
-    - 加载路由配置文件 `src/config/router.js`，放在 `think.app.routers` 对象上。
-    - 加载校验配置文件 `src/config/validator.js`，放在 `think.app.validators` 对象上。
-    - 加载 middleware 配置文件 `src/config/middleware.js`，并通过 `think.app.use` 方法注册。
-    - 加载定时任务配置文件 `src/config/crontab.js`，并注册定时任务服务。
-    - 加载 `src/bootstrap/worker.js` 启动文件。
-    - 监听 process 里的 `onUncaughtException` 和 `onUnhandledRejection` 错误事件，并进行处理。可以在配置 `src/config.js` 自定义这二个错误的处理函数。
-    - 等待 `think.beforeStartServer` 注册的启动前处理函数执行，这里可以注册一些服务启动前的事务处理。
-    - 如果自定义了创建服务配置 `createServer`，那么执行这个函数 `createServer(port, host, callback)` 来创建服务。
-    - 如果没有自定义，则通过 `think.app.listen` 来启动服务。
-    - 服务启动完成时，触发 `appReady` 事件，其他地方可以通过 `think.app.on("appReady")` 监听。
-    - 创建的服务赋值给 `think.app.server` 对象。
-
-服务启动后，会打印下面的日志：
+* Run `npm start` or `node development.js`.
+* Instantiate ThinkJS [Application](https://github.com/thinkjs/thinkjs/blob/3.0/lib/application.js) clas，and call `run` method.
+* Depending on the environment (Master process, Worker process, command-line calls) to deal with different logic.
+* If it is Master process
+    - Load config file and produce `think.config`  `think.logger` object.
+    - Load `src/bootstrap/master.js` file.
+    - If config to watch service, then start to listen files changes within folder `src/`.
+    - After file changed, if config to compile source code, it will do the compilation and output to `app/` folder.
+    - According to `workers` configuration to decide the number of Worker to fork. When the worker process has started, the `appReady` event is fired. (Can be captured via `think.app.on("appReady")`).
+    - If the file has a new modification, it will trigger the compilation, and then kill all Worker processes and re-fork.
+* If it is Worker process
+    - Load the configuration file to generate the `think.config` and` think.logger` objects.
+    - Extend is loaded to provide more functionality for the framework, the configuration file is `src/config/extend.js`.
+    - Get the list of modules for the current project, on `think.app.modules`, or empty array if single module.
+    - Load the controller file (`src/controller/*.js`) in the project and place it on the` think.app.controllers` object.
+    - Load the logic file (`src/logic/*.js`) in the project and place it on the `think.app.logics` object.
+    - Load the project's model file (`src/model/*.js`) and place it on the `think.app.models` object.
+    - load the service file (`src/service/*.js`) in the project and place it on the `think.app.services` object.
+    - Load the route configuration file `src/config/router.js` on the `think.app.routers` object.
+    - Load the validation configuration file `src/config/validator.js` on the `think.app.validators` object.
+    - Load the middleware configuration file `src/config/middleware.js` and register it with the `think.app.use` method.
+    - Loads the timing task configuration file `src/config/crontab.js` and registers the timing task service.
+    - Load the `src/bootstrap/worker.js` startup file.
+    - Listen for the `onUncaughtException` and` onUnhandledRejection` errors in the process and process them. You can customize these two erroneous handlers by configuring `src/config.js`.
+    - Wait for the pre-launch handler for `think.beforeStartServer` registration, where you can register some transactions before starting the service.
+    - If you have customized the create service configuration `createServer`, execute this function `createServer(port, host, callback)` to create the service.
+    - If there is no customization, start the service with `think.app.listen`.
+    - The appReady event is fired when service startup is complete, elsewhere can listened to this event via `think.app.on("appReady")`.
+    - The created service is assigned to the `think.app.server` object.
+   
+After the service starts, the following log is printed:
 
 ```sh
 [2017-07-02 13:36:40.646] [INFO] - Server running at http://127.0.0.1:8360
 [2017-07-02 13:36:40.649] [INFO] - ThinkJS version: 3.0.0-beta1
-[2017-07-02 13:36:40.649] [INFO] - Enviroment: development  #当前运行的环境
-[2017-07-02 13:36:40.649] [INFO] - Workers: 8   #子进程数量
+[2017-07-02 13:36:40.649] [INFO] - Enviroment: development  #current running environment
+[2017-07-02 13:36:40.649] [INFO] - Workers: 8   #worker process number
 ```
 
-### 用户请求处理
+### User reqeust processing
 
-当用户请求服务时，会经过下面的步骤进行处理。
+When the user requests service, it will be processed through the following steps.
+* The request arrives at the webserver (eg: nginx) and forwards the request to the node service via the reverse proxy. If you access the node service directly through the port, then there is no such step.
+* Node service to receive user requests, the Master process will be forwarded to the corresponding Worker process.
+* Worker process through the registration of the middleware to handle the user's request:
+    - [meta](https://github.com/thinkjs/think-meta) to handle some common information such as: setting request timeout, sending ThinkJS version number, sending processing time, etc.
+    - [resource](https://github.com/thinkjs/think-resource) Processing static resource requests, static resources are placed under `www/static/`, if a static resource is hit, this middleware will response resource and stop the following middleware.
+    - [trace](https://github.com/thinkjs/think-trace) Handles some error messages, prints detailed error messages in the development environment, and the production environment simply reports a generic error.
+    - [payload](https://github.com/thinkjs/think-payload) Handling user-uploaded data, including: form data, files, etc. After the analysis is completed, put the data on `request.body` object for later accessing.
+    - [router](https://github.com/thinkjs/think-router) Parse the route to match a Controller's Action, the result is saved on `ctx.controller` and` ctx.action` for subsequent processing . If the project is a multi-module structure then there is `ctx.module`.
+    - [logic](https://github.com/thinkjs/think-logic) According to the controller and action parsed out, call the corresponding method in logic.
+        - Instantiate the logic class and pass `ctx` into it. If there is no then skip this.
+        - Execute `__before` method, if it returns` false`, it will not execute all subsequent logic (end prematurely)
+        - If the `xxxAction` method exists then it will be executed. If the result is` false`, then all subsequent logic will not be executed
+        - If the `xxxAction` method does not exist, then try the` __call` method
+        - Execute the `__after` method, and if it returns `false`, no subsequent logic will execute
+        - By the method returns false to block the implementation of subsequent logic
+    - [controller](https://github.com/thinkjs/think-controller) According to the resolution of the controller and action, call the corresponding method in the controller.
+        - Specific call strategy is exactly the same with logic
+        - If not, then the current request returns 404
+    - When the action is done, you can put the result on the `this.body` property and return it to the user.
+* When Worker error, trigger `onUncaughtException` or `onUnhandledRejection` event, or Worker abnormal exit, Master will capture an error, re-fork a new Worker process, and kill the current process.
 
-* 请求到达 webserver（如：nginx），通过反向代理将请求转发给 node 服务。如果直接通过端口访问 node 服务，那么就没有这一步了。
-* node 服务接收用户请求，Master 进程将请求转发给对应的 Worker 进程。
-* Worker 进程通过注册的 middleware 来处理用户的请求：
-    - [meta](https://github.com/thinkjs/think-meta) 来处理一些通用的信息，如：设置请求的超时时间、是否发送 ThinkJS 版本号、是否发送处理的时间等。
-    - [resource](https://github.com/thinkjs/think-resource) 处理静态资源请求，静态资源都放在 `www/static/` 下，如果命中当前请求是个静态资源，那么这个 middleware 处理完后提前结束，不再执行后面的 middleware。
-    - [trace](https://github.com/thinkjs/think-trace) 处理一些错误信息，开发环境下打印详细的错误信息，生产环境只是报一个通用的错误。
-    - [payload](https://github.com/thinkjs/think-payload) 处理用户上传的数据，包含：表单数据、文件等。解析完成后将数据放在 `request.body` 对象上，方便后续读取。
-    - [router](https://github.com/thinkjs/think-router) 解析路由，解析出请求处理对应的 Controller 和 Action，放在 `ctx.controller` 和 `ctx.action` 上，方便后续处理。如果项目是多模块结构，那么还有 `ctx.module`。
-    - [logic](https://github.com/thinkjs/think-logic) 根据解析出来的 controller 和 action，调用 logic 里对应的方法。
-        - 实例化 logic 类，并将 `ctx` 传递进去。如果不存在则直接跳过
-        - 执行 `__before` 方法，如果返回 `false` 则不再执行后续所有的逻辑（提前结束处理）
-        - 如果 `xxxAction` 方法存在则执行，结果返回 `false` 则不再执行后续所有的逻辑
-        - 如果 `xxxAction` 方法不存在，则试图执行 `__call` 方法
-        - 执行 `__after` 方法，如果返回 `false` 则不再执行后续所有的逻辑
-        - 通过方法返回 `false` 来阻断后续逻辑的执行
-    - [controller](https://github.com/thinkjs/think-controller) 根据解析出来的 controller 和 action，调用 controller 里的对应的方法。
-        - 具体的调用策略和 logic 完全一致
-        - 如果不存在，那么当前请求返回 404
-        - action 执行完成时，可以将结果放在 `this.body` 属性上然后返回给用户。
-* 当 Worker 报错，触发 `onUncaughtException` 或者 `onUnhandledRejection` 事件，或者 Worker 异常退出时，Master 会捕获到错误，重新 fork 一个新的 Worker 进程，并杀掉当前的进程。
-
-可以看到，所有的用户请求处理都是通过 middleware 来完成的。具体的项目中，可以根据需求，组装更多的 middleware 来处理用户的请求。
-
+We can see that all the user requests are handled through middleware. In specific projects, we add assemble more middleware to handle user's request accordingly.
 
