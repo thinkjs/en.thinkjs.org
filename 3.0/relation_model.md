@@ -1,66 +1,64 @@
-## 关系数据库
 ## Relation Model
 
-During project development, you always need to manipulate database tables, thus involes CRUD operations. Spelling SQL statements manually is very troublesome.Meanwhile，you also need pay attention to the security issue like SQL injection.
-在项目开发中，经常需要操作数据库（如：增删改查等功能），手工拼写 SQL 语句非常麻烦，同时还要注意 SQL 注入等安全问题。为此框架提供了模型功能，方便操作数据库。
+During project development, you always need to manipulate database tables, thus involes CRUD operations, but Spelling SQL statements manually is very troublesome. Meanwhile，you also need pay attention to the security issue like SQL injection. Thinkjs provides the model function to facilitate the operation of the database.
 
-### 扩展模型功能
+### Extend model
 
-框架默认没有提供模型的功能，需要加载对应的扩展才能支持，对应的模块为 [think-model](https://github.com/thinkjs/think-model)。修改扩展的配置文件 `src/config/extend.js`（多模块项目为 `src/common/config/extend.js`），添加如下的配置：
+The default framework does not provide the model function, you need to load the corresponding extension to support, the corresponding module is [think-model](https://github.com/thinkjs/think-model).Modify the extended configuration file `src/config/extend.js` ( `src/common/config/extend.js` in multi-module project) and add the following configuration:
 
 ```js
 const model = require('think-model');
 
 module.exports = [
-  model(think.app) // 让框架支持模型的功能
+  model(think.app) // let the framework support the model function
 ]
 ```
 
-添加模型的扩展后，会添加方法 [think.Model](/doc/3.0/relation_model.html#toc-c4c)、[think.model](/doc/3.0/relation_model.html#toc-3f0)、[ctx.model](/doc/3.0/relation_model.html#toc-876)、[controller.model](/doc/3.0/relation_model.html#toc-7ff)、[service.model](/doc/3.0/relation_model.html#toc-af8)。
+After adding the model's extension, the method [think.Model](/doc/3.0/relation_model.html#toc-c4c)、[think.model](/doc/3.0/relation_model.html#toc-3f0)、[ctx.model](/doc/3.0/relation_model.html#toc-876)、[controller.model](/doc/3.0/relation_model.html#toc-7ff)、[service.model](/doc/3.0/relation_model.html#toc-af8) is added here。
 
 
-### 配置数据库
+### Configure the database
 
-模型由于要支持多种数据库，所以配置文件的格式为 Adapter 的方式，文件路径为 `src/config/adapter.js`（多模块项目下为 `src/common/config/adapter.js`）。
+Since the model will support multi-types of database, so the format of the configuration file by the Adapter way. The file path is `src/config/adapter.js` (`src/common/config/adapter.js` in multi-module project).
 
 ```js
 const mysql = require('think-model-mysql');
 exports.model = {
-  type: 'mysql', // 默认使用的类型，调用时可以指定参数切换
-  common: { // 通用配置
-    logConnect: true, // 是否打印数据库连接信息
-    logSql: true, // 是否打印 SQL 语句
-    logger: msg => think.logger.info(msg) // 打印信息的 logger
+  type: 'mysql', //default type, can call the specified parameters to switch
+  common: { // common configuration
+    logConnect: true, // whether to print database connection information
+    logSql: true, // whether to print SQL statement
+    logger: msg => think.logger.info(msg) // the logger for print information
   },
-  mysql: { // mysql 配置
+  mysql: { // mysql configuration
     handle: mysql
   },
-  mysql2: { // 另一个 mysql 的配置
+  mysql2: { // another mysql configuration
     handle: mysql
   },
-  sqlite: {  // sqlite 配置
+  sqlite: {  // sqlite configuration
 
   },
-  postgresql: { // postgresql 配置
+  postgresql: { // postgresql configuration
 
   }
 }
 ```
 
-如果项目里要用到同一个类型的多个数据库配置，那么可以通过不同的 type 区分，如：`mysql`，`mysql2`，调用时可以指定参数切换。
+if the project need to use mutiple configurations of the same database, you can distinguish between different `types`.
 
 ```js
-const user1 = think.model('user'); // 使用默认的数据库配置，默认的 type 为 mysql，那么就是使用 mysql 的配置
-const user2 = think.model('user', 'mysql2'); // 使用 mysql2 的配置
-const user3 = think.model('user', 'sqlite'); // 使用 sqlite 的配置
-const user4 = think.model('user', 'postgresql'); // 使用 postgresql 的配置
+const user1 = think.model('user'); // use default database configuration, default type is mysql
+const user2 = think.model('user', 'mysql2'); // use mysql2 configuration
+const user3 = think.model('user', 'sqlite'); // use sqlite configuration
+const user4 = think.model('user', 'postgresql'); // use postgresql configuration
 ```
 
-由于可以调用时指定使用哪个 `type`，理论上可以支持无限多的类型配置，项目中可以根据需要进行配置。
+As you can call the specified `type`, in theory, Thinkjs support an unlimited number of types of configuration, the project can be configured as needed.
 
 #### Mysql
 
-Mysql 的 Adapter 为 [think-model-mysql](https://github.com/thinkjs/think-model-mysql)，底层基于 [mysql](https://github.com/mysqljs/mysql) 库实现，使用连接池的方式连接数据库，默认连接数为 1。
+Adapter of Mysql is [think-model-mysql](https://github.com/thinkjs/think-model-mysql), the bottom is based on the [mysql](https://github.com/mysqljs/mysql) library, using the connection pool way to connect to the database, the default connection number is 1.
 
 ```js
 const mysql = require('think-model-mysql');
@@ -68,22 +66,22 @@ exports.model = {
   type: 'mysql',
   mysql: {
     handle: mysql, // Adapter handle
-    user: 'root', // 用户名
-    password: '', // 密码
-    database: '', // 数据库
-    host: '127.0.0.1', // host
-    port: 3306, // 端口
-    connectionLimit: 1, // 连接池的连接个数，默认为 1
-    prefix: '', // 数据表前缀，如果一个数据库里有多个项目，那项目之间的数据表可以通过前缀来区分
+    user: 'root', // username
+    password: '',
+    database: '',
+    host: '127.0.0.1',
+    port: 3306,
+    connectionLimit: 1, // connection pool connection number, the default is 1
+    prefix: '', // data sheet prefix，, if there is more than one item in a database, then the data sheet between the items can be distinguished by the prefix
   }
 }
 ```
 
-除了用 host 和 port 连接数据库外，也可以通过 `socketPath` 来连接，更多配置选项请见 <https://github.com/mysqljs/mysql#connection-options>
+In addition to using the host and port to connect to the database, but also through `socketPath` to connect. More configuration options see <https://github.com/mysqljs/mysql#connection-options>
 
 #### SQLite
 
-SQLite 的 Adapter 为 [think-model-sqlite](https://github.com/thinkjs/think-model-sqlite)，底层基于 [sqlite3](https://github.com/mapbox/node-sqlite3) 库实现，使用连接池的方式连接数据库，默认连接数为 1。
+Adapter of SQLite is [think-model-sqlite](https://github.com/thinkjs/think-model-sqlite), the bottom is based on the [sqlite3](https://github.com/mapbox/node-sqlite3) library, using the connection pool way to connect to the database, the default connection number is 1.
 
 ```js
 const sqlite = require('think-model-sqlite');
@@ -92,7 +90,7 @@ exports.model = {
   sqlite: {
     handle: sqlite, // Adapter handle
     path: path.join(think.ROOT_PATH, 'runtime/sqlite'), // sqlite 保存的目录
-    database: '', // 数据库名
+    database: '', // database name
     connectionLimit: 1, // 连接池的连接个数，默认为 1
     prefix: '', // 数据表前缀，如果一个数据库里有多个项目，那项目之间的数据表可以通过前缀来区分
   }
@@ -102,7 +100,7 @@ exports.model = {
 #### PostgreSQL
 
 
-PostgreSQL 的 Adapter 为 [think-model-postgresql](https://github.com/thinkjs/think-model-postgresql)，底层基于 [pg](https://github.com/brianc/node-postgres) 库实现，使用连接池的方式连接数据库，默认连接数为 1。
+Adapter of PostgreSQL is [think-model-postgresql](https://github.com/thinkjs/think-model-postgresql), the bottom based on [pg](https://github.com/brianc/node-postgres) library, using the connection pool way to connect to the database, the default connection number is 1.
 
 ```js
 const postgresql = require('think-model-postgresql');

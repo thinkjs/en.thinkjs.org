@@ -1,29 +1,30 @@
-## Router / 路由
+## Router
 
-当用户访问一个地址时，需要有一个对应的逻辑进行处理。传统的处理方式下，一个请求对应的一个文件，如访问时 `/user/about.php`，那么就会在项目对应的目录下有 `/user/about.php` 这个实体文件。这种方式虽然能解决问题，但会导致文件很多，同时可能很多文件里逻辑功能其实比较简单。
+When users access an address, you need to have a corresponding logic to deal with. The traditional approach, a request corresponding to a document, such as access `/user/about.php`, then it will be in the project corresponding directory `/user/about.php` this entity file. Although this approach can solve the problem, but will lead to a lot of files, and may be a lot of documents in the logic function is actually relatively simple.
 
-在现在的 MVC 开发模型里，一般都是通过路由来解决此类问题。解决方式为：先将用户的所有请求映射到一个入口文件（如：`index.php`），然后框架解析当前请求的地址，根据配置或者约定解析出对应要执行的功能，最后去调用然后响应用户的请求。
+In the current MVC development model, these problems are usually solved by router. The solution is: first map all the user's requests to an entry file (eg: `index.php`), and then the framework parses the address of the current request, parses out the corresponding function to perform according to the configuration or convention, and finally calls and responds User's request.
 
-由于 Node.js 是自己启动 HTTP(S) 服务的，所以已经天然将用户的请求汇总到一个入口了，这样处理路由映射就更简单了。
+Because Node.js starts the HTTP(S) service itself, it has naturally aggregated user requests into an entry point, making it easier to handle route mappings.
 
-在 ThinkJS 中，当用户访问一个 URL 时，最后是通过 controller 里具体的 action 来响应的。所以就需要解析出 URL 对应的 controller 和 action，这个解析工作是通过 [think-router](https://github.com/thinkjs/think-router) 模块实现的。
+In ThinkJS, when the user accesses a URL, the last is through the action specific controller to respond. So we need to parse out the URL corresponding to the controller and action, this resolution is through [think-router] (https://github.com/thinkjs/think-router) module.
 
-### 路由配置
+### Router configuration
 
-`think-router` 是一个 middleware，项目创建时默认已经加到配置文件 `src/config/middleware.js` 里了，其中 `options` 支持如下的参数：
 
-* `defaultModule` {String} 多模块项目下，默认的模块名。默认值为 `home`
-* `defaultController` {String} 默认的控制器名，默认值为 `index`
-* `defaultAction` {String} 默认的操作名，默认值为 `index`
-* `prefix` {Array} 默认去除的 pathname 前缀，默认值为 `[]`
-* `suffix` {Array} 默认去除的 pathname 后缀，默认值为 `['.html']`
-* `enableDefaultRouter` {Boolean} 在不匹配情况下是否使用默认路由解析，默认值为 `true`
-* `optimizeHomepageRouter` {Boolean} 是否对首页进行优化，默认值为 `true`（开启后如果访问地址是首页，那么不会进行自定义路由匹配）
-* `subdomainOffset` {Number} 子域名映射下的偏移量，默认值为 `2`
-* `subdomain` {Object|Array} 子域名映射列表，默认为 `{}`
-* `denyModules` {Array} 多模块项目下，禁止访问的模块列表，默认为 `[]`
+`think-router` is a middleware that has been added to the `src/config/middleware.js` file by default when it's created, and `options` supports the following parameters:
 
-具体的默认配置如下，项目中可以根据需要进行修改：
+* `defaultModule` {String} Multi-module project, the default module name. The default is `home`
+* `defaultController` {String} The default controller name, the default is `index`
+* `defaultAction` {String} Default operation name, the default value is `index`
+* `prefix` {Array} The prefix to ​​removed in pathname. The default value is `[]`
+* `suffix` {Array} The suffix to ​​removed in pathname. The default is `['.html']`
+* `enableDefaultRouter` {Boolean} Whether to use default route resolution in case of mismatch, the default value is `true`
+* `optimizeHomepageRouter` {Boolean} Whether to optimize the homepage, the default value is `true` (If the access address is the home page, no custom router matching will be performed)
+* `subdomainOffset` {Number} Offset under subdomain mapping, default is `2`
+* `subdomain` {Object | Array} Subdomain mapping list, default is `{}`
+* `denyModules` {Array} The list of modules that are forbidden to access in multi-module project, the default is `[]`
+
+The specific default configuration is as follows, it can be modified as needed in the project:
 
 ```js
 module.exports = [
@@ -44,17 +45,17 @@ module.exports = [
 ];
 ```
 
-### 路径预处理
+### Path preprocessing
 
-当用户访问服务时，通过 `ctx.url` 属性，可以得到初始的 `pathname`，如：访问本页面 `https://www.thinkjs.org/zh-cn/doc/3.0/router.html`，初始 pathname 为 `/zh-cn/doc/3.0/router.html`。
+When the user accesses the server, the initial `pathname` can be obtained through the `ctx.url` attribute. For example: Visit this page `https://www.thinkjs.org/doc/3.0/router.html`, The initial pathname is `/en/doc/3.0/router.html`.
 
-为了方便后续通过 pathname 解析出对应的 controller 和 action，需要对 pathname 进行预处理。
+In order to facilitate the subsequent resolution of the corresponding controller and action by pathname, pathname needs to be preprocessed.
 
 #### prefix & suffix
 
-有时候为了搜索引擎优化或者一些其他的原因，URL 上会多加一些东西。比如：当前页面是一个动态页面，为了 SEO，会在 URL 后面加上 `.html` 后缀假装页面是一个静态页面，但 `.html` 对于路由解析来说是无用的，是要去除的。
+Sometimes for search engine optimization or for some other reason, there's something more added to the URL. For example, the current page is a dynamic page. For SEO, the `.html` suffix is ​​appended to the URL to pretend that the page is a static page, but `.html` is useless for route resolution and should be removed.
 
-这时候可以通过 `prefix` 和 `suffix` 配置来去除一些前置或者后置的特定值，如：
+At this time, you can use the prefix and suffix configuration to remove some of the specific value of the front or rear, such as:
 
 ```js
 {
@@ -63,28 +64,28 @@ module.exports = [
 }
 ```
 
-`prefix` 与 `subffix` 为数组，数组的每一项可以为字符串或者正则表达式， 在匹配到第一个之后停止后续匹配。对于上述 `pathname` 在默认配置下进行过滤后，拿到纯净的 pathname 为 `/zh-cn/doc/3.0/router`。
+`prefix` and `subffix` are arrays, each of which can be a string or a regular expression, and stop subsequent matches after the first match. After the above `pathname` is filtered by the default configuration, get the pure pathname as `/en/doc/3.0/router`.
 
-如果访问的 URL 是 `http://www.thinkjs.org/`，那么最后拿到纯净的 `pathname` 则为字符串 `/`。
+If you visit the URL is `http://www.thinkjs.org/`, then finally get the pure `pathname` is the string `/ `.
 
-#### 子域名映射
+#### Subdomain mapping
 
-当项目比较复杂时，可能希望将不同的功能部署在不同的域名下，但代码还是在一个项目下，这时候可以通过子域名映射来完成：
+When the project is more complex, you may want to deploy different functions under different domain names, but the code is still under one project. At this time, you can do this through sub-domain name mapping:
 
 ```js
 {
-  subdomainOffset: 2, // 域名偏移量
-  subdomain: { // 子域名映射详细配置
+  subdomainOffset: 2,
+  subdomain: { // subdomain config
     'bbb,aaa': 'aaa'
   }
 }
 ```
 
-在做子域名映射时，需要解析出当前域名的子域名具体是什么？这时候就需要用到域名偏移量  `subdomainOffset` 了，该配置默认值为 2， 例如：对于域名 aaa.bbb.example.com， 解析后的子域名列表为 `["bbb", "aaa"]`, 当域名偏移量为 3 时，解析后的子域名列表为 `["aaa"]`，解析后的值保存在 `ctx.subdomains` 属性上。如果当前域名是个 IP，那么解析后的 ctx.subdomains 始终为空数组。
+When doing sub-domain mapping, the need to resolve the sub-domain name of the current domain specific What is? For example, for the domain name aaa.bbb.example.com, the parsed subdomain name list is `['bbb', 'aaa']`. When the domain name offset is 3, the parsed sub-domain name list is `["aaa"]`, and the parsed value is stored in the `ctx.subdomains` attribute. If the current domain name is an IP, the parsed ctx.subdomains is always an empty array.
 
-在进行子域名匹配时，会将 `ctx.subdomains` 转为字符串（`join(",")`）然后跟 `subdomain` 配置进行匹配。如果匹配到了 `subdomain` 里的配置，那么会将对应的值前缀补充到 `pathname` 值上。如：当访问 `http://aaa.bbb.example.com/api_lib/inbox/123`，由于配置了 `'bbb,aaa': 'aaa'`, 那么得到的 pathname 将为 `/aaa/api_lib/inbox/123`，匹配顺序为按配置依次向后匹配，如果匹配到了，那么会终止后续的匹配。
+When making a subdomain match, `ctx.subdomains` is converted to a string (`join(",")`) and then matched with the `subdomain` configuration. If the configuration in `subdomain` is matched then the corresponding value prefix is ​​appended to the ` pathname` value. For example, when accessing `http://aaa.bbb.example.com/api_lib/inbox/123`, the resulting pathname will be `/aaa/api_lib/inbox/123` because `'bbb, aaa': 'aaa'` is configured. The matching order is backward matching according to the configuration, and if it matches, the subsequent matching will be terminated.
 
-如果 `subdomain` 配置是一个数组，那么会自动将数组转化为对象，方便后续进行匹配。
+If the `subdomain` configuration is an array, then the array will be automatically converted into objects for later matching.
 
 ```js
 subdomain: ['admin', 'user']
@@ -96,30 +97,30 @@ subdomain: {
 }
 ```
 
-### 路由解析
+### Router analysis
 
-通过 `prefix & suffix` 和 `subdomain` 预处理后，得到真正后续要解析的 `pathname`。默认的路由解析规则为 `/controller/action`，如果是多模块项目，那么规则为 `/module/controller/action`，根据这个规则解析出对应的 `module`、`controller`、`action` 值。
+After preprocessing by `prefix & suffix` and `subdomain`, we get the `pathname` to be parsed later. The default route resolution rule is `/controller/action`. If it is a multi-module project, the rule is `/module/controller/action`, and parse out the corresponding `module`, `controller`, `action` values ​​according to this rule.
 
-如果 controller 有子级，那么会优先匹配子级 controller，然后再匹配 action。
+If the controller has children, then it will match the child controller first, and then match the action.
 
-| pathname  | 项目类型  | 子级控制器  |  module | controller  | action | 备注 |
-|---|---|---|---|---|---|---|
-| / | 单模块 | 无 | | index | index | controller、action 为配置的默认值 |
-| /user | 单模块 | 无 | | user | index | action 为配置的默认值 |
-| /user/login | 单模块 | 无 | | user | login |  |
-| /console/user/login | 单模块 | 有 | | console/user | login | 有子级控制器 console/user |
-| /console/user/login/aaa/bbb | 单模块 | 有 | | console/user | login | 剩余的 aaa/bbb 不再解析 |
-| /admin/user | 多模块 | 无 | admin | user | index | 多模块项目，有名为 admin 的模块 |
-| /admin/console/user/login | 多模块 | 有 | admin | console/user | login | | |
+| pathname | Item Type | Child Controller | module | controller | action | Notes |
+--- --- --- --- --- --- --- --- --- --- --- --- --- |
+| | | Single module | None | | index | index | controller, action is the default configuration value |
+| / user | Single Module | None | | user | index | action is the default value of configuration |
+| / user / login | Single Module | None | | user | login | |
+| / console / user / login | Single Module | Yes | | console / user | login | Yes Child Controller console / user |
+/ console / user / login / aaa / bbb | Single module | Yes | | console / user | login | Remaining aaa / bbb no longer parses |
+| / admin / user | Multi-module | None | admin | user | index | Multi-module project with module named admin |
+| / admin / console / user / login | Multi-module | Yes | admin | console / user | login | | |
 
 
-解析后的 module、controller、action 分别放在 `ctx.module`、`ctx.controller`、`ctx.action` 上，方便后续调用处理。如果不想要默认的路由解析，那么可以通过配置 `enableDefaultRouter: false` 关闭。
+Resolve the module, controller, action, respectively, on `ctx.module`, `ctx.controller`, `ctx.action` on the follow-up call processing. If you do not want the default route resolution, you can turn it off by configuring `enableDefaultRouter: false`.
 
-### 自定义路由规则
+### Custom router rules
 
-虽然默认的路由解析方式能够满足需求，但有时候会导致 URL 看起来不够优雅，我们更希望 URL 比较简短，这样会更利于记忆和传播。框架提供了自定义路由来处理这种需求。
+Although the default route resolution to meet the demand, but sometimes leads to the URL does not look elegant enough, we hope that the URL is relatively short, which will be more conducive to memory and dissemination. The framework provides custom router to handle this requirement.
 
-自定义路由规则配置文件为 `src/config/router.js`（多模块项目放在 `src/common/config/router.js`），路由规则为二维数组：
+Custom router rules configuration file for `src/config/router.js` (multi-module project on`src/common/config/router.js`), router rules for the two-dimensional array:
 
 ```js
 module.exports = [
@@ -127,20 +128,20 @@ module.exports = [
   [/fonts\/(.*)/i, '/fonts/:1', 'get,post'],
 ];
 ```
-每一条路由规则也为一个数组，数组里面的项分别对应为：`match`、`pathname`、`method`、`options`：
+Each router rule is also an array, the items in the array correspond to: `match`, `pathname`, `method`, `options`:
 
-* `match` {String | RegExp} pathname 匹配规则，可以是字符串或者正则。如果是字符串，那么会通过 [path-to-regexp](https://github.com/pillarjs/path-to-regexp) 模块转为正则
-* `pathname` {String} 匹配后映射后的 pathname，后续会根据这个映射的 pathname 解析出对应的 controller、action
-* `method` {String} 该条路由规则支持的请求类型，默认为所有。多个请求类型中间用逗号隔开，如：`get,post`
-* `options` {Object} 额外的选项，如：跳转时指定 statusCode
+* `match` {String | RegExp} pathname matching rules, can be a string or regular. If it is a string, it will be reverted to regular via the [path-to-regexp] (https://github.com/pillarjs/path-to-regexp) module
+* `pathname` {String} After matching the mapped pathname, follow-up will be based on the mapping of the pathname to resolve the corresponding controller, action
+* `method` {String} The request type supported by this route rule, defaults to all. Multiple request types are separated by commas, such as: get, post
+* `options` {Object} Additional options, such as: specifying statusCode on jump
 
-自定义路由在服务启动时读到 `think.app.routers` 对象上，路由的匹配规则为：从前向后逐一匹配，如果命中到了该项规则，则不再向后匹配。
+Custom routes Read the `think.app.routers` object at service startup. The matching rules for a route are: Matches from front to back, and no match to back if hit.
 
-#### 获取 match 中匹配的值
+#### Get the match in the match value
 
-配置规则时，有时候需要在 pathname 中获取 match 中匹配到的值，这时候可以通过字符串匹配或者正则分组来获取。
+When configuring a rule, sometimes it is required to obtain the matched value in pathname in pathname. In this case, you can obtain it through string matching or regular grouping.
 
-##### 字符串路由
+##### String router
 
 
 ```js
@@ -148,9 +149,9 @@ module.exports = [
   ['/user/:name', 'user']
 ]
 ```
-字符串匹配的格式为 `:name` 的方式，当匹配到这条路由后，会获取到 `:name` 对应的值，最终转化为对应的参数，以便于后续获取。
+The string matching format is `:name`. After matching this route, it will get the value corresponding to `:name`, and finally it will be converted to the corresponding parameter for later retrieval.
 
-对于上面的路由，假如访问的路径为 `/user/thinkjs`，那么 `:name` 匹配到的值为 `thinkjs`，这时会追加个名为 name 的参数，controller 里可以通过 `this.get("name")` 来获取这个参数。当然在 `pathname` 中也是可以引用 `:name` ，如：
+For the above router, if the access path is `/user/thinkjs`,`:name` matches the value of `thinkjs` and then appends a parameter named name which can be passed to` this.get("name") `to get this parameter. Of course, `pathname` can refer to`: name`, such as:
 
 ```js
 module.exports = [
@@ -158,57 +159,58 @@ module.exports = [
 ]
 ```
 
-##### 正则路由
+##### Regular router
 
 ```js
 module.exports = [
   [\/user\/(\w+)/, 'user?name=:1']
 ]
 ```
-对于上面的路由，假如访问的路径为 `/user/thinkjs`，那么正则中的分组 `(\w+)` 匹配到的值为 `thinkjs`，这样在第二个参数可以通过 `:1` 来获取这个值。对于正则中有多个分组，那么可以通过 `:1`、`:2`、`:3` 这样来获取对应匹配的值。
+
+For the above router, if the access path is `/user/thinkjs`, then the regular group `(\w+) `matches the value `thinkjs` so that the second parameter can be passed `:1` Get this value. For multiple groups in the regular, then you can get the corresponding matching value by `:1`, `:2`, `:3`.
 
 
 #### Redirect
 
-有时候项目经过多次重构后，URL 地址可能会发生一些变化，为了兼容之前的 URL，一般需要把之前的 URL 跳转到新的 URL 上。这里可以通过将 `method` 设置为 `redirect` 来完成。
+Sometimes after the project has been refactored several times, some changes may occur to the URL address. In order to be compatible with the previous URL, it is generally required to jump to the new URL before the URL. This can be done by setting `method` to `redirect`.
 
 ```js
 module.exporst = [
   ['/usersettings', '/user/setting', 'redirect', {statusCode: 301}]
 ]
 ```
-当访问地址为 `/usersettings` 时会自动跳转到 `/user/setting`，同时指定此次请求的 statusCode 为 301。
+When the access address is `/usersettings`, it will automatically jump to `/user/setting` and specify the statusCode of this request as 301.
 
 #### RESTful
 
-有时候希望提供 RESTful API，这时候也可以借助自定义路由来完成，相关文档请移步到 [RESTful API](/doc/3.0/rest.html)。
+Sometimes want to provide RESTful API, this time can also be done with custom Router, the relevant documents, please go to [RESTful API] (/doc/3.0/rest.html).
 
-### 动态添加自定义路由
+### Add custom Router dynamically
 
-有时候我们需要开发一些定制化很高的系统，如：通用的 CMS 系统，这些系统一般都可以配置一些页面的访问规则。这时候一些自定义路由就不能写死了，而是需要把后台配置的规则保存在数据库中，然后动态配置自定义路由规则。
+Sometimes we need to develop some highly customized systems, such as: Universal CMS system, these systems can generally configure some page access rules. At this time some custom Router can not write dead, but need to configure the rules of the background stored in the database, and then dynamically configure custom Router rules.
 
-这时候可以借助 `think.beforeStartServer` 方法在服务启动之前从数据库里读到最新的自定义路由规则，然后通过 `routerChange` 事件来处理。
+This time you can use `think.beforeStartServer` method to read the latest custom Router rules from the database before the service starts, and then through the `routerChange` event.
 
 ```js
 // src/bootstrap/worker.js
 
 think.beforeStartServer(async () => {
   const config = think.model('config');
-  // 将所有的自定义路由保存在字段为 router 的数据上
+  // Save all custom routes on the data for the router
   const data = await config.where({key: 'router'}).find();
   const routers = JSON.parse(data.value);
-  // 触发 routerChange 事件，将新的自定义路由设置到 think.app.routers 对象上
-  // routers 格式和自定义路由格式相同，二维数组
+  // Trigger the routerChange event to set the new custom route to the think.app.routers object
+  // The format of routers is the same as the custom Router format, two-dimensional array
   think.app.emit('routerChange', routers);
 })
 
 ```
 
-### 常见问题
+### FAQ
 
-#### 怎么查看当前地址解析后的 controller 和 action 分别对应什么？
+#### How to know what the controller and action are for the current address after the resolution?
 
-解析后的 controller 和 action 分别放在了 `ctx.controller` 和 `ctx.action` 上，有时候我们希望快速知道当前访问的路径最后解析的 controller 和 action 是什么，这时候可以借助 `debug` 来快速看到。
+Analytic controller and action were placed on the `ctx.controller` and `ctx.action`, and sometimes we want to quickly know the path of the current visit last resolved controller and action what, this time with the help of `debug` Quickly see.
 
 ```bash
 # windows cmd
@@ -222,43 +224,44 @@ npm start
 DEBUG=think-router npm start
 ```
 
-[think-router](https://github.com/thinkjs/think-router) 在路由解析时打印了相关的调试信息，通过 `DEBUG=think-router` 来开启，开启后会在控制台下看到如下的调试信息：
+[think-router] (https://github.com/thinkjs/think-router) In the analysis of Router print the relevant debugging information, through `DEBUG=think-router` to open, will be opened in the console look To the following debugging information:
 
 ```
 think-router matchedRule: {"match":{"keys":[]},"path":"console/service/func","method":"GET","options":{},"query":{}} +53ms
 think-router RouterParser: path=/console/service/func, module=, controller=console/service, action=func, query={} +0ms
 ```
 
-`matchedRule` 为命中了哪个自定义路由，`RouterParser` 为解析出来的值。
+`matchedRule` hit which custom route, `RouterParser` parse out the value.
 
-当然通过 debug 信息也能快速定位后有时候有些自定义路由没能生效的问题。
+Of course, through the debug information can also quickly locate some custom Router sometimes fails to take effect.
 
-#### 如何优化自定义路由匹配性能？
+#### How to optimize custom route matching performance?
 
-由于自定义路由是从前往后依次匹配的，直到规则命中才停止往后继续匹配，如果规则很靠后的话就需要把前面的规则都走一遍，这样可能会有点慢。这时候可以结合每个接口的流量情况，把重要的路由放在前面，不重要的路由放在后面来提升性能。
+As the custom Router is matched from front to back, until the rule hits to stop matching the future, if the rules are very dependent, then you need to go ahead of the rules again, this may be a bit slow. This time can be combined with the traffic of each interface, the important route on the front, not on the back of the route to improve performance.
 
-#### 正则路由建议
+#### Regular Router suggestions
 
-对于正则路由，默认并不是严格匹配，这样可能会有正则性能问题，同时可能会容易对其他的路由产生影响，这时候可以通过 `^` 和 `$` 进行严格匹配。
+For regular routes, the default is not strict matching, so there may be regular performance problems, and may easily affect other routes, this time by `^` and `$` for a strict match.
 
 ```js
 module.exports = [
   [/^\/user$/, 'user']
 ]
 ```
-对于上面的路由，只有访问地址为 `/user` 时才会命中该条规则，这样可以减少对其他路由的影响。如果去掉 `^` 和 `$`，那么访问 `/console/user/thinkjs` 也会命中上面的路由，实际上我们可能写了其他的路由来匹配这个地址，但被这条规则提前命中了，这样给开发带来了一些困难。
+For the above Router, this rule will be hit only if the access address is `/user`, which will reduce the impact on other routes. If you remove `^` and `$`, accessing `/console/user/thinkjs` will also hit the above route. In fact, we may have written another route to match this address, but it is hit early by this rule, This has brought some difficulties for development.
 
-#### 能使用第三方的路由解析器么？
+#### Can I use a third-party Router parser?
 
-框架默认的路由解析是通过 [think-router](https://github.com/thinkjs/think-router) 来完成的，如果想替换为第三方的路由解析器，那么可以将 `src/config/middleware.js` 里的路由配置替换为对应的模块，然后将解析后的 module、controller、action 值保存在 `ctx` 对象上，以便后续的中间件处理。
+The default route resolution of the framework is done via [think-router] (https://github.com/thinkjs/think-router). If you want to replace the third-party route resolver, you can use `src/config/middleware.js` in the Router configuration replaced by the corresponding module, and then parse the module, controller, action value stored in the `ctx` object for subsequent middleware processing.
+
 
 ```js
-// 第三方路由解析模块示例，具体代码可以参考 https://github.com/thinkjs/think-router
+// Third-party Router analysis module example, the specific code can refer to https://github.com/thinkjs/think-router
 module.exports = (options, app) => {
   return (ctx, next) => {
-    const routers = app.routers; // 拿到所有的自定义路由配置
+    const routers = app.routers; // Get all the custom Router configuration
     ...
-    ctx.module = ''; // 将解析后的 module、controller、action 保存在 ctx 上
+    ctx.module = ''; // Parse the module, controller, action saved in ctx
     ctx.controller = '';
     ctx.action = '';
     return next();

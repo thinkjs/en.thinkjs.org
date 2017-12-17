@@ -1,74 +1,73 @@
 ## RESTful API
 
-项目中，经常要提供一个 API 供第三方使用，一个通用的 API 设计规范就是使用 RESTful API，RESTful API 是使用 HTTP 中的请求类型来标识对资源的操作。如：
+There is often provide an API for third parties to use in project, a common API design specification is RESTful API. RESTful API use HTTP request type to identify the operation of resources. Such as:
 
-* `GET /ticket`  获取 ticket 列表
-* `GET /ticket/:id` 查看某个具体的 ticket
-* `POST /ticket`  新建一个 ticket
-* `PUT /ticket/:id` 更新 id 为 12 的 ticket
-* `DELETE /ticket/:id` 删除 id 为 12 的 ticekt
+* `GET /ticket`  get ticket list
+* `GET /ticket/:id` check out a specific ticket
+* `POST /ticket`  create a ticket
+* `PUT /ticket/:id` update the ticket with id equal to 12
+* `DELETE /ticket/:id` delete the ticket with id equal to 12
 
-### 创建 RESTful Controller
+### Create RESTful Controller
 
-可以通过 `-r` 参数来创建 REST Controller。如：
+The REST Controller can be created with the parameter `-r`. Such as:
 
 ```
 thinkjs controller user -r
 ```
-会创建下面几个文件：
+The following files will be created:
 ```
 create : src/controller/rest.js
 create : src/controller/user.js
 create : src/logic/user.js
 ```
 
-其中 `src/controller/user.js` 会继承 `src/controller/rest.js` 类，`rest.js` 是 RESTful Controller 的基类，具体的逻辑可以根据项目情况进行修改。
+`src/controller/user.js` will inherit `src/controller/rest.js` class，`rest.js` is the base class of RESTful Controller, and the specific logic can be modified according to the project.
 
-### 添加自定义路由
+### Add a custom router
 
-RESTful Controller 创建后并不能立即对其访问，需要添加对应的[自定义路由](/doc/3.0/router.html)，修改路由配置文件 `src/config/router.js`，添加如下的配置：
+RESTful Controller created and can not be immediately accessed, you need to add the corresponding [custom router](/doc/3.0/router.html). Modify the router configuration file `src / config / router.js`, and add the following configuration:
 
 ```js
 module.exports = [
-  [/\/user(?:\/(\d+))?/, 'user?id=:1', 'rest'], // 第一种方式
-  ['/user/:id?', '/user', 'rest'], // 第二种方式
-  ['/user/:id?', 'rest'], // 第三种方式
+  [/\/user(?:\/(\d+))?/, 'user?id=:1', 'rest'], // the first way
+  ['/user/:id?', '/user', 'rest'], // the second way
+  ['/user/:id?', 'rest'], // the third way
 ]
 ```
-注：第三种方式需要 [think-router](https://github.com/thinkjs/think-router) 的版本 `>=1.0.17`。
+Note: The third way requires the version `>= 1.0.17` of [think-router] (https://github.com/thinkjs/think-router).
 
-上面自定义路由的含义为：
+The meaning of custom router above is:
 
-* `/\/user(?:\/(\d+))?/` URL 的正则
-* `user?id=:1` 映射后要解析的路由，:1 表示取正则里的 (\d+) 的值
-* `rest` 表示为 REST API
+* `/\/user(?:\/(\d+))?/` URL regular
+* `user?id=:1` Map to parse the route, :1 means take the regular (\d+) value.
+* `rest` represented as REST API
 
-通过自定义路由，将 `/user/:id` 相关的请求指定为 REST Controller，然后就可以对其访问了。
+By custom router, the request for `/user/:id` is specified as a REST Controller and then accessed.
 
 
+* `GET /user` get user list and performing `getAction`
+* `GET /user/:id` get a user's detail by performing `getAction`
+* `POST /user` add a user by performing `postAction`
+* `PUT /user/:id` update a user by performing `putAction`
+* `DELETE /user/:id` delete a user by performing `deleteAction`
 
-* `GET /user` 获取用户列表，执行 `getAction`
-* `GET /user/:id` 获取某个用户的详细信息，执行 `getAction`
-* `POST /user` 添加一个用户，执行 `postAction`
-* `PUT /user/:id` 更新一个用户，执行 `putAction`
-* `DELETE /user/:id` 删除一个用户，执行 `deleteAction`
-
-如果有一系列路由都是 RESTful 路由的话，每次都添加自定义路由势必有些麻烦，这时候可以修改一下自定义路由的配置文件，例如：
+If there is a series of routes are RESTful route, adding custom router each time is very troublesome, then you can modify the custom router configuration file, for example:
 
 ```js
 module.exports = [
   [/\/api\/(\w+)(?:\/(\d+))?/, 'api/:1?id=:2', 'rest']
 ];
 ```
-这样表示所有以 `/api` 开头的二级路由都会被指定成 RESTful 路由。
+This means that all secondary routes starting with `/ api` will be designated as RESTful routes.
 
-### 数据校验
+### Data validation
 
-Controller 里的方法执行时并不会对传递过来的数据进行校验，数据校验可以放在 Logic 里处理，文件为 `src/logic/user.js`，具体的 Action 与 Controller 里一一对应。具体的使用方式请见 [Logic](/doc/3.0/logic.html)。
+The method in Controller doesn't check the data passed in. The data check can be processed in Logic. The file is `src/logic/user.js`, and the corresponding Action and Controller are in one-to-one correspondence. Specific instructions see the [Logic](/doc/3.0/logic.html).
 
-### 子级 RESTful API
+### Sub-RESTful API
 
-有时候有子级 RESTful API，如：某篇文章的评论接口，这时候可以通过下面的自定义路由完成：
+Sometimes there need sub-RESTful API, such as interface of comments on an article, this time can be done through the following custom router:
 
 ```js
 module.exports = [
@@ -76,7 +75,7 @@ module.exports = [
 ]
 ```
 
-这样在对应的 Action 里，可以通过 `this.get("postId")` 来获取文章的 id，然后放在过滤条件里处理即可。
+So in the corresponding Action, you can get the article's id by `this.get("postId")`, and then you can handle it by placing the id in the filter.
 
 ```js
 const Rest = require('./rest.js');
@@ -96,22 +95,22 @@ module.exports = class extends Rest {
 }
 ```
 
-### 多版本 RESTful API
+### Multi-version RESTful API
 
-有些 REST API 有时候前后不能完全兼容，需要有多个版本，这时候也可以通过自定义路由管理，如：
+Sometimes, some REST APIs are not fully compatible with the previous versions or later versions, so you need to have multiple versions. You can also customize router management at this time, for example:
 
 ```js
 module.exports = [
-  [/\/v1\/user(?:\/(\d+))?/, 'v1/user?id=:1', 'rest'], //v1 版本
-  [/\/v2\/user(?:\/(\d+))?/, 'v2/user?id=:1', 'rest']  //v2 版本
+  [/\/v1\/user(?:\/(\d+))?/, 'v1/user?id=:1', 'rest'], //v1 version
+  [/\/v2\/user(?:\/(\d+))?/, 'v2/user?id=:1', 'rest']  //v2 version
 ]
 ```
 
-这时候只要在 `src/controller/` 下建立子目录 `v1/` 和 `v2/` 即可，执行时会自动查找，具体见 [多级控制器](/doc/3.0/controller.html#toc-04e)。
+This time as long as create subdirectory `v1/` and `v2/` inside `src/controller/`, the implementation will automatically find. Specific instructions see the [multi-level controller](/doc/3.0/controller.html#toc-04e).
 
-### Mongo 的 RESTful API
+### RESTful API of Mongo
 
-由于 Mongo 的 id 并不是纯数字的，所以处理 Mongo 的 RESTful API 时只需要修改下对应的正则即可（将 \d 改为 \w）：
+Because Mongo's id isn't purely numeric, you only need to change the corresponding regular expression when dealing with Mongo's RESTful API (change `\d` to `\w`):
 
 ```js
 module.exports = [
@@ -119,8 +118,9 @@ module.exports = [
 ]
 ```
 
-### 常见问题
+### FAQ
 
-#### 怎么查看 RESTful API 的自定义路由已经生效？
+#### How to check RESTful API's custom router has taken effect?
 
-有时候添加 RESTful Controller 和自定义路由后，访问并没有生效，这时候可以通过 `DEBUG=think-router npm start` 启动服务查看解析后的 controller 和 action 看其是否生效，具体请见[怎么查看当前地址解析后的 controller 和 action 分别对应什么？](/doc/3.0/router.html#toc-54f)
+Sometimes after adding the RESTful Controller and custom router, the access doesn't take effect. In this case, you can start the service through `DEBUG=think-router npm start` to check whether the parsed controller and action take effect. For details, see the [How to know what the controller and action are for the current address after the resolution?](/doc/3.0/router.html#toc-54f).
+
