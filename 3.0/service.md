@@ -1,12 +1,12 @@
-## Service / 服务
+## Service
 
-项目中，有时候除了查询数据库等操作外，也需要调用远程的一些接口，如：调用 GitHub 的接口、调用发送短信的接口等等。
+In the project, in addition to query the database and other operations, sometimes also need to call some remote interfaces, such as: call GitHub interface, call sending text messages interface and so on.
 
-这种功能放在 Model 下是不太合适的，为此，框架提供了 Service 来解决此类问题。
+These functions aren't appropriate inside the model, so the framework provides Service to solve such problems.
 
-### 创建 Service 文件
+### Create Service document
 
-Service 文件存放在 `src/service/` （多模块在 `src/common/service/`）目录下，文件内容格式如下：
+Service files stored in `src/service/`(`src/common/service/` in multi-module project) directory, the contents of the file as follows:
 
 ```js
 module.exports = class extends think.Service {
@@ -18,17 +18,18 @@ module.exports = class extends think.Service {
   }
 }
 ```
-Service 都继承 `think.Service` 基类，但该基类不提供任何方法，可以通过 Extend 进行扩展。
 
-可以在项目根目录下通过 `thinkjs service xxx` 命令创建 service 文件，支持多级目录。
+Service inherits `think.Service` base class, but the base class does not provide any function, you can use Extend to expand.
 
-### 实例化 Service 类
+You can create the service file in the root directory of the project through `thinkjs service xxx` command, which supports multi-level directories.
 
-可以通过 `think.service` 方法实例化 Service 类，在控制器、ctx 也有对应的 `service` 方法，如：`ctx.service`、`controller.service`，这些方法都是 think.service 的快捷方式。
+### Instantiate the Service class
 
-项目启动时，会扫描项目下所有的 services 文件，并存放到 `think.app.services` 对象下，实例化时会从该对象上查找对应的类文件，如果找不到则报错。
+The `think.service` method can be used to instantiate a Service class. In the controller, ctx also has a corresponding `service` method, such as `ctx.service`, `controller.service`, which are shortcuts to think.service .
 
-#### 无参数类的实例化
+When the project starts, it will scan all the services under the project file, and stored in the object `think.app.services`. Instantiation from the object to find the corresponding class file, if not found an error.
+
+#### Instantiation without parameter class
 
 ```js
 // src/service/sms.js
@@ -38,12 +39,12 @@ module.exports = class extends think.Service {
   }
 }
 
-// 实例化，没有任何参数
+// instantiation with no parameter
 const sms = think.service('sms');
 sms.xxx();
 ```
 
-#### 有参数类的实例化 
+#### Instantiation with parameter class
 
 ```js
 // src/service/sms.js
@@ -58,12 +59,12 @@ module.exports = class extends think.Service {
   }
 }
 
-// 带参数的实例化
+// instantiation with parameter
 const sms = think.service('sms', key, secret);
 sms.xxx();
 ```
 
-#### 多模块项目的实例化
+#### Instantiation in multi-module project
 
 ```js
 // src/home/service/sms.js
@@ -78,11 +79,11 @@ module.exports = class extends think.Service {
   }
 }
 
-// 指定从 home 下查找 service 类
+// specified from home to find the service class
 const sms = think.service('sms', 'home', key, secret);
 ```
 
-#### 多级目录的实例化
+#### Instantiation of multi-level directory
 
 ```js
 // src/service/aaa/sms.js
@@ -95,16 +96,16 @@ module.exports = class extends think.Service {
 const sms = think.servie('aaa/sms');
 ```
 
-### 扩展 Service 类的方法
+### Extending Service class method
 
-基类 think.Service 没有提供任何的方法，但实际中需要用到很多常用的方法，如：从远程接口获取数据的模块，处理完数据后将数据更新到数据库的操作。这个时候可以通过对应的扩展来加强 think.Service 类的功能，如：
+The base class `think.Service` doesn't provide any method, but you need to use many common methods in fact, such as: get data from the remote interface module, update data to the database after the data processing operations. At this point you can enhance the `think.Service` class through the corresponding extensions, such as:
 
-* [think-fetch](https://github.com/thinkjs/think-fetch) 模块让 think.Service 类有了 `fetch` 方法，这样很方便获取远程的数据
-* [think-model](https://github.com/thinkjs/think-model) 模块让 think.Service 类有了 `model` 方法，这样可以快速的操作数据库
+* [think-fetch](https://github.com/thinkjs/think-fetch) module allows `think.Service` class to have a `fetch` method so it's easy to get remote data.
+* [think-model](https://github.com/thinkjs/think-model) module makes `think.Service` class have a `model` method, which allows for quick manipulation of the database.
 
-这些模块都是 Extend/扩展，可以增强 think.Service 类的能力。
+These modules are Extend that enhance the ability of the `think.Service` class.
 
-当然项目中也可以根据需要扩展 think.Service 类，如：
+Of course, the project can also extend `think.Service` class according to the need, such as:
 
 ```js
 // src/extend/service.js
@@ -115,15 +116,15 @@ module.exports = {
 }
 ```
 
-通过在扩展文件 `src/extend/service.js`（多模块项目为 `src/common/extend/service.js`）添加对应的方法，增强 `think.Service` 类的能力，这样在 `src/service/xxx.js` 中就可以直接使用这些方法了。
+Enhance the ability of the `think.Service` class by adding the corresponding method in the extension file `src/extend/service.js` (`src/common/extend/service.js` in multi-module project). Then this can be used directly in `src/service/xxx.js`.
 
 ```js
 // src/service/sms.js
 module.exports = class extends think.Service {
   async xxx() {
-    const data = await this.getDataFromApi(); // 这个访问为 extend/service.js 里扩展的方法
+    const data = await this.getDataFromApi(); //Here to visit extended method in extended/service.js
   }
 }
 ```
 
-如果这些扩展的方法比较通用，那么就可以整理成一个 Extend 模块发布，其他项目引入这个模块就可以了，具体见 [Extend/扩展](/doc/3.0/extend.html)。
+If these extension methods are more general, then you can organize them into a `Extend` module release, other projects want to use just introduce this module. For details, see the [Extend/扩展](/doc/3.0/extend.html).
