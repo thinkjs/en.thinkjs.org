@@ -1,26 +1,26 @@
-## think 对象
+## think object
 
-框架中内置 `think` 全局对象，方便在项目中随时随地使用。
+Frame built-in global object `think`, easy to use in the project anytime, anywhere.
 
 ### API
 
 #### think.app
 
-`think.app` 为 Koa [Application](https://github.com/koajs/koa/blob/master/lib/application.js#L61) 对象的实例，系统启动时生成。
+`think.app` is an instance of Koa [Application](https://github.com/koajs/koa/blob/master/lib/application.js#L61) object, generated at system startup.
 
-此外为 app 扩展了更多的属性。
+In addition, more attributes have been extended for the app.
 
-* `think.app.think` 等同于 think 对象，方便有些地方传入了 app 对象，同时要使用 think 对象上的其他方法
-* `think.app.modules` 模块列表，单模块项目下为空数组
-* `think.app.controllers` 存放项目下的 controller 文件，便于后续快速调用
-* `think.app.logics` 存放项目下的 logic 文件
-* `think.app.models` 存放项目下的模型文件
-* `think.app.services` 存放 service 文件
-* `think.app.routers` 存放自定义路由配置
-* `think.app.validators` 存放校验配置
-* `think.app.server` 创建 HTTP 服务后的 server 对象
+* `think.app.think` is equivalent to the think object. Make it easy to use other methods on the think object where the app object is passed in.
+* `think.app.modules` list of modules, empty array in single module project
+* `think.app.controllers` save the controller file in the project, for quick follow-up call
+* `think.app.logics` stores logic files in the project
+* `think.app.models` stores model files in the project
+* `think.app.services` stores service files
+* `think.app.routers` stores custom router configuration
+* `think.app.validators` stores calibration configuration
+* `think.app.server` the server object after creating the HTTP service
 
-如果想要查下这些属性具体的值，可以在 `appReady` 事件中进行。
+If you want to check the value of these properties, you can do it in the `appReady` event.
 
 ```js
 think.app.on('appReady', () => {
@@ -30,7 +30,7 @@ think.app.on('appReady', () => {
 
 #### think.ROOT_PATH
 
-项目的根目录，其他目录可以通过该目录来生成，如：
+The root directory of the project, other directories can be generated through this, such as:
 
 ```js
 const runtimePath = path.join(think.ROOT_PATH, 'runtime/');
@@ -39,40 +39,39 @@ const viewPath = path.join(think.ROOT_PATH, 'view/');
 
 #### think.APP_PATH
 
-APP 根目录，默认为 `${think.ROOT_PATH}/app`，如果项目不需要转译的话，那么默认路径为：`${think.ROOT_PATH}/src`。
-
+APP root directory, the default is `${think.ROOT_PATH}/app`. If the project doesn't need to translate, the default path is: `${think.ROOT_PATH}/src`.
 
 #### think.env
 
-当前运行环境，等同于 `think.app.env`，值在 `development.js` 之类的入口文件中定义。
+The current runtime, equivalent to `think.app.env`, is defined in the portal file like `development.js`.
 
 #### think.version
 
-当前 ThinkJS 的版本号。
+The current ThinkJS version number.
 
 #### think.config(name, value, m)
 
-* `name` {String} 配置名
-* `value` {Mixed} 配置值
-* `m` {String} 模块名，多模块项目下使用
+* `name` {String} key to be configured
+* `value` {Mixed} value to be configured
+* `m` {String} module name, used in multi-module project
 
-读取或者设置配置，该功能由 [think-config](https://github.com/thinkjs/think-config) 模块实现。在 context、controller、logic 上可以直接通过 `this.config` 方法来操作配置。
+Read or set the configuration, this function is implemented by the [think-config](https://github.com/thinkjs/think-config) module. In the context, controller, logic can be directly through the `this.config` method to operate the configuration.
 
 ```js
-// 获取配置
+// get configuration
 const value1 = think.config('name');
-// 指定模块获取配置，多模块项目下有效
+// get the specified module configuration, valid in multi-module project
 const value2 = think.config('name', undefined, 'admin');
 
-// 设置配置
+// set configuration
 think.config('name', 'value');
-// 指定模块设置配置值
+// specify the module setting configuration value
 think.config('name', 'value', 'admin');
 ```
 
 #### think.Controller
 
-控制器基类，其他控制器类继承该类。
+Controller base class, other controller classes inherit this class.
 
 ```js
 // src/controller/user.js
@@ -85,7 +84,7 @@ module.exports = class userController extends think.Controller {
 
 #### think.Logic
 
-Logic 基类，继承自 `think.Controller`。
+Logic base class, inherited from `think.Controller`.
 
 ```js
 // src/logic/user.js
@@ -98,7 +97,7 @@ module.exports = class userLogic extends think.Logic {
 
 #### think.Service
 
-Service 基类，其他 Service 类继承该类。
+Service base class, other service classes inherit this class.
 
 ```js
 // src/service/sms.js
@@ -109,11 +108,11 @@ module.exports = class extends think.Service {
 
 #### think.service(name, m, ...args)
 
-* `name` {String} Service 名称
-* `m` {String} 模块名，多模块项目下有效
-* `...args` {Array} 实例化 Service 类需要的参数。单模块项目下，会把 `m` 参数补充导 args 里。
+* `name` {String} Service name
+* `m` {String} module name, valid in multi-module project
+* `...args` {Array} instantiate the required parameters for the Service class. In the single-module project, the `m` parameter is supplemented with args.
 
-实例化 Service 类，如果导出的对象不是个类，那么直接返回。
+Instantiate the Service class, if the exported object is not a class, then return directly.
 
 ```js
 const instance1 = think.service('sms');
@@ -122,16 +121,16 @@ const instance2 = think.service('sms', 'admin');
 
 #### think.beforeStartServer(fn)
 
-* `fn` {Function} 要注册的函数名
+* `fn` {Function} function name to register
 
-服务启动之前要注册执行的函数，如果有异步操作，fn 需要返回 Promise。
+Functions registered and executed before the service is started, fn needs to return Promise if there is an asynchronous operation.
 
 #### think.isArray(array)
 
-* `array` {any} 判断输入是否是数组
+* `array` {any} determine whether the input is an array
 * `return` {Boolean}
 
-判断是否是数组，等同于 `Array.isArray`。
+Determine whether it is an array, equivalent to `Array.isArray`.
 
 ```js
 think.isArray([]); // true
@@ -142,7 +141,7 @@ think.isArray({}); // false
 
 * `boolean` {any}
 
-判断输入是否是布尔值
+Determine whether the input is a Boolean value
 
 ```js
 think.isBoolean(false); // true
@@ -152,25 +151,25 @@ think.isBoolean(false); // true
 
 * `any` {any}
 
-判断输入的是否是整数
+Determine whether the input is an integer.
 
 #### think.isNull(any)
 
 * `any` {any}
 
-判断输入是 `null`，也可以直接通过 `xxx === null` 来判断。
+Determine the input is `null`, you can also directly determine the `xxx == null`.
 
 #### think.isNullOrUndefined(any)
 
 * `any` {any}
 
-判断输入是 `null` 或者 `undefined`
+Determine the input is `null` or `undefined`.
 
 #### think.isNumber(number)
 
 * `number` {any}
 
-判断输入是否是数字
+Determine whether the input is a number.
 
 ```js
 think.isNumber(1); // true
@@ -180,83 +179,83 @@ think.isNumber(1); // true
 
 * `str` {any}
 
-判断输入是是否是字符串
+Determine whether the input is String.
 
 #### think.isSymbol(any)
 
 * `any` {any}
 
-判断输入是是否是 Symbol 类型
+Determine whether the type of input is Symbol.
 
 #### think.isUndefined(any)
 
 * `any` {any}
 
-判断输入是是否是 undefined，也可以直接通过 `xxx === undefined` 来判断。
+Determine whether the input is undefined, you can also directly determine the `xxx == undefined`.
 
 #### think.isRegExp(reg)
 
 * `reg` {any}
 
-判断输入是是否是正则对象
+Determine whether the input is a RegExp object.
 
 #### think.isDate(date)
 
 * `date` {any}
 
-判断输入是是否是日期对象
+Judge whether the input is a Date object.
 
 #### think.isError(error)
 
 * `error` {any}
 
-判断输入是是否是Error类型
+Determining whether the type of input is Error.
 
 #### think.isFunction(any)
 
 * `any` {any}
 
-判断输入是是否是函数类型
+Determine whether the type of input is Function.
 
 #### think.isPrimitive(any)
 
 * `any` {any}
 
-判断输入是是否是原始类型，包含：`null`、`string`、`boolean`、`number`、`symbol`、`undefined`。
+Determine whether the input is of primitive type, including: `null`, `string`, `boolean`, `number`, `symbol`, `undefined`.
 
 #### think.isIP(ip)
 
 * `ip` {String}
 
-判断一个字符串是否是 ip 地址，IP v4 或者 IP v6，等同于 `net.isIP`。
+Determine whether a string is ip address, IP v4 or IP v6, equivalent to `net.isIP`.
 
 #### think.isBuffer(buffer)
 
 * `buffer` {any}
 
-判断输入是否是一个Buffer对象，等同于 `Buffer.isBuffer`。
+Determine whether the input is a Buffer object, equivalent to `Buffer.isBuffer`.
 
 #### think.isIPv4(ip)
 
 * `ip` {String}
 
-判断一个字符串是否是 IP v4 地址，等同于 `net.isIPv4`。
+Determine whether a string is an IP v4 address, equivalent to `net.isIPv4`.
 
 #### think.isIPv6(ip)
 
 * `ip` {String}
 
-判断一个字符串是否是 IP v6 地址，等同于 `net.isIPv6`
+Determine whether a string is an IP v6 address, equivalent to `net.isIPv6`.
 
 #### think.isMaster
 
-判断当前进程是否为主进程，等同于 `cluster.isMaster`
+Determine whether the current process is the main process, equivalent to `cluster.isMaster`.
 
 #### think.isObject(obj)
 
 * `obj` {any}
 
-判断一个输入是否为 Object，通过 Object.prototype.toString.call(obj) 是否为 `[object Object]` 判断
+Determine whether an input is an Object, by `Object.prototype.toString.call(obj)` is `[Object Object]` to determine.
 
 ```js
 think.isObject({}); // true
@@ -266,10 +265,10 @@ think.isObject(null); // false
 
 #### think.promisify(fn, receiver)
 
-* `fn` {Function} 要包装的函数
-* `receiver` {Object} 要绑定作用域的对象
+* `fn` {Function} function will be wrapped
+* `receiver` {Object} the object will be bound
 
-此方法把一个 callback 函数包装 成Promise
+This method wraps a callback function as Promise.
 
 ```js
 let fn = think.promisify(fs.readFile, fs);
@@ -278,10 +277,10 @@ let data = await fn(__filename);
 
 #### think.extend(target,...any)
 
-* `target` {Object} 要extend的目标对象
-* `...any` {Object} 可以有任意多个对象
+* `target` {Object} to extend the target object
+* `...any` {Object} there can be any number of objects
 
-深拷贝对象，如果 key 相同，那么后面的值会覆盖前面的值。
+Deep copy of the object, if the key is the same, then the value will be overwritten with the previous value.
 
 ```js
 think.extend({a: 1}, {b: 2});
@@ -295,7 +294,7 @@ think.extend({a: 1}, {a: 2});
 
 * `str` {String}
 
-把字符串转成驼峰表示法
+Turn snake case into camel case.
 
 ```js
 think.camelCase('index_index');
@@ -306,7 +305,7 @@ think.camelCase('index_index');
 
 * `str` {String}
 
-把驼峰写法转化为蛇形写法
+Turn camel case into snake case.
 
 ```js
 think.snakeCase('indexIndex');
@@ -317,7 +316,7 @@ think.snakeCase('indexIndex');
 
 * `str` {String}
 
-判断输入是不是一个字符串类型的数字
+Determine whether the input is a string type of number.
 
 ```js
 think.isNumberString('419');
@@ -328,7 +327,7 @@ think.isNumberString('419');
 
 * `any` {any}
 
-判断是否是真正的空，`undefined`、`null`、`''`、`NaN` 为 true，其他为 false。
+Determine whether the real empty, `undefined`, `null`, `''`, `NaN` is true, the other is false.
 
 ```js
 think.isTrueEmpty(null);
@@ -339,7 +338,7 @@ think.isTrueEmpty(null);
 
 * `any` {any}
 
-判断对象是否为空， `undefined`, `null` ,`''`, `NaN`, `[]`, `{}`, `0`, `false` 为 true，其他为 false。
+Determine whether the object is empty, `undefined`, `null` ,`''`, `NaN`, `[]`, `{}`, `0`, `false` is true, the other is false.
 
 ```js
 think.isEmpty(null);
@@ -348,7 +347,7 @@ think.isEmpty(null);
 
 #### think.defer()
 
-生成一个 Deferred 对象。
+Generate a Deferred object.
 
 ```js
 function test() {
@@ -366,10 +365,10 @@ test().then((result)=>{
 
 #### think.omit(obj, props)
 
-* `obj` {Object} 要操作的对象
-* `props` {String | Array} 要忽略的属性，如果是字符串，多个值用逗号隔开
+* `obj` {Object} the object to manipulate
+* `props` {String | Array} attributes to ignore, if a string, separate multiple values with commas
 
-忽略对象中的某些属性，返回新的对象
+Ignore some of the properties in the object and return a new object.
 
 ```js
 const value = think.omit({a: 1, b: 2, c: 3}, 'a,b');
@@ -380,13 +379,13 @@ const value = think.omit({a: 1, b: 2, c: 3}, 'a,b');
 
 * `str` {String}
 
-计算字符串的 md5 值。
+Calculates the md5 value of the string.
 
 #### think.timeout(num)
 
-* `num`{Number} 时间，单位为毫秒
+* `num`{Number} time, in milliseconds
 
-将 setTimeout 包装为 Promise
+Package setTimeout as Promise.
 
 ```js
 think.timeout(1000).then(()=>{
@@ -399,14 +398,14 @@ think.timeout(1000).then(()=>{
 
 * `str` {String}
 
-对字符串进行 HTML 转义，转义 `<`、`>`、`"`、`'` 字符。
+Escape the string of HTML, escape `<`、`>`、`"`、`'` characters.
 
 #### think.datetime(date, format)
 
 * `data` {Date}
 * `format` {String} default 'YYYY-MM-DD HH:mm:ss'
 
-返回一个格式化日期
+Return a formatted date.
 
 ```js
 think.datetime(1501406894849)
@@ -417,7 +416,7 @@ think.datetime(1501406894849)
 * `version` {String} v1|v4
 * `return` {String}
 
-生成 uuid 字符串，符合 [RFC4122](http://www.ietf.org/rfc/rfc4122.txt) 规范，基于 [uuid](https://github.com/kelektiv/node-uuid) 模块。
+Generate uuid strings, conforming to [RFC4122](http://www.ietf.org/rfc/rfc4122.txt) specifications, based on [uuid](https://github.com/kelektiv/node-uuid) module.
 
 #### think.ms(str)
 
@@ -425,6 +424,7 @@ think.datetime(1501406894849)
 * `return` {Number}
 
 把一个语义化的时间转成毫秒，如果转换失败则抛异常，使用 [ms](https://github.com/zeit/ms) 库转换。
+Turn a semantic time into milliseconds, throw an exception if the conversion fails, and use the [ms](https://github.com/zeit/ms) library conversion.
 
 ```js
 think.ms('2 days')  // 1d,10h,1y
@@ -435,7 +435,7 @@ think.ms('2 days')  // 1d,10h,1y
 
 * `path` {String}
 
-检测路径是否存在
+Check whether the path exists.
 
 ```js
 think.isExist('/usr/local/bin/node')
@@ -446,7 +446,7 @@ think.isExist('/usr/local/bin/node')
 
 * `filepath` {String}
 
-检测是否是一个文件路径
+Check if it is a file path.
 
 ```js
 think.isFile('/usr/local/bin/node')
@@ -457,7 +457,7 @@ think.isFile('/usr/local/bin/node')
 
 * `filepath` {String}
 
-检测是否是一个文件夹路径
+Check if it is a folder path.
 
 ```js
 think.isDirectory('/usr/local/bin')
@@ -469,7 +469,7 @@ think.isDirectory('/usr/local/bin')
 * `path` {String}
 * `mode` {String} default '0777'
 
-改变文件或文件夹的权限
+Change the permissions of a file or folder.
 
 ```js
 think.chmod('/usr/local/bin', '0775')
@@ -477,11 +477,11 @@ think.chmod('/usr/local/bin', '0775')
 
 #### think.mkdir(path, mode)
 
-* `path` {String} 要创建的目录
-* `mode` {String} 文件夹权限，默认为 `0777`
+* `path` {String} the directory to create
+* `mode` {String} folder permissions, the default is `0777`
 * `return` {Boolean}
 
-创建文件夹。创建成功返回 true, 失败返回 false。
+Create a folder. Return true if created successfully, false otherwise.
 
 ```js
 think.mkdir('/usr/local/bin/thinkjs', '0775')
@@ -489,11 +489,11 @@ think.mkdir('/usr/local/bin/thinkjs', '0775')
 
 #### think.getdirFiles(dir, prefix)
 
-* `dir` {String} 文件夹路径
-* `prefix` {String} 路径前缀
-* `return` {Array} 包含所有文件的数组
+* `dir` {String} folder path
+* `prefix` {String} path prefix
+* `return` {Array} an array containing all files
 
-获取文件夹下的所有文件。
+Get all the files under the folder.
 
 ```js
 think.getdirFiles('/usr/local/bin')
@@ -503,21 +503,21 @@ think.getdirFiles('/usr/local/bin')
 #### think.rmdir(path, reserve)
 
 * `path` {String}
-* `reserve` {Boolean} 是否保留当前的文件夹，只删除文件夹下的文件
+* `reserve` {Boolean} whether to retain the current folder, delete only the files under the folder
 
-删除文件夹和文件夹下的文件，异步操作。
+Delete folders and folders under the file, asynchronous operation.
 
 ```js
 think.rmdir('/usr/local/bin/thinkjs', true).then(()=>{
-  console.log('删除完成')
+  console.log('Delete completed.')
 })
 ```
 
-### 常见问题
+### FAQ
 
-#### think 对象是否推荐在插件里使用？
+#### Is it recommended to use the think object in the plugin?
 
-不建议在插件里（middleware、adapter、extend）里直接使用 think 对象，那样会让插件代码不方便单元测试。如果非要使用的话可以传入 `app` 对象，然后通过 `app.think.xxx` 来使用 think 对象上的属性或者方法。
+It is not recommended to use the think object directly in the middleware, adapter, extend, which will make the plug-in code inconvenient for unit testing. If you want to use the `app` object can be passed in, and then use the `app.think.xxx` attributes or methods on the think object.
 
 ```js
 // src/config/middleware.js
@@ -531,9 +531,9 @@ module.exports = [
 // xxx middleware
 module.exports = (options, app) => {
   return (ctx, next) => {
-    // 通过 app.think.modules 获取项目的模块列表
+    // get the list of modules for the project via app.think.modules
     const modules = app.think.modules;
-    // 如果是多模块项目下（单模块项目长度始终为 0）
+    // If it is a multi-module project (single-module project length is always 0)
     if(modules.length) {
 
     }

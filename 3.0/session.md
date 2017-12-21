@@ -1,6 +1,6 @@
 ## Session
 
-WEB requests are often maintained through the session, Thinkjs through the [think-session](https://github.com/thinkjs/think-session) and Adapter to support the session function.
+WEB requests are often maintained through the session, ThinkJS through the [think-session](https://github.com/thinkjs/think-session) and Adapter to support the session function.
 
 ### Configure extensions and Adapter
 

@@ -1,6 +1,6 @@
 ## Relation Model
 
-During project development, you always need to manipulate database tables, thus involes CRUD operations, but Spelling SQL statements manually is very troublesome. Meanwhile，you also need pay attention to the security issue like SQL injection. Thinkjs provides the model function to facilitate the operation of the database.
+During project development, you always need to manipulate database tables, thus involes CRUD operations, but Spelling SQL statements manually is very troublesome. Meanwhile，you also need pay attention to the security issue like SQL injection. ThinkJS provides the model function to facilitate the operation of the database.
 
 ### Extend model
 
@@ -54,7 +54,7 @@ const user3 = think.model('user', 'sqlite'); // use sqlite configuration
 const user4 = think.model('user', 'postgresql'); // use postgresql configuration
 ```
 
-As you can call the specified `type`, in theory, Thinkjs support an unlimited number of types of configuration, the project can be configured as needed.
+As you can call the specified `type`, in theory, ThinkJS support an unlimited number of types of configuration, the project can be configured as needed.
 
 #### Mysql
 
