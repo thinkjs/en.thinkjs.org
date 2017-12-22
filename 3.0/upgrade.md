@@ -1,42 +1,40 @@
-## 升级指南
+## Upgrade guide
 
-本文档为 2.x 升级到 3.x 的文档，由于本次升级接口改动较大，所以无法平滑升级。本文档更多的是介绍接口变化指南。
+This document is from 2.x to 3.x and can not be smoothly upgraded due to the large interface changes in this upgrade. This document is more about the interface change guide.
 
-### 变化列表
-#### 核心变化
+### Change list
+#### Core changes
 
-3.0 抛弃了 2.x 的核心架构，基于 Koa 2.x 版本构建，兼容 Koa 里的所有功能。主要变化为：
+3.0 abandoned the core architecture of 2.x, built on Koa 2.x and compatible with all the features in Koa. The main changes are:
 
-* 之前的 `http` 对象改为 `ctx` 对象
-* 执行完全改为调用 `middleware` 来完成
-* 框架内置的很多功能不再默认内置，可以通过扩展来支持
+* the previous `http` object was changed to` ctx` object
+* execution is done entirely by calling `middleware`
+* many of the built-in features in the framework are no longer built-in by default and can be extended with extensions
 
-#### 项目启动
+#### Project begining
 
-2.x 中项目启动时，会自动加载 `src/bootstrap/` 目录下的所有文件。3.0 中不再自动加载所有的文件，而是改为：
+When the 2.x project starts, all the files in the `src/bootstrap/` directory are automatically loaded. 3.0 no longer automatically load all the files, but instead:
 
-* 在 Master 进程中加载 `src/boostrap/master.js` 文件
-* 在 Worker 进程中加载 `src/boostrap/worker.js` 文件
+* load the `src/boostrap/master.js` file in the Master process
+* load the `src/boostrap/worker.js` file in the Worker process
 
-如果还要加载其他的文件，那么可以在对应的文件中使用 `require` 方式引入进去。
+If you want to load other files, you can use the `require` method in the corresponding file to import it.
 
-#### 配置
+#### Configuration
 
-2.x 中会自动加载 `src/config/` 目录下的所有文件，3.0 中改为根据功能加载对应的文件。
+2.x will automatically load all files in the `src/config/` directory, 3.0 to load the corresponding file according to the function.
 
-#### hook 和 middleware
+#### hook and middleware
 
-移除 2.x 里的 hook 和 middleware，改为 Koa 里的 middleware，middleware 的管理放在 `src/config/middleware.js` 配置文件中。
-
-2.x 下的 middleware 类无法在 3.0 下使用，3.0 下可以直接使用 Koa 的 middleware。
+Remove hooks and middleware in 2.x, change to middleware in Koa, manage middleware in `src/config/middleware.js` config file.
 
 #### Controller
 
-将基类 `think.controller.base` 改为 `think.Controller`，并移除 `think.controller.rest` 类。
+Change the base class `think.controller.base` to `think.Controller` and remove the `think.controller.rest` class.
 
 #### Model
 
-将基类 `think.model.base` 改为 `think.Model`。
+Change the base class `think.model.base` to `think.Model`。
 
 #### View
 
@@ -46,7 +44,7 @@
 
 #### 阻止后续执行
 
-移除了 `think.prevent` 等阻止后续执行的方法，替换为在 `__before`、`xxxAction`、`__after` 中返回 `false` 来阻止后续代码继续执行。 
+移除了 `think.prevent` 等阻止后续执行的方法，替换为在 `__before`、`xxxAction`、`__after` 中返回 `false` 来阻止后续代码继续执行。
 
 #### 错误处理
 
