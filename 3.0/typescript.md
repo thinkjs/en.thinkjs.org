@@ -1,23 +1,25 @@
 ## TypeScript
 
-[TypeScript](http://www.typescriptlang.org/) 是一种由微软开发的自由和开源的编程语言。它是 JavaScript 的一个超集，向这个语言添加了可选的静态类型，在大型项目里非常有用。
+[TypeScript](http://www.typescriptlang.org/) is a free and open source programming language developed by Microsoft. It's a superset of JavaScript, adding optional static types to the JavaScript, which is great for large projects.
 
-ThinkJS 3.2 开始支持了创建 TypeScript 类型的项目，并且开发时会自动编译、自动更新，无需手工编译等复杂的操作。如果希望了解更多实现细节，请参考 [ThinkJS 3.0 如何实现对 TypeScript 的支持](https://zhuanlan.zhihu.com/p/31057738)
+ThinkJS 3.2 began to support users to create TypeScript type of project, and the development will automatically compile, automatically update, without manual compilation and other complex operations. If you want to know more implementation details, refer to [ThinkJS 3.0 如何实现对 TypeScript 的支持](https://zhuanlan.zhihu.com/p/31057738).
 
-### 创建 TypeScript 项目
+### Create TypeScript project
 
-[think-cli](http://github.com/thinkjs/think-cli)  版本 2.1.1 以后可以以下命令来创建 TypeScript 项目：
+Think-cli after version 2.1.1 can create a TypeScript project with the following command:
 
 ```sh
 thinkjs new project-name typescript
 ```
 
-### 引入 Extend 模块定义
-用 think-cli 生成 TypeScript 项目模板之后（下文统称项目模板），会自动生成 `src/index.ts` 文件, 在这里需要配置项目用到了那些 Extend 模块，这样 TS 的智能感知才会生效。
+### Introduced Extend module definition
+
+After generating a TypeScript project template with think-cli (hereinafter collectively referred to as the project template), the `src/index.ts` file is generated automatically. Here you need to configure which Extend modules are used by the project so that TS's IntelliSense will take effect.
+
 ``` js
 import * as ThinkJS from '../node_modules/thinkjs';
 
-// 项目 Extend 模块
+// Extend module in project
 import './extend/controller';
 import './extend/logic';
 import './extend/context';
@@ -25,18 +27,18 @@ import './extend/think';
 import './extend/service';
 import './extend/application';
 import './extend/request';
-import './extend/response'; 
+import './extend/response';
 
-// 外部 Extend 模块
+// external Extend module
 import 'think-view';
 import 'think-model';
 import 'think-i18n';
-// 更多 extend 模块 参考 [think-awesome](https://github.com/thinkjs/think-awesome)
+// more extend module reference [think-awesome](https://github.com/thinkjs/think-awesome)
 
 export const think = ThinkJS.think;
 ```
 
-### 获取 model 和 service 类型
+### Get the model and service types
 ```js
 // in controller
 import { think } from 'thinkjs';
@@ -52,7 +54,9 @@ export default class extends think.Controller {
 ```
 
 ### TSLint
-TypeScript 的项目编写风格与 JavaScript 的非常接近，只要进过一段时间的上手就能适应。我们还基于 ThinkJS 项目的特点配置了一套 TSLint 的规则包含在项目模板里。使用 TSLint 能更快速的在团队里实施规范，并保护代码。
 
-### 编译部署
-在开发环境可以使用 `think-typescript` 编译，还支持 `tsc` 直接编译, 编译后的代码和 JS 版本是通用的。
+TypeScript and JavaScript project writing style is very close, as long as you get used to it after a period of time to adapt. We also configured a set of TSLint rules based on the characteristics of the ThinkJS project to include in the project template. Use TSLint to more quickly enforce specifications and protect code in teams.
+
+### Compile and deploy
+
+In the development environment can use `think-typescript` to compile, also support `tsc` direct compilation, compiled code and JS version is common.
