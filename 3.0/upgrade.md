@@ -38,19 +38,19 @@ Change the base class `think.model.base` to `think.Model`。
 
 #### View
 
-模板的配置由原来的 `src/common/config/view.js` 迁移至 `src/config/config.js` 中，配置方法和之前基本一致。
+Template configuration from the original `src/common/config/view.js` migrated to `src/config/config.js`, the configuration method is basically the same as before.
 
-其中老版本的 `preRender()` 方法已经废弃，新方法名为 `beforeRender()`。`nunjucks` 模板引擎的参数顺序由原来的 `preRender(nunjucks, env, config)` 修改为 `beforeRender(env, nunjucks, config)`。
+The older version of the `preRender()` method is deprecated and the new method is named `beforeRender()`. `nunjucks` template engine parameter order from the original `preRender(nunjucks, env, config)` to `beforeRender(env, nunjucks, config)`.
 
-#### 阻止后续执行
+#### Prevent subsequent execution
 
-移除了 `think.prevent` 等阻止后续执行的方法，替换为在 `__before`、`xxxAction`、`__after` 中返回 `false` 来阻止后续代码继续执行。
+Removed methods such as `think.prevent` that prevented subsequent execution, replaced with return false in `__before`、`xxxAction`、`__after` to prevent the subsequent code to continue execution.
 
-#### 错误处理
+#### Error handling
 
-2.x 创建项目时，会创建对应的 error.js 文件用来处理错误。3.0 里改为使用中间件 [think-trace](https://github.com/thinkjs/think-trace) 处理。
+When 2.x creates a project, a corresponding error.js file is created to handle the error. 3.0 instead use middleware [think-trace](https://github.com/thinkjs/think-trace) processing.
 
-### 升级建议
+### Upgrade recommendations
 
-由于 3.0 改动了很多东西，所以不太容易基于原有项目代码简单修改来升级。建议使用新的脚手架工具创建项目，然后一一将之前的代码拷贝到新项目中进行修改。
+Due to 3.0 changes a lot of things, it is not easy to upgrade based on the simple modification of the original project code. It is recommended to create the project with the new scaffolding tool and then copy the previous code one by one into the new project.
 
