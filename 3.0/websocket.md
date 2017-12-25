@@ -1,12 +1,12 @@
 ## WebSocket
 
-对于 WebSocket 目前 ThinkJS 支持了 `socket.io`, 并对其进行了一些简单的包装，后续会增加 [socketjs](https://github.com/sockjs/sockjs-node), [ws](https://github.com/websockets/ws) 库的支持。
+ThinkJS currently supports `socket.io` for WebSocket and has some simple packaging for it, with subsequent additions of [socketjs](https://github.com/sockjs/sockjs-node), [ws](https://github.com/websockets/ws) Library support.
 
-### 开启 WebSocket
+### Turn on the WebSocket
 
-在集群环境中，WebSocket 要求使用粘性会话，来确保给定客户端请求命中相同的 worker，否则其握手机制将无法正常工作。 为了实现这一点，需要开启 `stickyCluster` 配置。
+In a clustered environment, WebSocket requires a sticky session to ensure that a given client requests that the same worker be hit, otherwise the handshake mechanism will not work. In order to do this, you need to turn on the `stickyCluster` configuration.
 
-为了保证性能，`stickyCluster` 功能默认是关闭的，项目如果需要开启，可以修改配置文件 `src/config/config.js`：
+In order to ensure the performance, `stickyCluster` function is disabled by default. If the project needs to be enabled, you can modify the configuration file `src/config/config.js`:
 
 ```js
 module.exports = {
@@ -15,9 +15,9 @@ module.exports = {
 };
 ```
 
-### 配置 WebSocket
+### Configuration WebSocket
 
-WebSocket 是以 `extend` 的形式集成到 ThinkJS 的，首先要配置 `src/config/extend.js`:
+WebSocket is integrated into ThinkJS as `extend`, with `src/config/extend.js` first configured:
 
 ```js
 const websocket = require('think-websocket');
@@ -28,7 +28,7 @@ module.exports = [
 ];
 ```
 
-WebSocket 的各个实现是以 `adapter` 的形式存在的，以 `socket.io` 为例（使用 [think-websocket-socket.io](https://github.com/thinkjs/think-websocket-socket.io) 进行了封装），在 `src/config/adapter.js` 中配置如下：
+Each implementation of WebSocket exists as an `adapter`, taking `socket.io` as an example (encapsulated with [think-websocket-socket.io](https://github.com/thinkjs/think-websocket-socket.io)), configured in `src/config/adapter.js` as follows:
 
 ```js
 const socketio = require('think-websocket-socket.io');
@@ -39,9 +39,9 @@ exports.websocket = {
   },
   socketio: {
     handle: socketio,
-    allowOrigin: '127.0.0.1:8360',  // 默认所有的域名都允许访问
-    path: '/socket.io',             // 默认 '/socket.io'
-    adapter: null,                  // 默认无 adapter
+    allowOrigin: '127.0.0.1:8360',  // all domains are allowed by default
+    path: '/socket.io',             // '/socket.io' as default
+    adapter: null,                  // no adapter by default
     messages: [{
       open: '/websocket/open',
       addUser: '/websocket/addUser'
@@ -50,9 +50,9 @@ exports.websocket = {
 }
 ```
 
-### 事件到 Action 的映射
+### Event to Action mapping
 
-以 `socket.io` 为例，ThinkJS 遵循了 `socket.io` 服务端和客户端之间通过事件来交互的机制，这样服务端需要将事件名映射到对应的 Action，才能响应具体的事件。事件的映射关系配置在 `messages` 字段，具体如下：
+Taking `socket.io` as an example, ThinkJS follows the mechanism of interaction between the server and client of `socket.io` through an event, so the server needs to map the event name to the corresponding Action in order to respond to the specific event. The mapping of events is configured in the `messages` field as follows:
 
 ```js
 exports.websocket = {
@@ -60,19 +60,19 @@ exports.websocket = {
   socketio: {
     // ...
     messages: {
-      open: '/websocket/open',       // 建立连接时处理对应到 websocket Controller 下的 open Action
-      close: '/websocket/close',     // 关闭连接时处理的 Action
-      addUser: '/websocket/addUser', // addUser 事件处理的 Action
+      open: '/websocket/open',       // when the connection is established, the open Action under the corresponding websocket Controller is processed
+      close: '/websocket/close',     // Action to close when closing the connection
+      addUser: '/websocket/addUser', // Action for addUser event handling
     }
   }
 }
 ```
 
-其中 `open` 和 `close` 事件名固定，表示建立连接和断开连接的事件，其他事件均为自定义，项目里可以根据需要添加。
+The `open` and `close` event names are fixed, which means that the connection is established and disconnected. Other events are self-defined, and can be added as needed in the project.
 
-### 服务端 Action 处理
+### Server-side Action Processing
 
-通过配置事件到 Action 的映射后，就可以在对应的 Action 作相应的处理。如：
+By configuring the mapping of the event to the Action, you can do the corresponding processing in the corresponding Action. Such as:
 
 ```js
 module.exports = class extends think.Controller {
@@ -87,16 +87,16 @@ module.exports = class extends think.Controller {
   }
 
   addUserAction() {
-    console.log('获取客户端 addUser 事件发送的数据', this.wsData);
-    console.log('获取当前 WebSocket 对象', this.websocket);
-    console.log('判断当前请求是否是 WebSocket 请求', this.isWebsocket);
+    console.log('get the data sent by the client addUser event', this.wsData);
+    console.log('get the current WebSocket object', this.websocket);
+    console.log('determine if the current request is a WebSocket request', this.isWebsocket);
   }
 }
 ```
 
 #### emit
 
-Action 里可以通过 `this.emit` 方法给当前 `socket` 发送事件，如：
+Action can send the current `socket` event by `this.emit` method, such as:
 
 ```js
 module.exports = class extends think.Controller {
@@ -113,7 +113,7 @@ module.exports = class extends think.Controller {
 
 #### broadcast
 
-Action 里可以通过 `this.broadcast` 方法给所有的 `socket` 广播事件，如：
+Action can give all the `socket` broadcast events by `this.broadcase` method, such as:
 
 ```js
 module.exports = class extends think.Controller {
@@ -128,9 +128,9 @@ module.exports = class extends think.Controller {
 }
 ```
 
-### 客户端示例
+### Client example
 
-客户端示例代码如下：
+Client sample code is as follows:
 
 ```
 <script src="http://lib.baomitu.com/socket.io/2.0.1/socket.io.js"></script>
@@ -157,17 +157,17 @@ module.exports = class extends think.Controller {
 
 ### socket.io
 
-`socket.io` 对 WebSocket 前后端都有封装，使用起来非常方便。
+`socket.io` wraps both front and back of WebSocket and is very convenient to use.
 
-#### io 对象
+#### io object
 
-在 Action 里可以通过 `this.ctx.req.io` 来获取 `io` 对象，该对象为 socket.io 的一个实例。
+In Action, you can get `io` object via `this.ctx.req.io`, which is an instance of `socket.io`.
 
-io 对象包含的方法参见文档 [https://socket.io/docs/server-api/#server](https://socket.io/docs/server-api/#server)。
+io object contains the method see the document [https://socket.io/docs/server-api/#server](https://socket.io/docs/server-api/#server)。
 
-#### 设置 path
+#### Set path
 
-设置被 socket.io 处理的路径，默认为 `/socket.io`。如果需要修改，可以修改 `src/config/adapter.js` 的配置：
+Set the path to be handled by `socket.io`, which defaults to `/socket.io`. If you need to change, you can modify the configuration of `src/config/adapter.js`:
 
 ```js
 exports.websocket = {
@@ -179,11 +179,11 @@ exports.websocket = {
 }
 ```
 
-[path](https://socket.io/docs/server-api/#server-path-value) 的详细配置参见文档 [https://socket.io/docs/server-api/#server-path-value](https://socket.io/docs/server-api/#server-path-value)，需要注意的是：如果服务端修改了处理的路径后，客户端也要作对应的修改。
+For the detailed configuration of path, see the document [https://socket.io/docs/server-api/#server-path-value](https://socket.io/docs/server-api/#server-path-value). Note that if the server modifies the processing path, the client also needs to make corresponding changes.
 
-#### 设置 allowOrigin
+#### Set allowOrigin
 
-默认情况下 `socket.io` 允许所有域名的访问。如果需要修改，可以修改 `src/config/adapter.js` 的配置：
+By default, `socket.io` allows all domain names to be accessed. If you need to change, you can modify the configuration of `src/config/adapter.js`:
 
 ```js
 exports.websocket = {
@@ -194,12 +194,12 @@ exports.websocket = {
   }
 }
 ```
+For the detailed configuration of allowOrigin, see the document
+[https://socket.io/docs/server-api/#server-origins-value](https://socket.io/docs/server-api/#server-origins-value). Note that if the server modifies the processing path, the client also needs to make corresponding changes.
 
-[allowOrigin](https://socket.io/docs/server-api/#server-origins-value) 的详细配置参见文档 [https://socket.io/docs/server-api/#server-origins-value](https://socket.io/docs/server-api/#server-origins-value)，需要注意的是：如果服务端修改了处理的路径后，客户端也要作对应的修改。
+#### Set adapter
 
-#### 设置 adapter
-
-使用多节点来部署 WebSocket 时，多节点之间可以借助 Redis 进行通信，这时可以设置 adapter 来实现。
+When using multi-node to deploy WebSocket, multiple nodes can communicate with Redis, then you can set the adapter to achieve.
 
 ```js
 const redis = require('socket.io-redis');
@@ -211,4 +211,4 @@ exports.websocket = {
   }
 }
 ```
-[adapter](https://socket.io/docs/server-api/#server-adapter-value) 的详细配置参见文档 [https://socket.io/docs/server-api/#server-adapter-value](https://socket.io/docs/server-api/#server-adapter-value)。
+For the detailed configuration of adapter, see the document [https://socket.io/docs/server-api/#server-adapter-value](https://socket.io/docs/server-api/#server-adapter-value)。
