@@ -79,26 +79,25 @@ const assignData = this.assign();
 
 #### render
 
-获取渲染后的内容，该方法为异步方法，需要通过 async/await 处理。
 Get the rendered content, which is an asynchronous method that needs to be handled by async / await.
 
 ```js
-//根据当前请求解析的 controller 和 action 自动匹配模板文件
+// automatically match the template file based on the controller and action being parsed for the current request
 const content1 = await this.render();
 
-//指定文件名
+// specify the file name
 const content2 = await this.render('doc');
 const content3 = await this.render('doc/detail');
 const content4 = await this.render('doc_detail');
 
-//不指定文件名但切换模板类型
+// don't specify the file name switch template type
 const content5 = await this.render(undefined, 'ejs');
 
-//指定文件名且切换模板类型
+// specify the file name and switch the template type
 const content6 = await this.render('doc', 'ejs');
 
-//切换模板类型，并配置额外的参数
-//切换模板类型时，需要在 adapter 配置里配置对应的类型
+// switch the template type and configure additional parameters
+// when switching the template type, you need to configure the corresponding type in the adapter configuration
 const content7 = await this.render('doc', {
   type: 'ejs',
   xxx: 'yyy'
@@ -107,24 +106,25 @@ const content7 = await this.render('doc', {
 
 #### display
 
-渲染并输出内容，该方法实际上是调用了 `render` 方法，然后将渲染后的内容赋值到 `ctx.body` 属性上。该方法为异步方法，需要通过 async/await 处理。
+Render and output content, which is actually called a `render` method, then the contents of the rendered assigned to `ctx.body` property. This method is asynchronous and needs to be handled by async / await.
+
 
 ```js
-//根据当前请求解析的 controller 和 action 自动匹配模板文件
+// automatically match the template file based on the controller and action being parsed for the current request
 await this.display();
 
-//指定文件名
+// specify the file name
 await this.display('doc');
 await this.display('doc/detail');
 await this.display('doc_detail');
 
-//不指定文件名切换模板类型
+// don't specify the file name switch template type
 await this.display(undefined, 'ejs');
 
-//指定文件名且切换模板类型
+// specify the file name and switch the template type
 await this.display('doc', 'ejs');
 
-//切换模板类型，并配置额外的参数
+// switch the template type and configure additional parameters
 await this.display('doc', {
   type: 'ejs',
   xxx: 'yyy'
@@ -132,9 +132,9 @@ await this.display('doc', {
 ```
 
 
-### 模板预处理
+### Template pretreatment
 
-有时候需要对模板进行预处理，比较常见的操作是给 `nunjucks` 引擎增加 `Filter`。这时候你就可以使用 `beforeRender` 方法。
+Sometimes it is necessary to preprocess the template, the more common operation is to add `Filter` to `nunjucks` engine. Then you can use `beforeRender` method.
 
 ```js
 const nunjucks = require('think-view-nunjucks');
@@ -143,9 +143,9 @@ const path = require('path');
 exports.view = {
   type: 'nunjucks',
   common: {
-    viewPath: path.join(think.ROOT_PATH, 'view'), //模板文件的根目录
-    sep: '_', //Controller 与 Action 之间的连接符
-    extname: '.html' //文件扩展名
+    viewPath: path.join(think.ROOT_PATH, 'view'), // the root directory of the template file
+    sep: '_', // connector between Controller and Action
+    extname: '.html' // file extension
   },
   nunjucks: {
     handle: nunjucks,
@@ -155,12 +155,11 @@ exports.view = {
   }
 }
 ```
+The parameters passed to the `beforeRender ()` method of the different template engines may be different, and the corresponding template engine view can be found in the https://github.com/thinkjs/think-awesome#view project.
 
-其中不同模板引擎 `beforeRender()` 方法传入的参数可能不同，可在 https://github.com/thinkjs/think-awesome#view 项目中找到对应的模板引擎查看。
+### Modify the default parameters of the template engine
 
-### 修改模板引擎默认参数
-
-有时候想修改模板引擎的一些参数，如：修改左右定界符，这时候可以通过 `options` 完成：
+If you want to modify some of the parameters of the template engine, such as: modify the left and right delimiters, you can do it through `options`:
 
 ```js
 const nunjucks = require('think-view-nunjucks');
@@ -169,14 +168,14 @@ const path = require('path');
 exports.view = {
   type: 'nunjucks',
   common: {
-    viewPath: path.join(think.ROOT_PATH, 'view'), //模板文件的根目录
-    sep: '_', //Controller 与 Action 之间的连接符
-    extname: '.html' //文件扩展名
+    viewPath: path.join(think.ROOT_PATH, 'view'), // the root directory of the template file
+    sep: '_', // connector between Controller and Action
+    extname: '.html' // file extension
   },
   nunjucks: {
     handle: nunjucks,
     options: {
-      tags: { // 修改定界符相关的参数
+      tags: { // modify the delimiter-related parameters
         blockStart: '<%',
         blockEnd: '%>',
         variableStart: '<$',
@@ -189,55 +188,54 @@ exports.view = {
 }
 ```
 
-### 默认注入的参数
+### Default injected parameters
 
-除了手工通过 `assign` 方法注册一些变量到模板外，系统在渲染模板的时候，自动注入 `controller`、`config`、`ctx` 变量，以便于在模板里直接使用。
+In addition to manually registering some variables to the template via the `assign` method, the system automatically injects the `controller`, `config` and `ctx` variables when rendering the template so that it can be used directly in the template.
 
 #### controller
 
-当前控制器实例，在模板里可以直接调用控制器上的属性和方法。
+The current controller instance, you can directly call the properties and methods on the controller in the template.
 
 ```
 {{ if controller.type === 'xx' }}
-  <p>当前 type 为 xx</p>
+  <p>current type is xx</p>
 {{ endif }}
 ```
 
-这里以 `nunjucks` 模板引擎举例，如果是调用控制器里的方法，那么方法必须为一个**同步方法**。
+For example, using the `nunjucks` template engine, if you want to call the method in the controller, then the method must be a **synchronization method**.
 
 #### config
 
-所有的配置，在模板里可以直接通过 `config.xxx` 来获取配置，如果属性不存在，那么值为 `undefined`。
-
+All configuration, in the template can be directly through the `config.xxx` to get the configuration information, if the attribute does not exist, then return `undefined`.
 
 #### ctx
 
-当前请求的 Context 对象，在模板里可以通过直接通过 `ctx.xxx` 调用其属性或者 `ctx.yyy()` 调用其方法。
+Context object of the current request. In the template, you can call its properties directly through `ctx.xxx` or call its methods through `ctx.yyy()`.
 
-如果是调用其方法，那么方法必须为一个**同步方法**。
+If it is to call the method, then the method must be a **synchronization method**.
 
-### 支持的模板引擎
+### Supported template engines
 
-目前官方支持的模板引擎有: [pug](https://github.com/thinkjs/think-view-pug)、[nunjucks](https://github.com/thinkjs/think-view-nunjucks)、[handlebars](https://github.com/thinkjs/think-view-handlebars)、[ejs](https://github.com/thinkjs/think-view-ejs)。
+Currently officially supported template engine are: [pug](https://github.com/thinkjs/think-view-pug)、[nunjucks](https://github.com/thinkjs/think-view-nunjucks)、[handlebars](https://github.com/thinkjs/think-view-handlebars)、[ejs](https://github.com/thinkjs/think-view-ejs)。
 
-如果你实现了新的模板引擎支持，欢迎提交到 <https://github.com/thinkjs/think-awesome#view>。
+If you implement the new template engine support, welcome to submit here: <https://github.com/thinkjs/think-awesome#view>。
 
-### 常见问题
+### FAQ
 
-#### 为什么调用了 display 方法还是 404 错误？
+#### Why after calling the display method is still 404 error?
 
-有时候会遇到在 Action 里调用 `display` 方法，但页面还是显示 404 错误的情况：
+Occasionally, the `display` method is called in Action, but the page still shows a 404 error:
 
 ```
 NotFoundError: url `/index/page` not found.
 ```
 
-这是因为 `display` 方法是个异步方法，前面没有加 await 或者没有 return 导致的。正确的用法为：
+This is because the `display` method is an asynchronous method with no await or no return in front of it. The correct usage is:
 
 ```js
 module.exports = class extends think.Controller {
   indexAction() {
-    return this.display(); // 通过 return 将 display 的异步返回
+    return this.display(); // return the display asynchronously by return
   }
 }
 ```
@@ -245,20 +243,20 @@ module.exports = class extends think.Controller {
 ```js
 module.exports = class extends think.Controller {
   async indexAction() {
-    await this.display(); // 通过 await 等待 display 方法的返回
+    await this.display(); // wait for the display method to return via await
   }
 }
 ```
 
-如果 `display` 方法是在异步的方法里调用，那么需要将异步方法包装成 Promise，然后将其返回。
+If the `display` method is called in an async method, you need to wrap the async method to Promise and return it.
 
-#### 如何关闭视图的功能？
+#### How to close the view function?
 
-有的项目只是提供 API 接口的功能，不需要模板渲染。创建项目时默认加载了视图的扩展，如果不需要视图的功能，可以修改 `src/config/extend.js`，将视图的扩展去除。修改 `src/config/adapter.js`，将视图的 adapter 配置去除。
+Some projects just provide API interface function, don't need template rendering. When you create a project, the default view expansion is loaded. If you don't need the view function, you can modify `src/config/extend.js` to remove the view expansion. Modify `src/config/adapter.js` to remove the view adapter configuration.
 
-#### 怎么在模板里使用 session/cache 的功能？
+#### How to use the session or cache function in the template?
 
-有时候需要在模板里获取 session/cache 相关的信息，但由于 session/cache 的操作都是异步的，所以无法直接调用 `controller.session` 来操作，需要在 Action 里获取到数据然后赋值导模板中，如：
+Sometimes need to get the session or cache related information in the template, but because the operation of the session and cache are asynchronous, so you can't directly call `controller.session` to operate, you need to get the data in the Action and then assign the value in the template, Such as:
 
 ```js
 module.exports = class extends think.Controller {
@@ -268,4 +266,4 @@ module.exports = class extends think.Controller {
   }
 }
 ```
-获取到 `userInfo` 并赋值后，在模板里就可以通过 `userInfo.xxx` 获取对应的值了。
+After getting `userInfo` and assigning it, you can get the corresponding value from `userInfo.xxx` in the template.
