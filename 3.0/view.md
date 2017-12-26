@@ -1,10 +1,10 @@
-## View / 视图
+## View
 
-由于某些项目下并不需要 View 的功能，所以 3.0 里并没有直接内置 View 的功能，而是通过 Extend 和 Adapter 来实现的。
+Because some projects don't need the View function, so in 3.0 doesn't directly built-in View function, but through Extend and Adapter to achieve.
 
-### Extend 来支持 View
+### Extend to support View
 
-配置 `src/config/extend.js`，添加如下的配置，如果已经存在则不需要再添加：
+Configure `src/config/extend.js`, add the following configuration, you don't need to add if it already exists:
 
 ```js
 const view = require('think-view');
@@ -13,93 +13,94 @@ module.exports = [
 ]
 ```
 
-通过添加视图的扩展，让项目有渲染模板文件的能力，视图扩展是通过模块[think-view](https://github.com/thinkjs/think-view) 实现的。
+By adding the view's extension, the project has the ability to render the template file, the view is extended through the [think-view](https://github.com/thinkjs/think-view) module.
 
-### 配置 View Adapter
+### Configure View Adapter
 
-在 `src/config/adapter.js` 中添加如下的配置，如果已经存在则不需要再添加：
+Add the following configuration to `src/config/adapter.js` and don't need to be added if it already exists:
 
 ```js
 const nunjucks = require('think-view-nunjucks');
 const path = require('path');
 
-// 视图的 adapter 名称为 view
+// the view adapter's name is view
 exports.view = {
-  type: 'nunjucks', // 这里指定默认的模板引擎是 nunjucks
+  type: 'nunjucks', // the default template engine specified here is nunjucks
   common: {
-    viewPath: path.join(think.ROOT_PATH, 'view'), //模板文件的根目录
-    sep: '_', //Controller 与 Action 之间的连接符
-    extname: '.html' //模板文件扩展名
+    viewPath: path.join(think.ROOT_PATH, 'view'), // the root directory of the template file
+    sep: '_', // connector between Controller and Action
+    extname: '.html' // template file extension
   },
   nunjucks: {
     handle: nunjucks,
-    beforeRender: () => {}, // 模板渲染预处理
-    options: { // 模板引擎额外的配置参数
+    beforeRender: () => {}, // template rendering preprocessing
+    options: { // template engine additional configuration parameters
 
     }
   }
 }
 ```
 
-这里用的模板引擎是 `nunjucks`，项目中可以根据需要修改。
+The template engine here is `nunjucks`, which can be modified as needed.
 
-### 具体使用
+### Instructions for use
 
-配置了 Extend 和 Adapter 后，就可以在 Controller 里使用了。如：
+After configuring Extend and Adapter, it can be used in Controller. Such as:
 
 ```js
 module.exports = class extends think.Controller {
   indexAction(){
-    this.assign('title', 'thinkjs'); //给模板赋值
-    return this.display(); //渲染模板
+    this.assign('title', 'thinkjs'); // assign the template
+    return this.display(); // render template
   }
 }
 ```
 
 #### assign
 
-给模板赋值。
+Assign the template.
 
 ```js
-//单条赋值
-this.assign('title', 'thinkjs'); 
+// single assignment
+this.assign('title', 'thinkjs');
 
-//多条赋值
+// Multiple assignment
 this.assign({
-  title: 'thinkjs', 
+  title: 'thinkjs',
   name: 'test'
-}); 
+});
 
-//获取之前赋过的值，如果不存在则为 undefined
-const title = this.assign('title'); 
+// get the value assigned before, or undefined if it does not exist
+const title = this.assign('title');
 
-//获取所有赋的值
-const assignData = this.assign(); 
+// get all the assigned values
+const assignData = this.assign();
 ```
 
 #### render
 
 获取渲染后的内容，该方法为异步方法，需要通过 async/await 处理。
+Get the rendered content, which is an asynchronous method that needs to be handled by async / await.
 
 ```js
 //根据当前请求解析的 controller 和 action 自动匹配模板文件
-const content1 = await this.render(); 
+const content1 = await this.render();
 
 //指定文件名
-const content2 = await this.render('doc'); 
-const content3 = await this.render('doc/detail'); 
+const content2 = await this.render('doc');
+const content3 = await this.render('doc/detail');
 const content4 = await this.render('doc_detail');
 
 //不指定文件名但切换模板类型
 const content5 = await this.render(undefined, 'ejs');
 
 //指定文件名且切换模板类型
-const content6 = await this.render('doc', 'ejs'); 
+const content6 = await this.render('doc', 'ejs');
 
 //切换模板类型，并配置额外的参数
 //切换模板类型时，需要在 adapter 配置里配置对应的类型
 const content7 = await this.render('doc', {
-  type: 'ejs', 
+  type: 'ejs',
   xxx: 'yyy'
 });
 ```
@@ -110,22 +111,22 @@ const content7 = await this.render('doc', {
 
 ```js
 //根据当前请求解析的 controller 和 action 自动匹配模板文件
-await this.display(); 
+await this.display();
 
 //指定文件名
-await this.display('doc'); 
-await this.display('doc/detail'); 
+await this.display('doc');
+await this.display('doc/detail');
 await this.display('doc_detail');
 
 //不指定文件名切换模板类型
 await this.display(undefined, 'ejs');
 
 //指定文件名且切换模板类型
-await this.display('doc', 'ejs'); 
+await this.display('doc', 'ejs');
 
 //切换模板类型，并配置额外的参数
 await this.display('doc', {
-  type: 'ejs', 
+  type: 'ejs',
   xxx: 'yyy'
 });
 ```

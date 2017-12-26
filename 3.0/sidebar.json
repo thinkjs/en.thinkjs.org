@@ -1,12 +1,12 @@
 {
-    "快速入门": {
-      "介绍": "index",
-      "快速入门": "create_project",
-      "升级指南": "upgrade"
+    "Getting Started": {
+      "Introduction": "index",
+      "Create Project": "create_project",
+      "Upgrade Guide": "upgrade"
     },
-    "基础功能": {
-      "运行流程": "flow",
-      "配置": "config",
+    "Basic Function": {
+      "Process": "flow",
+      "Config": "config",
       "Context": "context",
       "Middleware": "middleware",
       "Logic": "logic",
@@ -15,30 +15,30 @@
       "Router": "router",
       "Adapter": "adapter",
       "Extend": "extend",
-      "异步/错误处理": "async"
+      "Asynchronous Processing": "async"
     },
-    "模型/数据库": {
-      "关系数据库": "relation_model",
+    "Model": {
+      "Relation Model": "relation_model",
       "MongoDB": "mongo"
     },
-    "进阶应用": {
-      "think 对象": "think",
-      "启动自定义": "bootstrap",
+    "Advanced": {
+      "think object": "think",
+      "Customize Bootstrap": "bootstrap",
       "Service": "service",
       "Cookie": "cookie",
       "Session": "session",
       "Cache": "cache",
-      "日志": "logger",
-      "多进程": "multi_process",
-      "Babel 转译": "babel",
+      "Logger": "logger",
+      "Multi-process": "multi_process",
+      "Babel Transpile": "babel",
       "WebSocket": "websocket",
       "RESTful API": "rest",
-      "国际化与本地化": "i18n"
+      "I18N and L10N": "i18n"
     },
-    "扩展功能": {
+    "More Features": {
       "TypeScript": "typescript",
-      "多模块项目": "multi_module",
-      "线上部署": "deploy",
-      "定时任务": "crontab"
+      "Multi-module": "multi_module",
+      "Production Deployment": "deploy",
+      "Crontab / Timing tasks": "crontab"
     }
   }

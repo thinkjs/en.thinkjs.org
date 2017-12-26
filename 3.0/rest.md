@@ -35,7 +35,7 @@ module.exports = [
   ['/user/:id?', 'rest'], // the third way
 ]
 ```
-Note: The third way requires the version `>= 1.0.17` of [think-router] (https://github.com/thinkjs/think-router).
+Note: The third way requires the version `>= 1.0.17` of [think-router](https://github.com/thinkjs/think-router).
 
 The meaning of custom router above is:
 
