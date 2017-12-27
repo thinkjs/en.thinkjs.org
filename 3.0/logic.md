@@ -1,14 +1,14 @@
 ## Logic
 
-当在 Action 里处理用户的请求时，经常要先获取用户提交过来的数据，然后对其校验，如果校验没问题后才能进行后续的操作；当参数校验完成后，有时候还要进行权限判断等，这些都判断无误后才能进行真正的逻辑处理。如果将这些代码都放在一个 Action 里，势必让 Action 的代码非常复杂且冗长。
+When handling the user's request in Action, it is often necessary to obtain the user submit data and verify them. If there is no problem in the verification, the subsequent operations can be performed. Sometime it also check authorization, etc. If you put these codes in an Action, it is bound to make Action's code very complex and lengthy.
 
-为了解决这个问题， ThinkJS 在控制器前面增加了一层 `Logic`，Logic 里的 Action 和控制器里的 Action 一一对应，系统在调用控制器里的 Action 之前会自动调用 Logic 里的 Action。
+In order to solve this problem, ThinkJS adds a layer of `Logic` in front of the controller. The Action in Logic corresponding with the Action in the controller. System will automatically invoke the Action in Logic before calling controller Action.
 
-### Logic 层
+### Logic
 
-Logic 目录在 `src/[module]/logic`，在项目根目录通过命令 `thinkjs controller test` 会创建名为 test 的 Controller 同时会自动创建对应的 Logic。
+The Logic directory is located at `src/[module]/logic`. Command `thinkjs controller test` will create test controller and test logic.
 
-Logic 代码类似如下：
+Logic code similar to the following:
 
 ```js
 module.exports = class extends think.Logic {
@@ -24,42 +24,42 @@ module.exports = class extends think.Logic {
 }
 ```
 
-注：若自己手工创建时，Logic 文件名和 Controller 文件名要相同
+Note: Logic files and Controller file names must be the same if you create them manually
 
-其中，Logic 里的 Action 和 Controller 里的 Action 一一对应。Logic 里也支持 `__before` 和 `__after` 魔术方法。
+Among them, Action in Logic and action in Controller is one-to-one correspondence. Logic also supports `__before` and` __after` magic methods.
 
-#### 请求类型校验
+#### Request type verification
 
-对应一个特定的 Action，有时候需要限定为某些请求类型，其他类型的请求给拒绝掉。可以通过配置特定的请求类型来完成对请求的过滤。
+Sometimes a specific Action need to be limited to certain types of requests, and to reject other request types. You can filter the request by configuring a specific request type.
 
 ```js
 module.exports = class extends think.Logic {
  indexAction() {
-    this.allowMethods = 'post'; //  只允许 POST 请求类型
+    this.allowMethods = 'post'; //  only POST 
  }
  detailAction() {
-    this.allowMethods = 'get,post'; // 允许 GET、POST 请求类型
+    this.allowMethods = 'get,post'; // allow GET or POST
  }
 }
 ```
 
-#### 校验规则格式
+#### Verification rules format
 
-数据校验的配置格式为 `字段名` : `JSON 配置对象` ，如下：
+Data validation configuration format is `field`: `JSON config object`, as follows:
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       username: {
-        string: true,       // 字段类型为 String 类型
-        required: true,     // 字段必填
-        default: 'thinkjs', // 字段默认值为 'thinkjs'
-        trim: true,         // 字段需要trim处理
-        method: 'GET'       // 指定获取数据的方式
+        string: true,       // data type is String
+        required: true,     // username field is required
+        default: 'thinkjs', // default value is 'thinkjs'
+        trim: true,         // data will be trim
+        method: 'GET'       // request method
       },
       age: {
-        int: {min: 20, max: 60} // 20到60之间的整数
+        int: {min: 20, max: 60} // integer between 20 to 60
       }
     }
     let flag = this.validate(rules);
@@ -67,31 +67,30 @@ module.exports = class extends think.Logic {
 }
 ```
 
-#### 基本数据类型
+#### Basic data type
 
-支持的数据类型有：`boolean`、`string`、`int`、`float`、`array`、`object`，对于一个字段只允许指定为一种基本数据类型，默认为 `string` 类型。
+Supported data types including: `boolean`, `string`, `int`, `float`, `array` and `object`, one data field only allows one basic data type, default is `string`.
 
-#### 手动设置数据值
+#### Manual set data value
 
-如果有时候不能自动获取值的话（如：从 header 里取值），那么可以手动获取值后配置进去。如：
-
+Sometime it can't automatically get the value (such as: value from the header), then you can manually get the value and then set the configuration. Such as:
 ```js
 module.exports = class extends think.Logic {
   saveAction(){
     let rules = {
       username: {
-        value: this.header('x-name') // 从 header 中获取值
+        value: this.header('x-name') // get value from header
       }
     }
   }
 }
 ```
 
-#### 指定获取数据来源
+#### Specify data source
 
-如果校验 `version` 参数， 默认情况下会根据当前请求的类型来获取字段对应的值，如果当前请求类型是 `GET`，那么会通过 `this.param('version')` 来获取 `version` 字段的值；如果请求类型是 `POST`，那么会通过 `this.post('version')` 来获取字段的值， 如果当前请求类型是 `FILE`，那么会通过 `this.file('version')` 来获取 `verison` 字段的值。
+If you validate `version` parameter, its value is obtained from `version` field by specific request type. If the current request type is` GET`, it will get `version` Field; if the request type is` POST`, the value of the field is retrieved via `this.post('version')`, and if the current request type is `FILE`, then `this.file('version')` to get the value.
 
-有时候在 `POST` 类型下，可能会获取上传的文件或者获取 URL 上的参数，这时候就需要指定获取数据的方式了。支持的获取数据方式为 `GET`，`POST` 和 `FILE`。
+Sometimes in the `POST` type, you may get the uploaded file or get the parameters on the URL, this time you need to specify the way to get the data. Supported data acquisition methods are `GET`, `POST`, and `FILE`.
 
 ```js
 module.exports = class extends think.Logic {
@@ -99,7 +98,7 @@ module.exports = class extends think.Logic {
     let rules = {
       username: {
         required: true,
-        method: 'GET'       // 指定获取数据的方式
+        method: 'GET'       // data acquisition methods
       }
     }
     let flag = this.validate(rules);
@@ -107,17 +106,17 @@ module.exports = class extends think.Logic {
 }
 ```
 
-#### 字段默认值
+#### default field value
 
-使用 `default:value` 来指定字段的默认值，如果当前字段值为空，会把默认值赋值给该字段，然后执行后续的规则校验。
+Use `default:value` to set a field's default value, if field value is empty, default value will be set and apply the following validation logic.
 
-#### 消除前后空格
+#### trim
 
-使用 `trim:true` 如果当前字段支持 `trim` 操作，会对该字段首先执行 `trim` 操作，然后再执行后续的规则校验。
+Use `trim:true` if current field suports `trim` operation.
 
-#### 数据校验方法
+#### Data validation method
 
-配置好校验规则后，可以通过 `this.validate` 方法进行校验。如：
+After validation rule is configured, you can call `this.validate` to validate. Such as:
 
 ```js
 module.exports = class extends think.Logic {
@@ -130,14 +129,13 @@ module.exports = class extends think.Logic {
     let flag = this.validate(rules);
     if(!flag){
       return this.fail('validate error', this.validateErrors);
-      // 如果校验失败，返回
+      // return is validation is failed
       // {"errno":1000,"errmsg":"validate error","data":{"username":"username can not be blank"}}
     }
   }
 }
 ```
-
-如果你在controller的action中使用了`this.isGet` 或者 `this.isPost` 来判断请求的话，在上面的代码中也需要加入对应的 `this.isGet` 或者 `this.isPost`，如：
+If you use `this.isGet` or` this.isPost` in the controller's action to determine the request, you would also need to include the `this.isGet` or` this.isPost` in the code above, for example:
 
 ```js
 module.exports = class extends think.Logic {
@@ -158,11 +156,11 @@ module.exports = class extends think.Logic {
 }
 ```
 
-如果返回值为 `false`，那么可以通过访问 `this.validateErrors` 属性获取详细的错误信息。拿到错误信息后，可以通过 `this.fail` 方法把错误信息以 JSON 格式输出，也可以通过 `this.display` 方法输出一个页面，Logic 继承了 Controller 可以调用 Controller 的 方法。
+If the return value is `false`, then you can get a detailed error message by `this.validateErrors`. And you can output the error message in `JSON` format via the` this.fail` method, or you can output a page via `this.display`. Logic inherits all Controller methods.
 
-#### 自动调用校验方法
+#### auto-validation
 
-多数情况下都是校验失败后，输出一个 JSON 错误信息。如果不想每次都手动调用 `this.validate` 进行校验，可以通过将校验规则赋值给 `this.rules` 属性进行自动校验，如：
+In most cases, we just output JSON error message after validation failed. If you don't want call `this.validate` manually each time, you can verify it automatically by setting the validation rule into `this.rules` attribute. For example:
 
 ```js
 module.exports = class extends think.Logic {
@@ -176,7 +174,7 @@ module.exports = class extends think.Logic {
 }
 ```
 
-相当于
+Equivalent to
 
 ``` js
 module.exports = class extends think.Logic {
@@ -194,11 +192,12 @@ module.exports = class extends think.Logic {
 }
 ```
 
-将校验规则赋值给 `this.rules` 属性后，会在这个 Action 执行完成后自动校验，如果有错误则直接输出 JSON 格式的错误信息。
+Assigning the validation rule to the `this.rules` automatically validates the execution of the Action, and outputs an error message in JSON format if there is an error.
 
-#### 多action复用校验规则
 
-对于多个action有时我们想要复用一些校验规则，例如对于 `logic` 中的 `indexAction` 与 `homeAction` 都要校验 `app_id` 字段必填，可以将 `app_id` 的校验提到 `scope` 中：
+#### multiple actions reuse check rules
+
+For multiple actions Sometimes we want to re-use some of the validation rules, for example `indexAction` and `homeAction` in `logic` have to verify the `app_id` field is required, you can move `app_id` validation to `scope`.
 
 ```js
 module.exports = class extends think.Logic {
@@ -217,9 +216,9 @@ module.exports = class extends think.Logic {
       }
     }
 
-    // 自定义 app_id 的错误信息
+    // custom app_id error message
     let msgs = {
-      app_id: '{name} 不能为空(自定义错误)',
+      app_id: '{name} can not be null',
     }
 
     if(!this.validate(rules, msgs)) {
@@ -228,8 +227,8 @@ module.exports = class extends think.Logic {
   }
 
   homeAction() {
-    // email 校验的简化写法
-    // 此时 app_id 使用默认错误信息
+    // email shorthand
+    // app_id use default error message
     this.rules = {
       email: {
         required: true
@@ -240,9 +239,10 @@ module.exports = class extends think.Logic {
 }
 ```
 
-#### 数组校验
+#### Array validation
 
-数据校验支持数组校验，但是数组校验只支持一级数组，不支持多层级嵌套的数组。`children` 为所有数组元素指定一个相同的校验规则。
+Data validation supports Array type, but it only supports simple arrays, and does not support nested arrays. `children` specifies an identical check rule for all array elements.
+
 
 ``` js
 module.exports = class extends think.Logic {
@@ -262,9 +262,9 @@ module.exports = class extends think.Logic {
 
 ```
 
-#### 对象校验
+#### Object validation
 
-数据校验支持对象校验， 但是对象校验只支持一级对象，不支持多层级嵌套的对象。`children` 为所有对象属性指定一个相同的校验规则。
+Data validation supports Object type, note nested arrays are not supported. `children` specifies an identical check rule for all object attributes.
 
 
 ``` js
@@ -284,16 +284,15 @@ module.exports = class extends think.Logic {
 }
 ```
 
-#### 校验前数据的自动转换
+#### convert data before validation
 
-对于指定为 `boolean` 类型的字段，`'yes'`， `'on'`， `'1'`， `'true'`， `true` 会被转换成 `true`， 其他情况转换成 `false`，然后再执行后续的规则校验；
+For `boolean` type field, value in one of `'yes'`,`'on'`,`'1'`,`'true'`,`true` will be convert to `true`, and in other cases `false`, and then performa the follow-up rule validation;
 
-对于指定为 `array` 类型的字段，如果字段本身是数组，不做处理； 如果该字段为字符串会进行 `split(',')` 处理，其他情况会直接转化为 `[字段值]`，然后再执行后续的规则校验。
+For `array` type field, if the field itself is an array, it will not be processed. If the field is a string, it will be `split (',')`, otherwise it will be directly converted into `[field value]` , And then perform the follow-up rule validation.
 
+#### convert data after validation
 
-#### 校验后数据的自动转换
-
-对于指定为 `int`、`float` 数据类型的字段在校验之后，会自动对数据进行 `parseFloat` 转换。
+For fields specified as `int` or `float` data type is automatically `parseFloat` converted after the data is verified.
 
 ```js
 module.exports = class extends think.Logic {
@@ -308,9 +307,10 @@ module.exports = class extends think.Logic {
   }
 }
 ```
-如果 url 中存在参数 `age=26`， 在经过 Logic 层校验之后，typeof this.param('age') 为 `number` 类型。
 
-#### 自定义错误中的规则名称
+If there is an parameter of `age=26` in url, typeof this.param('age') is of type number after logic level validation.
+
+#### custom error rules
 
 ```js
 module.exports = class extends think.Logic {
@@ -323,20 +323,19 @@ module.exports = class extends think.Logic {
   }
 }
 ```
-对于上述规则，在验证失败的情况下 this.validateErrors 将为 {username: 'username can not be blank'}。但是有时想让错误自定义为 '用户名不能为空'。需要如下操作：
 
-首先在 `src/config/validator.js` 中复写掉默认的 `required` 错误信息：
+For the above rules this.validateErrors would be {username: 'username can not be blank'} in the case of validation failure. But sometimes you want to customize the error to 'username can not be null'. Need to do the following:
+
+First in `src/config/validator.js` overwrite the default `required` error message:
 
 ```js
 module.exports = {
   messages: {
-    required: '{name} 不能为空',
+    required: '{name} can not be null',
   }
 }
 
 ```
-
-然后要将 `username` 替换成别名 `用户名`，需要为校验规则添加 `aliasName` :
 
 ```js
 module.exports = class extends think.Logic {
@@ -344,7 +343,7 @@ module.exports = class extends think.Logic {
     this.rules = {
       username: {
         required: true,
-        aliasName: '用户名'
+        aliasName: 'username'
       }
     }
   }
@@ -352,11 +351,12 @@ module.exports = class extends think.Logic {
 ```
 
 
-#### 全局定义校验规则
+#### global validation rule
 
-在单模块下项目下的 `config` 目录下建立 `validator.js` 文件；在多模块项目下的 `common/config` 目录下建立 `validator.js`。在 `validator.js` 中添加自定义的校验方法：
+Create a `validator.js` file under the `config` directory in single-module project and `validator.js` under `common/config` directory in multi-module project. Add a custom verification method in `validator.js`:
 
-例如, 我们想要验证 `GET` 请求中的 `name1` 参数是否等于字符串 `lucy` 可以如下添加校验规则; 访问你的服务器地址/index/?name1=jack
+For example, we want to verify that the `name1` parameter in `GET` request is equal to the string `lucy`. You can add a validation rule as follows; [server address/index/?Name1=jack
+
 
 ```js
 // logic index.js
@@ -389,30 +389,29 @@ module.exports = {
 }
 
 ```
-
-自定义的校验方法会被注入以下参数，对于上述例子来说
+Custom validation method parameters is as follow:
 ```js
 (
-  value: ,                // 参数在相应的请求中的值，此处为 ctx['param']['name1']
+  value: ,                // The value of the parameter in the corresponding request, here is ctx['param']['name1']
   {
-    argName,              // 参数名称，此处为 name1
-    validName,            // 校验方法名，此处为 'eqLucy'
-    validValue,           // 校验方法名对应的值，此处为 'lucy'
-    parsedValidValue,      // _eqLucy 方法解析返回的结果, 如果没有 _eqLucy 方法，则为 validValue
-    currentQuery,         // 当前请求类型的值，此处为 ctx['param'] （表示从 ctx 中获取到 get 类型的参数）
-    ctx,                  // ctx 对象
-    rule,                 // 校验规则内容，此处为 {eqLucy: 'lucy', method: 'GET'}
-    rules,                // 所有的校验规则内容，此处为 let rules 的值
+    argName,              // parameter name,here is name1
+    validName,            // validation method name, here is 'eqLucy'
+    validValue,           // validate value, here is 'lucy'
+    parsedValidValue,     // return value of _eqLucy method, if _eqLucy is not provied, it is validValue
+    currentQuery,         // curreny request query, equal to ctx['param']
+    ctx,                  // ctx object
+    rule,                 // validation rule, here is  {eqLucy: 'lucy', method: 'GET'}
+    rules,                // all validation rules, here is the value of let rules
   }
 )
 ```
 
 
-#### 解析校验规则参数
+#### parse validation rule parameter
 
-有时我们想对校验规则的参数进行解析，只需要建立一个下划线开头的同名方法在其中执行相应的解析，并将解析后的结果返回即可。
+Sometimes we want to parse the parameters of the validation rules, only need to create new parse method of the same name with an underscore at the beginning, and the results of the parse can be returned.
 
-例如我们要验证 `GET` 请求中的 `name1` 参数是否等于 `name2` 参数， 可以如下添加校验方法：访问  你的服务器地址/index/?name1=tom&name2=lily
+For example, if we want to verify that the `name1` parameter in `GET` request is equal to `name2` parameter, we can add the following verification method: Visit [server address]/index/?name1=tom&name2=lily
 
 ```js
 // logic index.js
@@ -440,7 +439,7 @@ module.exports = {
     },
 
     eqLucy(value, { argName, validName, validValue, parsedValidValue, currentQuery, ctx, rule, rules }) {
-      return value === parsedValue;
+      return value === parsedValidValue;
     }
   },
   messages: {
@@ -449,16 +448,17 @@ module.exports = {
 }
 ```
 
-解析参数 `_eqLucy` 注入的第一个参数是当前校验规则的值（对于本例子，validValue 为 'name2'），其他参数意义同上面的介绍。
+解析参数 `_eqLucy` 注入的第一个参数是当前校验规则的值（对于本例子,validValue 为 'name2'）,其他参数意义同上面的介绍.
+The first parameter in `_eqLucy` is the value of the current validation rule (for this example, the validValue is 'name2'), and the other parameters have the same meanings as above.
 
-#### 自定义错误信息
+#### custom error message
 
-错误信息中可以存在三个插值变量 `{name}`、`{args}`、 `{pargs}`。 `{name}` 会被替换为校验的字段名称， `{args}`会被替换为校验规则的值，`{pargs}` 会被替换为解析方法返回的值。如果`{args}`、`{pargs}` 不是字符串，将做 `JSON.stringify` 处理。
+There are three interpolation variables `{name}`, `{args}`, `{pargs}` in the error message. `{name}` will be replaced by the name of the field being checked, `{args}` will be replaced by the value of the checkout rule and `{pargs}` will be replaced by the value returned by the parsing method. If `{args}`, `{pargs}` is not a string, `JSON.stringify` will be processed.
 
 
-对于非 `Object: true` 类型的字段，支持三种自定义错误的格式：规则1：规则：错误信息；规则2：字段名：错误信息；规则3：字段名：{ 规则： 错误信息} 。
+For `Object: false` fields, three custom error formats are supported: Rule1: Rule: Error Message; Rule2: Field Name: Error Message; Rule 3: Field Name: {Rule: Error Message}.
 
-对于同时指定了多个错误信息的情况，优先级 规则3 > 规则2 > 规则1。
+For the case of multiple error messages specified at the same time, priority rule 3 > rule 2 > rule 1.
 
 ``` js
 module.exports = class extends think.Logic {
@@ -469,17 +469,17 @@ module.exports = class extends think.Logic {
     }
   }
   let msgs = {
-    required: '{name} can not blank',         // 规则 1
-    username: '{name} can not blank',         // 规则 2
+    required: '{name} can not blank',         // rule 1
+    username: '{name} can not blank',         // rule 2
     username: {
-      required: '{name} can not blank'        // 规则 3
+      required: '{name} can not blank'        // rule 3
     }
   }
   this.validate(rules, msgs);
 }
 ```
 
-对于 `Object: true` 类型的字段，支持以下方式的自定义错误。优先级为 规则 5 > (4 = 3) > 2 > 1 。
+For `Object: true` fields,it supports the following custom error message. priority si rule 5 > (4 = 3) > 2 > 1 .
 
 ``` js
 module.exports = class extends think.Logic {
@@ -492,13 +492,13 @@ module.exports = class extends think.Logic {
     }
   }
   let msgs = {
-    int: 'this is int error message for all field',             // 规则1
+    int: 'this is int error message for all field',             // rule 1
     address: {
-      int: 'this is int error message for address',             // 规则2
-      a: 'this is int error message for a of address',          // 规则3
-      'b,c': 'this is int error message for b and c of address' // 规则4
+      int: 'this is int error message for address',             // rule 2
+      a: 'this is int error message for a of address',          // rule 3
+      'b,c': 'this is int error message for b and c of address' // rule 4
       d: {
-        int: 'this is int error message for d of address'       // 规则5
+        int: 'this is int error message for d of address'       // rule 5
       }
     }
   }
@@ -506,11 +506,11 @@ module.exports = class extends think.Logic {
 }
 ```
 
-### 支持的校验类型
+### supported validation types
 
 #### required
 
-`required: true` 字段必填，默认 `required: false`。`undefined`、`空字符串` 、`null`、`NaN` 在 `required: true` 时校验不通过。
+`required: true` field is required,default is `required: false`. `undefined`、`[empty string]` 、`null`、`NaN` will failed `required: true`.
 
 ```js
 module.exports = class extends think.Logic {
@@ -526,11 +526,11 @@ module.exports = class extends think.Logic {
 }
 ```
 
-`name` 为必填项。
+`name` is required.
 
 #### requiredIf
 
-当另一个项的值为某些值其中一项时，该项必填。如：
+This is required when the value of one item is one of some values. Such as:
 
 ```js
 module.exports = class extends think.Logic {
@@ -547,11 +547,11 @@ module.exports = class extends think.Logic {
 }
 ```
 
-对于上述例子， 当 `GET` 请求中的 `username` 的值为 `lucy`、`tom` 任何一项时， `name` 的值必填。
+For the above example, the value of `name` is required when `username` in `GET` request is `lucy` or `tom`.
 
 #### requiredNotIf
 
-当另一个项的值不在某些值中时，该项必填。如：
+This is required when the value of one item is not one of some values. Such as:
 
 ```js
 module.exports = class extends think.Logic {
@@ -568,12 +568,11 @@ module.exports = class extends think.Logic {
 }
 ```
 
-对于上述例子，当 `POST` 请求中的 `username` 的值不为 `lucy` 或者 `tom` 任何一项时， `name` 的值必填。
-
+For the above example, the value of `name` is required when `username` in `GET` request is not `lucy` or `tom`.
 
 #### requiredWith
 
-当其他几项有一项值存在时，该项必填。
+This item is required when there is a value in several other items.
 
 ```js
 module.exports = class extends think.Logic {
@@ -590,11 +589,11 @@ module.exports = class extends think.Logic {
 }
 ```
 
-对于上述例子，当 `GET` 请求中 `id`， `email` 有一项值存在时，`name` 的值必填。
+For the above example, the value of `name` is required when `id` or `email` in `GET` request has value.
 
 #### requiredWithAll
 
-当其他几项值都存在时，该项必填。
+This item is required when several other values exist.
 
 ```js
 module.exports = class extends think.Logic {
@@ -611,11 +610,11 @@ module.exports = class extends think.Logic {
 }
 ```
 
-对于上述例子，当 `GET` 请求中 `id`， `email` 所有项值存在时，`name` 的值必填。
+For the above example, the value of `name` is required when `id` and `email` in `GET` request has value.
 
 #### requiredWithOut
 
-当其他几项有一项值不存在时，该项必填。
+This item is required when there is a value that does not exist in several other items.
 
 ```js
 module.exports = class extends think.Logic {
@@ -631,12 +630,12 @@ module.exports = class extends think.Logic {
   }
 }
 ```
-对于上述例子，当 `GET` 请求中 `id`， `email` 有任何一项值不存在时，`name` 的值必填。
 
+For the above example, the value of `name` is required when any of `id`, `email` does not exist in` GET` request.
 
 #### requiredWithOutAll
 
-当其他几项值都不存在时，该项必填。
+This value is required when several other values do not exist.
 
 ```js
 module.exports = class extends think.Logic {
@@ -652,11 +651,11 @@ module.exports = class extends think.Logic {
   }
 }
 ```
-对于上述例子，当 `GET` 请求中 `id`， `email` 所有项值不存在时，`name` 的值必填。
+For the above example, the vaule of `name` is required when all the `id` and `email` values in `GET` request do not exist.
 
 #### contains
 
-值需要包含某个特定的值。
+The value needs to contain a specific value.
 
 ```js
 module.exports = class extends think.Logic {
@@ -672,11 +671,11 @@ module.exports = class extends think.Logic {
   }
 }
 ```
-对于上述例子，当 `GET` 请求中 `name` 得值需要包含字符串 `ID-`。
+For the above example, `name` value in `GET` request needs to container `ID-` string.
 
 #### equals
 
-和另一项的值相等。
+equals to another filed.
 
 ```js
 module.exports = class extends think.Logic {
@@ -692,12 +691,11 @@ module.exports = class extends think.Logic {
   }
 }
 ```
-
-对于上述例子，当 `GET` 请求中的 `name` 与 `username` 的字段要相等。
+For the above example, `name` value must be equal to `username` value in `GET` request.
 
 #### different
 
-和另一项的值不等。
+not equal to another filed value.
 
 ```js
 module.exports = class extends think.Logic {
@@ -714,18 +712,18 @@ module.exports = class extends think.Logic {
 }
 ```
 
-对于上述例子，当 `GET` 请求中的 `name` 与 `username` 的字段要不相等。
+For the above example, the values of `name` and `username` fields in `GET` request are not equal.
 
 #### before
 
-值需要在一个日期之前，默认为需要在当前日期之前。
+The value needs to be before a date, by default it needs to be before the current date.
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       time: {
-        before: '2099-12-12 12:00:00', // before: true 早于当前时间
+        before: '2099-12-12 12:00:00', // before: true means before the current date.
         method: 'GET'
       }
     }
@@ -734,49 +732,49 @@ module.exports = class extends think.Logic {
   }
 }
 ```
-对于上述例子，当 `GET` 请求中的 `time` 字段对应的时间值要早于 `2099-12-12 12:00:00`。
+For the above example, `time` field in `GET` request needs to be before `2099-12-12 12:00:00`.
 
 #### after
 
-值需要在一个日期之后，默认为需要在当前日期之后，`after: true | time string`。
+The value needs to be after a date, the default is after the current date, `after: true | time string`.
 
 #### alpha
 
-值只能是 [a-zA-Z] 组成，`alpha: true`。
+The vlaue can only be [a-zA-Z], `alpha: true`.
 
 #### alphaDash
 
-值只能是 [a-zA-Z_] 组成，`alphaDash: true`。
+The vlaue can only be [a-zA-Z_], `alphaDash: true`.
 
 #### alphaNumeric
 
-值只能是 [a-zA-Z0-9] 组成，`alphaNumeric: true`。
+The vlaue can only be [a-zA-Z0-9], `alphaNumeric: true`.
 
 #### alphaNumericDash
 
-值只能是 [a-zA-Z0-9_] 组成，`alphaNumericDash: true`。
+The vlaue can only be [a-zA-Z0-9_], `alphaNumericDash: true`.
 
 #### ascii
 
-值只能是 ascii 字符组成， `ascii: true`。
+The vlaue can only be ascii character, `ascii: true`.
 
 #### base64
 
-值必须是 base64 编码，`base64: true`。
+The encoding must be base64, `base64: true`.
 
 #### byteLength
 
-字节长度需要在一个区间内， `byteLength: options`。
+The byte length must be in a range, `byteLength: options`.
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       field_name: {
-        byteLength: {min: 2, max: 4} // 字节长度需要在 2 - 4 之间
-        // byteLength: {min: 2} // 字节最小长度需要为 2
-        // byteLength: {max: 4} // 字节最大长度需要为 4
-        // byteLength: 10 // 字节长度需要等于 10
+        byteLength: {min: 2, max: 4} // byte length is between 2 - 4
+        // byteLength: {min: 2} // minimum byte length is 2
+        // byteLength: {max: 4} // maximum byte length is 4
+        // byteLength: 10 // byte length need to be equal to 10
       }
     }
   }
@@ -785,30 +783,30 @@ module.exports = class extends think.Logic {
 
 #### creditCard
 
-需要为信用卡数字，`creditCard: true`。
+The value is a credit card numbers, `creditCard: true`.
 
 #### currency
 
-需要为货币，`currency: true | options`， `options` 参见 `https://github.com/chriso/validator.js`。
+The value needs to be currency, `currency: true | options`, `options` refer to `https://github.com/chriso/validator.js`.
 
 #### date
 
-需要为日期，`date: true`。
+The value needs to be date, `date: true`.
 
 #### decimal
 
-需要为小数，例如：0.1， .3， 1.1， 1.00003， 4.0，`decimal: true`。
+Need to be decimal, for example: 0.1, .3, 1.1, 1.00003, 4.0, `decimal: true`.
 
 #### divisibleBy
 
-需要被一个数整除，`divisibleBy: number`。
+Need to be divisible by a number, `divisibleBy: number`.
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       field_name: {
-        divisibleBy: 2 //可以被 2 整除
+        divisibleBy: 2 //can be divided by 2
       }
     }
   }
@@ -817,23 +815,23 @@ module.exports = class extends think.Logic {
 
 #### email
 
-需要为 email 格式，`email: true | options`， `options` 参见 `https://github.com/chriso/validator.js`。
+Need to be email format, `email: true | options`, `options` refer to `https://github.com/chriso/validator.js`.
 
 #### fqdn
 
-需要为合格的域名，`fqdn: true | options`， `options` 参见 `https://github.com/chriso/validator.js`。
+Need to be valid domain, `fqdn: true | options`, `options` refer to `https://github.com/chriso/validator.js`.
 
 #### float
 
-需要为浮点数，`float: true | options`， `options` 参见 `https://github.com/chriso/validator.js`。
+Need to be a float number, `float: true | options`, `options` refer to `https://github.com/chriso/validator.js`.
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       money: {
-        float: true, //需要是个浮点数
-        // float: {min: 1.0, max: 9.55} // 需要是个浮点数，且最小值为 1.0，最大值为 9.55
+        float: true, // float number 
+        // float: {min: 1.0, max: 9.55} // Need to be a float,,with a minimum of 1.0 and maximum of 9.55
       }
     }
     this.validate();
@@ -844,78 +842,78 @@ module.exports = class extends think.Logic {
 
 #### fullWidth
 
-需要包含宽字节字符，`fullWidth: true`。
+Need to include wide byte characters, `fullWidth: true`.
 
 #### halfWidth
 
-需要包含半字节字符，`halfWidth: true`。
+Need to include nibble characters, `halfWidth: true`.
 
 #### hexColor
 
-需要为个十六进制颜色值，`hexColor: true`。
+Need to be a hexadecimal color value, `hexColor: true`.
 
 #### hex
 
-需要为十六进制，`hex: true`。
+Need to be hexadecimal, `hex: true`.
 
 #### ip
 
-需要为 ip 格式，`ip: true`。
+Need to be ip format, `ip: true`.
 
 #### ip4
 
-需要为 ip4 格式，`ip4: true`。
+Need to be ip4 format,`ip4: true`.
 
 #### ip6
 
-需要为 ip6 格式，`ip6: true`。
+Need to be ip6 format, `ip6: true`.
 
 #### isbn
 
-需要为国际标准书号，`isbn: true`。
+Need for ISBN, `isbn: true`.
 
 #### isin
 
-需要为证券识别编码，`isin: true`。
+Need to identify the code for the securities, `isin: true`.
 
 #### iso8601
 
-需要为 iso8601 日期格式，`iso8601: true`。
+Need to iso8601 date format, `iso8601: true`.
 
 #### issn
 
-国际标准连续出版物编号，`issn: true`。
+International Standard Serial Number, `issn: true`.
 
 #### uuid
 
-需要为 UUID（3，4，5 版本)，`uuid: true`。
+Need to UUID (3,4,5 version), `uuid: true`.
 
 #### dataURI
 
-需要为 dataURI 格式，`dataURI: true`。
+Need to be dataURI format, `dataURI: true`.
 
 #### md5
 
-需要为 md5，`md5: true`。
+Need to be md5,`md5: true`.
 
 #### macAddress
 
-需要为 mac 地址， `macAddress: true`。
+Need to be mac address, `macAddress: true`.
 
 #### variableWidth
 
-需要同时包含半字节和全字节字符， `variableWidth: true`。
+Need to include both nibble and full-byte characters, `variableWidth: true`.
 
 #### in
 
-在某些值中，`in: [...]`。
+in some vlaues, `in: [...]`.
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       version: {
-        in: ['2.0', '3.0'] //需要是 2.0，3.0 其中一个
+        in: ['2.0', '3.0'] //need to be one of 2.0, 3.0
       }
     }
     this.validate();
@@ -926,19 +924,19 @@ module.exports = class extends think.Logic {
 
 #### notIn
 
-不能在某些值中， `notIn: [...]`。
+Can not be in some value, `notIn: [...]`.
 
 #### int
 
-需要为 int 型， `int: true | options`， `options` 参见 `https://github.com/chriso/validator.js`。
+Need to be int, `int: true | options`, `options` refer to `https://github.com/chriso/validator.js`.
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       field_name: {
-        int: true, //需要是 int 型
-        //int: {min: 10, max: 100} //需要在 10 - 100 之间
+        int: true, 
+        //int: {min: 10, max: 100} //need to be between 10 - 100
       }
     }
     this.validate();
@@ -949,17 +947,17 @@ module.exports = class extends think.Logic {
 
 #### length
 
-长度需要在某个范围，`length: options`。
+The length needs to be within a certain range, `length: options`.
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       field_name: {
-        length: {min: 10}, //长度不能小于10
-        // length: {max: 20}, //长度不能大于10
-        // length: {min: 10, max: 20}, //长度需要在 10 - 20 之间
-        // length: 10 //长度需要等于10
+        length: {min: 10}, //length can not be less than 10
+        // length: {max: 20}, //length can not be greater than 10
+        // length: {min: 10, max: 20}, //length needs to be between 10-20
+        // length: 10 //length needs to be equal to 10
       }
     }
     this.validate();
@@ -970,22 +968,22 @@ module.exports = class extends think.Logic {
 
 #### lowercase
 
-需要都是小写字母，`lowercase: true`。
+Need to be lowercase letters, `lowercase: true`.
 
 #### uppercase
 
-需要都是大写字母，`uppercase: true`。
+Need to be capital letters, `uppercase: true`.
 
 #### mobile
 
-需要为手机号，`mobile: true | options`，`options` 参见 `https://github.com/chriso/validator.js`。
+Need to phone number, `mobile: true | options`,`options` refer to `https://github.com/chriso/validator.js`.
 
 ```js
 module.exports = class extends think.Logic {
   indexAction(){
     let rules = {
       mobile: {
-        mobile: 'zh-CN' //必须为中国的手机号
+        mobile: 'zh-CN' //Must be China's cell phone number
       }
     }
     this.validate();
@@ -996,64 +994,65 @@ module.exports = class extends think.Logic {
 
 #### mongoId
 
-需要为 MongoDB 的 ObjectID，`mongoId: true`。
+Need to be ObjectID for MongoDB, `mongoId: true`.
 
 #### multibyte
 
-需要包含多字节字符，`multibyte: true`。
+Need to include multi-byte characters, `multibyte: true`.
 
 #### url
 
-需要为 url，`url: true|options`，`options` 参见 `https://github.com/chriso/validator.js`。
+Need to be url, `url: true|options`,`options` refer to `https://github.com/chriso/validator.js`.
 
 #### order
 
-需要为数据库查询 order，如：name DESC，`order: true`。
+Need to be database query order, such as: name DESC, `order: true`.
 
 #### field
 
-需要为数据库查询的字段，如：name,title，`field: true`。
+Need to be database query field, such as: name,title, `field: true`.
 
 #### image
 
 ```js
 let rules = {
   file: {
-    required: true, // required 默认为false
+    required: true, // required defaults to false
     image: true,
-    method: 'file' // 文件通过post提交，验证文件需要制定 method 为 `file`
+    method: 'file' // File submitted through the post, verify the file needs to specify the method as `file`
   }
 }
 ```
-上传的文件需要为图片，`image: true`。
+Upload files need to be pictures, `image: true`.
 
 #### startWith
 
-需要以某些字符打头，`startWith: string`。
+Need to start with some characters, `startWith: string`.
 
 #### endWith
 
-需要以某些字符结束, `endWith: string`。
+Need to end with some characters, `endWith: string`.
 
 #### string
 
-需要为字符串，`string: true`。
+Need to be string, `string: true`.
 
 #### array
 
-需要为数组，`array: true`，对于指定为 `array` 类型的字段，如果字段对应的值是数组不做处理；如果字段对应的值是字符串，进行 `split(,)` 处理；其他情况转化为 `[字段值]`。
+需要为数组,`array: true`,对于指定为 `array` 类型的字段,如果字段对应的值是数组不做处理；如果字段对应的值是字符串,进行 `split(,)` 处理；其他情况转化为 `[字段值]`.
+Array is required, `array: true`, if the value of the field is an array, it will not be processed; `split (,)` will be executed if the value of the field is a string; In other cases is converted to `[field value]`.
 
 #### boolean
 
-需要为布尔类型。`'yes'`， `'on'`， `'1'`， `'true'`， `true` 会自动转为布尔 `true` 。
+Needs to be boolean type. `'yes'`, `'on'`, `'1'`, `'true'`, `true` is converted to `true`.
 
 #### object
 
-需要为对象，`object: true`。
+Needs to be object type, `object: true`.
 
 #### regexp
 
-字段值要匹配给出的正则。
+The field should match the given regular expression.
 
 ```js
 module.exports = class extends think.Logic {
