@@ -71,7 +71,7 @@ exports.model = {
     database: '',
     host: '127.0.0.1',
     port: 3306,
-    connectionLimit: 1, // connection pool connection number, the default is 1
+    connectionLimit: 1, // connection number of connection pool, the default is 1
     prefix: '', // data sheet prefix，, if there is more than one item in a database, then the data sheet between the items can be distinguished by the prefix
   }
 }
@@ -89,10 +89,10 @@ exports.model = {
   type: 'sqlite',
   sqlite: {
     handle: sqlite, // Adapter handle
-    path: path.join(think.ROOT_PATH, 'runtime/sqlite'), // sqlite 保存的目录
+    path: path.join(think.ROOT_PATH, 'runtime/sqlite'), // directory for saving sqlite
     database: '', // database name
-    connectionLimit: 1, // 连接池的连接个数，默认为 1
-    prefix: '', // 数据表前缀，如果一个数据库里有多个项目，那项目之间的数据表可以通过前缀来区分
+    connectionLimit: 1, // connection number of connection pool, the default is 1
+    prefix: '', // data sheet prefix，, if there is more than one item in a database, then the data sheet between the items can be distinguished by the prefix
   }
 }
 ```
@@ -108,22 +108,22 @@ exports.model = {
   type: 'postgresql',
   postgresql: {
     handle: postgresql, // Adapter handle
-    user: 'root', // 用户名
-    password: '', // 密码
-    database: '', // 数据库
-    host: '127.0.0.1', // host
-    port: 3211, // 端口
-    connectionLimit: 1, // 连接池的连接个数，默认为 1
-    prefix: '', // 数据表前缀，如果一个数据库里有多个项目，那项目之间的数据表可以通过前缀来区分
+    user: 'root', // username
+    password: '',
+    database: '',
+    host: '127.0.0.1',
+    port: 3211,
+    connectionLimit: 1, // connection number of connection pool, the default is 1
+    prefix: '', // data sheet prefix，, if there is more than one item in a database, then the data sheet between the items can be distinguished by the prefix
   }
 }
 ```
 
-除了用 host 和 port 连接数据库外，也可以通过 `connectionString` 来连接，更多配置选项请见 <https://node-postgres.com/features/connecting>
+In addition to using the host and port to connect to the database, but also through `connectionString` to connect. More configuration options see <https://node-postgres.com/features/connecting>
 
-### 创建模型文件
+### Create model file
 
-模型文件放在 `src/model/` 目录下（多模块项目为 `src/common/model` 以及 `src/[module]/model`），继承模型基类 `think.Model`，文件格式为：
+The model files are placed in the `src/model/` directory (``src/common/model` and `src/[module]/model` in multi-module project), inheriting the model base class `think.Model` with the file format:
 
 ```js
 // src/model/user.js
@@ -133,34 +133,35 @@ module.exports = class extends think.Model {
   }
 }
 ```
-也可以在项目根目录下通过 `thinkjs model modelName` 快速创建模型文件。
+
+You can also quickly create model files in the project root via `thinkjs model modelName`.
 
 ------
 
-如果项目比较复杂，希望对模型文件分目录管理，那么可以在模型目录下建立子目录，如： `src/model/front/user.js`，`src/model/admin/user.js`，这样在模型目录下建立 `front` 和 `admin` 目录，分别管理前台和后台的模型文件。
+If the project is complex and you want to catalog your model files, you can create subdirectories under the model directory, such as `src/model/front/user.js`, `src/model/admin/user.js`. Create the `front` and` admin` directories under the model directory to manage the front-end and back-end model files separately.
 
-含有子目录的模型实例化需要带上子目录，如：`think.model('front/user')`，具体见[这里](/doc/3.0/relation_model.html#toc-9d9)。
+Model instantiation with subdirectories requires subdirectories like `think.model('front/user')`, see [here](/doc/3.0/relation_model.html#toc-9d9).
 
-### 实例化模型
+### Instantiate the model
 
-项目启动时，会扫描项目下的所有模型文件（目录为 `src/model/`，多模块项目下目录为 `src/common/model` 以及各种 `src/[module]/model`），扫描后会将所有的模型类存放在 `think.app.models` 对象上，实例化时会从这个对象上查找，如果找不到则实例化模型基类 `think.Model`。
+When the project starts, it scans for all model files (`src/model/` under the project directory, `src/common/model` and various `src/[module]/model` under the multi-module project). After that, all the model classes will be stored in the `think.app.models` object, and will be looked up from this object upon instantiation. If it is not found, the model base class `think.Model` will be instantiated.
 
 #### think.model
 
-实例化模型类。
+Instantiate the model class.
 
 ```js
-think.model('user'); // 获取模型的实例
-think.model('user', 'sqlite'); // 获取模型的实例，修改数据库的类型
-think.model('user', { // 获取模型的实例，修改类型并添加其他的参数
+think.model('user'); // get the instance of the model
+think.model('user', 'sqlite'); // get the instance of the model, modify the type of database
+think.model('user', { // get the instance of the model，modify the type of database and add other arguments
   type: 'sqlite',
   aaa: 'bbb'
 });
-think.model('user', {}, 'admin'); // 获取模型的实例，指定为 admin 模块（多模块项目下有效）
+think.model('user', {}, 'admin'); // get the instance of the model，specified as admin module (valid under multi-module project)
 ```
 #### ctx.model
 
-实例化模型类，获取配置后调用 `think.model` 方法，多模块项目下会获取当前模块下的配置。
+Instantiate the model class, call the `think.model` method after getting the configuration, and get the configuration under the current module in a multi-module project.
 
 ```js
 const user = ctx.model('user');
@@ -168,12 +169,12 @@ const user = ctx.model('user');
 
 #### controller.model
 
-实例化模型类，获取配置后调用 `think.model` 方法，多模块项目下会获取当前模块下的配置。
+Instantiate the model class, call the `think.model` method after getting the configuration, and get the configuration under the current module in a multi-module project.
 
 ```js
 module.exports = class extends think.Controller {
   async indexAction() {
-    const user = this.model('user'); // controller 里实例化模型
+    const user = this.model('user'); // instantiate the model in the controller
     const data = await user.select();
     return this.success(data);
   }
@@ -182,109 +183,110 @@ module.exports = class extends think.Controller {
 
 #### service.model
 
-实例化模型类，等同于 `think.model`
+Instantiate the model class, equivalent to `think.model`.
 
-#### 含有子目录的模型实例化
+#### Instantiate a model that contains subdirectories
 
-如果模型目录下含有子目录，那么实例化时需要带上对应的子目录，如：
+If the model directory contains subdirectories, you need to add the corresponding subdirectory when instantiating, for example:
 
 ```js
-const user1 = think.model('front/user'); // 实例化前台的 user 模型
-const user2 = think.model('admin/user'); // 实例化后台的 user 模型
+const user1 = think.model('front/user'); // instantiate the user model for front-end
+const user2 = think.model('admin/user'); // instantiate the user model for back-end
 ```
 
-### CRUD 操作
+### CRUD operation
 
-`think.Model` 基类提供了丰富的方法进行 CRUD 操作，下面来一一介绍。
+The base class `think.Model` provides a rich way of CRUD operation, the following one by one to introduce.
 
-#### 查询数据
+#### Retrieve data
 
-模型提供了多种方法来查询数据，如:
+The model provides several ways to retrieve data, such as:
 
-* [find](/doc/3.0/relation_model.html#toc-a74) 查询单条数据
-* [select](/doc/3.0/relation_model.html#toc-3ad) 查询多条数据
-* [count](/doc/3.0/relation_model.html#toc-274) 查询总条数
-* [countSelect](/doc/3.0/relation_model.html#toc-a39) 分页查询数据
-* [max](/doc/3.0/relation_model.html#toc-df2) 查询字段的最大值
-* [avg](/doc/3.0/relation_model.html#toc-8d2) 查询字段的平均值
-* [min](/doc/3.0/relation_model.html#toc-1d7) 查询字段的最小值
-* [sum](/doc/3.0/relation_model.html#toc-c11) 对字段值进行求和
-* [getField](/doc/3.0/relation_model.html#toc-f0a) 查询指定字段的值
+* [find](/doc/3.0/relation_model.html#toc-a74) query a single data
+* [select](/doc/3.0/relation_model.html#toc-3ad) query multiple data
+* [count](/doc/3.0/relation_model.html#toc-274) The total number of query
+* [countSelect](/doc/3.0/relation_model.html#toc-a39) paging query data
+* [max](/doc/3.0/relation_model.html#toc-df2) query the maximum value of the field
+* [avg](/doc/3.0/relation_model.html#toc-8d2) query the average value of the field
+* [min](/doc/3.0/relation_model.html#toc-1d7) query the minimum value of the field
+* [sum](/doc/3.0/relation_model.html#toc-c11) sum the field values
+* [getField](/doc/3.0/relation_model.html#toc-f0a) query the value of the specified field
 
-同时模型支持通过下面的方法指定 SQL 语句中的特定条件，如：
+At the same time the model supports the following methods to specify specific conditions in the SQL statement, such as:
 
-* [where](/doc/3.0/relation_model.html#toc-d47) 指定 SQL 语句中的 where 条件
-* [limit](/doc/3.0/relation_model.html#toc-47d) / [page](/doc/3.0/relation_model.html#toc-a43) 指定 SQL 语句中的 limit
-* [field](/doc/3.0/relation_model.html#toc-68b) / [fieldReverse](/doc/3.0/relation_model.html#toc-ad6) 指定 SQL 语句中的 field
-* [order](/doc/3.0/relation_model.html#toc-973) 指定 SQL 语句中的 order
-* [group](/doc/3.0/relation_model.html#toc-55a) 指定 SQL 语句中的 group
-* [join](/doc/3.0/relation_model.html#toc-48b) 指定 SQL 语句中的 join
-* [union](/doc/3.0/relation_model.html#toc-ad1) 指定 SQL 语句中的 union
-* [having](/doc/3.0/relation_model.html#toc-be2) 指定 SQL 语句中的 having
-* [cache](/doc/3.0/relation_model.html#toc-fb8) 设置查询缓存
+* [where](/doc/3.0/relation_model.html#toc-d47) specify the where condition in the SQL statement
+* [limit](/doc/3.0/relation_model.html#toc-47d) / [page](/doc/3.0/relation_model.html#toc-a43) specify the limit in the SQL statement
+* [field](/doc/3.0/relation_model.html#toc-68b) / [fieldReverse](/doc/3.0/relation_model.html#toc-ad6) specify the field in the SQL statement
+* [order](/doc/3.0/relation_model.html#toc-973) specify the order in the SQL statement
+* [group](/doc/3.0/relation_model.html#toc-55a) specify the group in the SQL statement
+* [join](/doc/3.0/relation_model.html#toc-48b) specify the join in the SQL statement
+* [union](/doc/3.0/relation_model.html#toc-ad1) specify the union in the SQL statement
+* [having](/doc/3.0/relation_model.html#toc-be2) specify the having in the SQL statement
+* [cache](/doc/3.0/relation_model.html#toc-fb8) set the query cache
 
-#### 添加数据
+#### Create data
 
-模型提供了下列的方法来添加数据：
+The model provides the following methods to create data:
 
-* [add](/doc/3.0/relation_model.html#toc-c73) 添加单条数据
-* [thenAdd](/doc/3.0/relation_model.html#toc-3e2) where 条件不存在时添加
-* [addMany](/doc/3.0/relation_model.html#toc-a55) 添加多条数据
-* [selectAdd](/doc/3.0/relation_model.html#toc-a56) 添加子查询的结果数据
+* [add](/doc/3.0/relation_model.html#toc-c73) create a single data
+* [thenAdd](/doc/3.0/relation_model.html#toc-3e2) add when where condition doesn't exist
+* [addMany](/doc/3.0/relation_model.html#toc-a55) add multiple data
+* [selectAdd](/doc/3.0/relation_model.html#toc-a56) add result data for subquery
 
-#### 更新数据
+#### Update data
 
-模型提供了下列的方法来更新数据：
+The model provides the following methods to update data:
 
-* [update](/doc/3.0/relation_model.html#toc-b86) 更新单条数据
-* [updateMany](/doc/3.0/relation_model.html#updatemany-datalist-options) 更新多条数据
-* [thenUpdate](/doc/3.0/relation_model.html#toc-1b0) 条件式更新
-* [increment](/doc/3.0/relation_model.html#toc-990) 字段增加值
-* [decrement](/doc/3.0/relation_model.html#toc-41c) 字段减少值
+* [update](/doc/3.0/relation_model.html#toc-b86) update a single data
+* [updateMany](/doc/3.0/relation_model.html#updatemany-datalist-options) update multiple data
+* [thenUpdate](/doc/3.0/relation_model.html#toc-1b0) conditional update
+* [increment](/doc/3.0/relation_model.html#toc-990) the value added to the field
+* [decrement](/doc/3.0/relation_model.html#toc-41c) the value to reduce the field
 
-#### 删除数据
+#### Delete data
 
-模型提供了下列的方法来删除数据：
+The model provides the following methods to delete data:
 
-* [delete](/doc/3.0/relation_model.html#toc-866) 删除数据
+* [delete](/doc/3.0/relation_model.html#toc-866) delete data
 
-#### 手动执行 SQL 语句
+#### Manually execute the SQL statement
 
-有时候模型包装的方法不能满足所有的情况，这时候需要手工指定 SQL 语句，可以通过下面的方法进行：
+Sometimes the model packaging method can't meet all the circumstances, this time need to manually specify the SQL statement, you can through the following methods:
 
-* [query](/doc/3.0/relation_model.html#toc-89d) 手写 SQL 语句查询
-* [execute](/doc/3.0/relation_model.html#toc-a1e) 手写 SQL 语句执行
+* [query](/doc/3.0/relation_model.html#toc-89d) handwritten SQL statement to query
+* [execute](/doc/3.0/relation_model.html#toc-a1e) handwritten SQL statement to execute
 
 
-### 事务
+### Transaction
 
-对于数据安全要求很高的业务（如：订单系统、银行系统）操作时需要使用事务，这样可以保证数据的原子性、一致性、隔离性和持久性，模型提供了操作事务的方法。
+For data security demanding business (such as: order system, banking system) operation requires the use of transaction, so as to ensure the atomicity of data, consistency, isolation and durability, the model provides a method of operating the transaction.
 
-#### 手工操作事务
+#### Manally manipulate transaction
 
-可以手工通过 [model.startTrans](/doc/3.0/relation_model.html#toc-0ae)、[model.commit](/3.0/relation_model.html#toc-9fc) 和 [model.rollback](/3.0/relation_model.html#toc-0f2) 方法操作事务。
+You can manipulate transactions manually using the [model.startTrans](/doc/3.0/relation_model.html#toc-0ae), [model.commit](/3.0/relation_model.html#toc-9fc), and [model.rollback](/3.0/relation_model.html#toc-0f2) methods.
 
 #### transaction
 
 每次操作事务时都手工执行 startTrans、commit 和 rollback 比较麻烦，模型提供了 [model.transaction](/doc/3.0/relation_model.html#toc-e30) 方法快速操作事务。
+The manual execution of startTrans, commit, and rollback is cumbersome for every transaction, and the model provides the [model.transaction](/doc/3.0/relation_model.html#toc-e30) method for quickly manipulating transactions.
 
-### 设置主键
+### Set the primary key
 
-可以通过 `pk` 属性设置数据表的主键，具体见 [model.pk](/doc/3.0/relation_model.html#toc-c88)。
+The primary key of the datasheet can be set via the `pk` attribute as described in [model.pk](/doc/3.0/relation_model.html#toc-c88).
 
-### 设置 schema
+### Set schema
 
-可以通过 `schema` 属性设置数据表的主键，具体见 [model.schema](/doc/3.0/relation_model.html#toc-2d3)。
+The data table structure can be set via the `schema` attribute, as described in [model.schema](/doc/3.0/relation_model.html#toc-2d3).
 
-### 关联查询
+### Related query
 
-数据库中表经常会跟其他数据表有关联，数据操作时需要连同关联的表一起操作。如：一个博客文章会有分类、标签、评论，以及属于哪个用户，支持的类型有：一对一、一对一（属于）、一对多和多对多。
+Database tables often associated with other data tables, data operations need to operate together with the associated table. For example: A blog post will have categories, tags, reviews, and which user it belongs to. The types of support are: one to one, one to one (belong to), one to many and many to many.
 
-可以通过 [model.relation](/doc/3.0/relation_model.html#toc-548) 属性配置详细的关联关系。
+The detailed relationship can be configured via the [model.relation](/doc/3.0/relation_model.html#toc-548) attribute.
 
-#### 一对一
+#### One to one
 
-一对一关联，表示当前表含有一个附属表。假设当前表的模型名为 `user`，关联表的模型名为 `info`，那么配置中字段 `key` 的默认值为 `id`，字段 `fKey` 的默认值为 `user_id`。
+One to one association, indicating that the current table contains a subsidiary table. Assuming that the model name of the current table is `user` and the model name of the associated table is `info`, the default value of `key` in the configuration is `id` and the default value of `fKey` is `user_id`.
 
 ```js
 module.exports = class extends think.Model {
@@ -296,24 +298,23 @@ module.exports = class extends think.Model {
 }
 ```
 
-执行查询操作时，可以得到类似如下的数据：
+When you execute a query, you get data similar to the following:
 
 ```js
 [
   {
     id: 1,
     name: '111',
-    info: { //关联表里的数据信息
+    info: { // data in the association table
       user_id: 1,
       desc: 'info'
     }
   }, ...]
 ```
 
-#### 一对一（属于）
+#### One to one (belong to)
 
-一对一关联，属于某个关联表，和 HAS_ONE 是相反的关系。假设当前模型名为 `info`，关联表的模型名为 `user`，那么配置字段 `key` 的默认值为 `user_id`，配置字段 `fKey` 的默认值为 `id`。
-
+One to one association, belonging to a associated table, as opposed to HAS_ONE. Assuming that the current model name is `info` and the name of the associated table is `user`, the default value of `key` in the configuration is `user_id`, and the default value of the `fKey` field is `id`.
 
 ```js
 module.exports = class extends think.Model {
@@ -325,7 +326,7 @@ module.exports = class extends think.Model {
 }
 ```
 
-执行查询操作时，可以得到类似下面的数据：
+When you execute a query, you get data similar to the following:
 
 ```js
 [
@@ -340,9 +341,9 @@ module.exports = class extends think.Model {
 ]
 ```
 
-#### 一对多
+#### One to many
 
-一对多的关系。假如当前模型名为 `post`，关联表的模型名为 `comment`，那么配置字段 `key` 默认值为 `id`，配置字段 `fKey` 默认值为 `post_id`。
+One to many association. If the current model name is `post` and the associated table's model name is `comment`, then the configuration field `key` defaults to `id` and the configuration field `fKey` defaults to `post_id`.
 
 ```js
 module.exports = class extends think.Model {
@@ -356,7 +357,7 @@ module.exports = class extends think.Model {
 }
 ```
 
-执行查询数据时，可以得到类似下面的数据：
+When you execute a query, you get data similar to the following:
 
 ```js
 [{
@@ -372,11 +373,11 @@ module.exports = class extends think.Model {
 }, ...]
 ```
 
-如果关联表的数据需要分页查询，可以通过 [model.setRelation](/doc/3.0/relation_model.html#toc-d7a) 方法进行。
+If the data in the associated table needs to be paged query, it can be done via the [model.setRelation](/doc/3.0/relation_model.html#toc-d7a) method.
 
-#### 多对多
+#### Many to many
 
-多对多关系。假设当前模型名为 `post`，关联模型名为 `cate`，那么需要一个对应的关联关系表。配置字段 `rModel` 默认值为 `post_cate`，配置字段 `rfKey` 默认值为 `cate_id`。
+Many to many association. Assuming the current model name is `post` and the associated model name is `cate`, then a corresponding relational table is needed. The configuration field `rModel` defaults to `post_cate` and the configuration field `rfKey` defaults to `cate_id`.
 
 
 ```js
@@ -393,7 +394,7 @@ module.exports = class extends think.Model {
 }
 ```
 
-查询出来的数据结构为：
+When you execute a query, you get data similar to the following:
 
 ```js
 [{
@@ -407,9 +408,9 @@ module.exports = class extends think.Model {
 }, ...]
 ```
 
-### 分布式/读写分离
+### Distributed / separation of read and write
 
-有时候数据库需要用到分布式数据库，或者进行读写分离，这时候可以给配置里添加 `parser` 完成，如：
+Sometimes the database needs to use a distributed database, or read and write separation, this time can add `parser` to the configuration to complete, such as:
 
 ```js
 exports.model = {
@@ -418,7 +419,7 @@ exports.model = {
     user: 'root',
     password: '',
     parser: sql => {
-      // 这里会把当前要执行的 SQL 传递进来
+      // here will pass in the current SQL to be executed
       const sqlLower = sql.toLowerCase();
       if(sql.indexOf('select ') === 0) {
         return {
@@ -436,29 +437,29 @@ exports.model = {
 }
 ```
 
-`parser` 里可以根据 sql 返回不同的配置，会将返回的配置和默认的配置进行合并。
+`parser` can return different configurations based on sql and will merge the returned configuration with the default configuration.
 
-### 常见问题
+### FAQ
 
-#### 数据库的连接数最大连接数是多少？
+#### What is the maximum number of connections to the database?
 
-假设项目有二个集群，每个集群有十台机器，机器机器开启了四个 worker，数据库配置的连接池里的连接数为五，那么总体的最大连接数为：`2 * 10 * 4 * 5 = 400`
+Assuming the project has two clusters, each cluster has ten machines, each machine has four workers enabled, and the number of connections in the connection pool of database configuration is five, then the overall maximum number of connections is: `2 * 10 * 4 * 5 = 400`
 
-#### 如何查看相关调试信息？
+#### How to check related debugging information?
 
-模型使用的 debug 名称为 `think-model`，可以通过 `DEBUG=think-model npm start` 启动服务然后查看调试信息。
+The debug name used by the model is `think-model`, which can be started with `DEBUG = think-model npm start` and checked for debugging information.
 
 ### API
 
 #### model.schema
 
-设置表结构，默认从数据表中获取，也可以自己配置增加额外的配置项。
+Set the table structure, the default access from the data table, you can also configure additional configuration items.
 
 ```js
 module.exports = class extends think.Model {
   get schema() {
     return {
-      id: { // 字段名称
+      id: { // field name
         type: 'int(11)',
         ...
       }
@@ -466,26 +467,27 @@ module.exports = class extends think.Model {
   }
 }
 ```
-支持的字段为：
+Supported fields are:
 
-* `type` {String} 字段的类型，包含长度属性
-* `required` {Boolean} 是否必填
-* `default` {mixed} 默认值，可以是个值，也可以是函数
+* `type` {String} the type of field, including the length attribute
+* `required` {Boolean} required or not
+* `default` {mixed} the default value, can be a value or a function
+
   ```js
   module.exports = class extends think.Model {
     get schema() {
       return {
-        type: { // 字段名称
+        type: { // field name
           type: 'varchar(10)',
           default: 'small'
         },
         create_time: {
           type: 'datetime',
-          default: () => think.datetime() // default 为一个函数
+          default: () => think.datetime() // default is a function
         },
         score: {
           type: 'int',
-          default: data => { // data 为添加/更新时的数据
+          default: data => { // data is added / updated data
             return data.grade * 1.5;
           }
         }
@@ -493,27 +495,27 @@ module.exports = class extends think.Model {
     }
   }
   ```
-* `primary` {boolean} 是否为主键
-* `unique` {boolean} 字段是否唯一
-* `autoIncrement` {boolean} 自动是否 `auto increment`
-* `readonly` {boolean} 字段是否只读，也就是只能创建时添加，不让更新该字段
-* `update` {boolean} 默认值是否在更新时也有效。如果设置了 `readonly`，那么该字段无效。
+* `primary` {boolean} is the primary key or not
+* `unique` {boolean} whether the field is unique
+* `autoIncrement` {boolean} whether or not `auto increment`
+* `readonly` {boolean} whether the field is read-only, can only be added when creating, can't update the field
+* `update` {boolean} whether the default value is valid also when updating. If `readonly` is set, then this field is invalid.
 
 
 #### model.relation
 
-配置数据表的关联关系。
+Configure the association of data tables.
 
 ```js
 module.exports = class extends think.Model {
-  // 配置关联关系
+  // configure the association
   get relation() {
     return {
-      cate: { // 配置跟分类的关联关系
+      cate: { // configure the relationship with the classification
         type: think.Model.MANY_TO_MANY,
         ...
       },
-      comment: { // 配置跟评论的关联关系
+      comment: { // configure the association with comments
 
       }
     }
@@ -521,31 +523,31 @@ module.exports = class extends think.Model {
 }
 ```
 
-每个关联关系支持的配置如下：
+The configuration supported by each association is as follows:
 
-* `type` 关联关系类型，默认为 `think.Model.HAS_ONE`
-
-  ```
-  一对一：think.Model.HAS_ONE
-  一对一（属于）：think.Model.BELONG_TO
-  一对多：think.Model.HAS_MANY
-  多对多：think.Model.MANY_TO_MANY
-  ```
-* `model` 关联表的模型名，默认为配置的 key
+* `type` association type, default is `think.Model.HAS_ONE`
 
   ```
-  实例化对应关联模型的时候使用，会通过 const relationModel = this.model(item.model) 去实例化关联模型
+  One to one: think.Model.HAS_ONE
+  One to one (belong to): think.Model.BELONG_TO
+  One to many: think.Model.HAS_MANY
+  Many to many: think.Model.MANY_TO_MANY
   ```
-* `name` 对应的数据字段名，默认为配置的 key，查询到数据后，保存字段的名称。
+* `model` the model name of the association table, the default is the key of configuration
 
   ```
-  // 原始数据
+  When instantiating the corresponding relational model, the relational model is instantiated via const relationModel = this.model(item.model)
+  ```
+* `name` the corresponding data field name, the default is the key of configuration, after querying the data, save the field name.
+
+  ```
+  // origin data
   const originData = {
     id: 1,
     email: ''
   }
-  // 设置对应的数据字段名为 cate
-  // 那么最终生成的数据为
+  // set the corresponding data field named cate
+  // then the final generated data is
   const targetData = {
     id: 1,
     email: '',
@@ -554,36 +556,36 @@ module.exports = class extends think.Model {
     }
   }
   ```
-* `key` 当前模型的关联 key
+* `key` the current model's associated key
 
   ```
-  一对一、一对多、多对多下默认值为当前模型的主键，如：id
-  一对一（属于）下默认值为关联表名称和 id 的组合，如：cate_id
+  One to one, one to many, many to many the default value is the primary key of the current model, such as: id
+  One to one (belong to) the default value is a combination of the name of the associated table and id, such as: cate_id
   ```
-* `fKey` 关联表与只对应的 key
+* `fKey` the associated table corresponding key
 
   ```
-  一对一、一对多、多对多下默认值为关联表名称和 id 的组合，如：cate_id
-  一对一（属于）下默认值为当前模型的主键，如：id
+  One to one, one to many, many to many the default value is a combination of table name and id, such as: cate_id
+  One to one (Belonging) the default value for the current model's primary key, such as: id
   ```
 
-* `field` 关联表查询时设置的 field，默认值为 `*`。如果需要设置，必须包含 `fKey` 对应的值，支持函数。
+* `field` field set when the associated table query, the default value is `*`. If you need to set, must contain the value of `fKey`, support function.
 
   ```
-  // 设置 field 字段
+  // set the field field
   get relation() {
     return {
       cate: {
-        field: 'id,name' // 只查询 id, name 字段
+        field: 'id,name' // only query id, name field
       }
     }
   }
 
-  // 设置 field 为 function
+  // set the field to function
   get relation() {
     return {
       cate: {
-        // rModel 为关联模型的实例，model 为当前模型的实例
+        // rModel is an instance of the associated model and model is an instance of the current model
         field: (rModel, model) => {
           return 'id,name'
         }
