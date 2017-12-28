@@ -1,17 +1,18 @@
-## 多模块项目
+## Multi-module project
 
-一般的项目我们推荐使用单模块项目，如果项目较为复杂的话，可以使用[多级控制器](/doc/3.0/controller.html#toc-04e)来按功能划分。如果这些还不能满足项目复杂度的需求，那么可以创建多模块项目。
 
-创建项目时可以指定 `--mode=module` 参数创建多模块项目。
+General project we recommand using the single module mode, it project is complicated, [multi-layer controller]((/doc/3.0/controller.html#toc-04e)) can be used to divided controoler by feature. If still it can't meet your requirements, try create multi-module project.
+
+Use `--mode=module` to create a molti-module project.
 
 ```sh
 thinkjs new demo --mode=module
 ```
 
-### 项目结构
+### Project structure
 
-项目结构跟单模块项目结构上有一些差别：
+There are differences between single-module and multi-module project in project structure:
 
-* `src/common` 存放一些公共的代码
-* `src/home` 默认的模块
-* `src/xxx` 按照功能添加模块
+* `src/common` to store common code
+* `src/home` default module
+* `src/xxx` modules added according to feature
