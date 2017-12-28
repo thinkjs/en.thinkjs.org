@@ -1,9 +1,8 @@
-## Middleware / 中间件
+## Middleware
 
-Middleware 称之为中间件，是 Koa 中一个非常重要的概念，利用中间件，可以很方便的处理用户的请求。由于 ThinkJS 3.0 是基于 Koa@2 版本之上构建的，所以完全兼容 Koa 里的中间件。
+Middleware is a very important concept in Koa, the use of middleware, users can easily handle the request. Since ThinkJS 3.0 was built on the Koa @ 2 release, it is fully compatible with Koa's middleware.
 
-
-### 中间件格式
+### define middleware
 
 ```js
 module.exports = options => {
@@ -12,84 +11,84 @@ module.exports = options => {
   }
 }
 ```
-中间件格式为一个高阶函数，外部的函数接收一个 `options` 参数，这样方便中间件提供一些配置信息，用来开启/关闭一些功能。执行后返回另一个函数，这个函数接收 `ctx`, `next` 参数，其中 `ctx` 为 `context` 的简写，是当前请求生命周期的一个对象，存储了当前请求的一些相关信息，`next` 为调用后续的中间件，返回值是 Promise，这样可以很方便的处理后置逻辑。
 
-整个中间件执行过程是个洋葱模型，类似下面这张图：
+The middleware is a higher-order function, and the external function receives an `options` parameter, which makes it easy for the middleware to provide some configuration information to turn on / off some functions. The function returns `ctx`, `next`, and `ctx` is a shorthand for` context`, which is an object of the current request's life cycle and stores some information about the current request, `next` to call the subsequent middleware, the return value is Promise, so you can easily handle the post-logic.
+
+
+The middleware execution process is an onion model, similar to the following picture:
 
 ![](https://p0.ssl.qhimg.com/t014260f4c3e6e64daa.png)
 
-假如要实现一个打印当前请求执行时间的 middleware，可以用类似下面的方式：
+If you want to implement a middleware to print the current request execution time, you can use something like the following:
 
 ```js
 const defaultOptions = {
-  consoleExecTime: true // 是否打印执行时间的配置
+  consoleExecTime: true // to print or not
 }
 module.exports = (options = {}) => {
-  // 合并传递进来的配置
+  // merge options
   options = Object.assign({}, defaultOptions, options);
   return (ctx, next) => {
     if(!options.consoleExecTime) {
-      return next(); // 如果不需要打印执行时间，直接调用后续执行逻辑
+      return next(); // If print the execution time is not needed, call the subsequent execution logic directly
     }
     const startTime = Date.now();
     let err = null;
-    // 调用 next 统计后续执行逻辑的所有时间
+    // Call next statistics all the time the logic of the follow-up
     return next().catch(e => {
-      err = e; // 这里先将错误保存在一个错误对象上，方便统计出错情况下的执行时间
+      err = e; // Here first save the error on a Error object, to facilitate the statistics of the execution time under the error circumstances
     }).then(() => {
       const endTime = Date.now();
       console.log(`request exec time: ${endTime - startTime}ms`);
-      if(err) return Promise.reject(err); // 如果后续执行逻辑有错误，则将错误返回
+      if(err) return Promise.reject(err); // If subsequent execution logic has an error, return it
     })
   }
 }
 ```
 
-
-在 Koa 中，可以通过调用 `app.use` 的方式来使用中间件，如：
+In Koa, you can use middleware by calling `app.use`, such as:
 
 ```js
 const app = new Koa();
-const execTime = require('koa-execTime'); // 引入统计执行时间的模块
-app.use(execTime({}));  // 需要将这个中间件第一个注册，如果还有其他中间件放在后面注册
+const execTime = require('koa-execTime'); // statistical execution time module
+app.use(execTime({}));  // this middle should be use first, and then introduce the rest middle
 ```
 
-通过 `app.use` 的方式使用中间件，不利于中间件的统一维护。
+The use of middleware through `app.use` is not conducive to the unified maintenance of middleware.
 
-#### 扩展 app 参数
+#### extend app parameters
 
-默认的中间件外层一般只是传递了 `options` 参数，有的中间件需要读取 app 相关的信息，框架在这块做了扩展，自动将 app 对象传递到中间件中。
+The default middleware pass `options` parameter, and some middleware need to read the app related information, the framework extend it to auto-pass app object to the middleware.
 
 ```js
 module.exports = (options, app) => {
-  // 这里的 app 为 think.app 对象
+  // here the app is think.app object
   return (ctx, next) => {
 
   }
 }
 ```
 
-如果在中间件中需要用到 think 对象上的一些属性或者方法，那么可以通过 `app.think.xxx` 来获取。
+The you need to use properties or methods in think object, you can get through `app.think.xxx`.
 
-### 配置格式
+### configuration
 
-为了方便管理和使用中间件，框架使用统一的配置文件来管理中间件，配置文件为 `src/config/middleware.js`（多模块项目配置文件为 `sr/common/config/middleware.js`）。
-
+In order to facilitate the management and use of middleware, the framework uses a unified configuration file to manage the middleware, the configuration file is `src/config/middleware.js` (multi-module project configuration file is `sr/common/config/middleware.js`) .
 ```js
 const path = require('path')
 const isDev = think.env === 'development'
 
 module.exports = [
   {
-    handle: 'meta', // 中间件处理函数
-    options: {   // 当前中间件需要的配置
+    handle: 'meta', // middleware handler
+    options: {   // configurations of the middleware
       logRequest: isDev,
       sendResponseTime: isDev,
     },
   },
   {
     handle: 'resource',
-    enable: isDev, // 是否开启当前中间件
+    enable: isDev, // whether to enable the current middleware
     options: {
       root: path.join(think.ROOT_PATH, 'www'),
       publicPath: /^\/(static|favicon\.ico)/,
@@ -98,13 +97,13 @@ module.exports = [
 ]
 ```
 
-配置项为项目中要使用的中间件列表，每一项支持 `handle`，`enable`，`options`，`match` 等属性。
+Configuration items are middlewares list used in the project, each support  `handle`，`enable`，`options`，`match` and other attributes.
 
 #### handle
 
-中间件的处理函数，可以用系统内置的，也可以是引入外部的，也可以是项目里的中间件。
+Middleware processing function, it can be system built-in, or introduced outside or middleware in the project.
 
-handle 的函数格式为：
+handle function signature:
 
 ```js
 module.exports = (options, app) => {
@@ -114,22 +113,22 @@ module.exports = (options, app) => {
 }
 ```
 
-这里中间件接收的参数除了 options 外，还多了个 `app` 对象，该对象为 Koa Application 的实例。
+The parameters received by the middleware in addition to options, but also a extra `app` object, which is Koa Application instance.
 
 #### enable
 
-是否开启当前的中间件，比如：某个中间件只在开发环境下才生效。
+Whether to enable current middleware, such as: a middleware only in the development environemnt to take effect.
 
 ```js
 {
   handle: 'resouce',
-  enable: think.env === 'development' //这个中间件只在开发环境下生效
+  enable: think.env === 'development' //only in development environment to take effect
 }
 ```
 
 #### options
 
-传递给中间件的配置项，格式为一个对象，中间件里获取到这个配置。
+Configuration item passed to middleware, formatted as an object, get this configuration form middlewrae.
 
 ```js
 module.exports = [
@@ -141,12 +140,12 @@ module.exports = [
 ]
 ```
 
-有时候需要的配置项需要从远程获取，如：配置值保存在数据库中，这时候就要异步从数据库中获取，这时候可以将 options 定义为一个函数来完成：
+Sometimes the configuration items need to be obtained from remote, such as: the configuration item is stored in database which need to be obtained asynchronously, this time define options as a function.
 
 ```js
 module.exports = [
   {
-    // 将 options 定义为一个异步函数，将获取到的配置返回
+    // to define options as async function and return fetched configuration.
     options: async () => {
       const config = await getConfigFromDb();
       return {
@@ -160,13 +159,13 @@ module.exports = [
 
 #### match
 
-匹配特定的规则后才执行该中间件，支持二种方式，一种是路径匹配，一种是自定义函数匹配。如：
+To enable this middleware when specific rules are matched, support two ways, one is path matching, one is a custom funcion matching. Such as:
 
 ```js
 module.exports = [
   {
     handle: 'xxx-middleware',
-    match: '/resource' //请求的 URL 是 /resource 打头时才生效这个 middleware
+    match: '/resource' // The middleware is enabled when URL is /resource
   }
 ]
 ```
@@ -175,39 +174,39 @@ module.exports = [
 module.exports = [
   {
     handle: 'xxx-middleware',
-    match: ctx => { // match 为一个函数，将 ctx 传递给这个函数，如果返回结果为 true，则启用该 middleware
+    match: ctx => { // match is a function passed ctx, is the result is true, enable the middleware
       return true;
     }
   }
 ]
 ```
 
-### 框架内置的中间件
+### framework built-in middleware
 
-框架内置了几个中间件，可以通过字符串的方式直接引用。
+Framework comes with a few middlewares that can be configured by string name.
 
 ```js
 module.exports = [
   {
-    handle: 'meta', // 内置的中间件不用手工 require 进来，直接通过字符串的方式引用
+    handle: 'meta', // built-in middleware can be confirued by string name.
     options: {}
   }
 ]
 ```
 
-* [meta](https://github.com/thinkjs/think-meta) 显示一些 meta 信息，如：发送 ThinkJS 的版本号，接口的处理时间等等
-* [resource](https://github.com/thinkjs/think-resource) 处理静态资源，生产环境建议关闭，直接用 webserver 处理即可。
-* [trace](https://github.com/thinkjs/think-trace) 处理报错，开发环境将详细的报错信息显示处理，也可以自定义显示错误页面。
-* [payload](https://github.com/thinkjs/think-payload) 处理表单提交和文件上传，类似于 koa-bodyparser 等 middleware
-* [router](https://github.com/thinkjs/think-router) 路由解析，包含自定义路由解析
-* [logic](https://github.com/thinkjs/think-logic) logic 调用，数据校验
-* [controller](https://github.com/thinkjs/think-controller) controller 和 action 调用
+* [meta](https://github.com/thinkjs/think-meta) Show some meta information, such as: send ThinkJS version number, interface processing time and so on.
+* [resource](https://github.com/thinkjs/think-resource) handle static resouces, suggest disabled it and use webserver in production environment.
+* [trace](https://github.com/thinkjs/think-trace) handle error, development environment will print detailed error message, you can also customize the display error page.
+* [payload](https://github.com/thinkjs/think-payload) Handle form submission and file upload, similar to middleware like koa-bodyparser.
+* [router](https://github.com/thinkjs/think-router) route parsing, including custom route parsing
+* [logic](https://github.com/thinkjs/think-logic) data validation.
+* [controller](https://github.com/thinkjs/think-controller) invoke controller and action.
 
-### 项目中自定义的中间件
+### project defined middleware
 
-有时候项目中根据一些特定需要添加中间件，那么可以放在 `src/middleware` 目录下，然后就可以直接通过字符串的方式引用了。
+Sometimes we need to add middleware according to specific project requirement, it can put them into `src/middleware` direcotry, by which you can reference them through file name.
 
-如：添加了 `src/middleware/csrf.js`，那么就可以直接通过 `csrf` 字符串引用这个中间件。
+Such as: Add `src/middleware/csrf.js`, then you can reference this middleware directly through `csrf` string.
 
 ```js
 module.exports = [
@@ -219,9 +218,9 @@ module.exports = [
 ```
 
 
-### 引入外部的中间件
+### Introduce external middleware
 
-引入外部的中间件非常简单，只需要 require 进来即可。
+The introduction of external middleware is every simple, just need to require it.
 
 ```js
 const csrf = require('csrf'); 
@@ -235,44 +234,45 @@ module.exports = [
 ]
 ```
 
-### 常见问题
+### FAQ
 
-#### 中间件配置是否需要考虑顺序？
+#### Do I need to consider the order of middleware configuration?
 
-中间件执行是按照配置的排列顺序执行的，所以需要开发者考虑配置的顺序。
+Middleware execution is performed in the order of configuration, so developers need to consider the order of configuration.
 
-#### 怎么看当前环境下哪些中间件生效？
+#### How do I know which middleware in the current environment to take effect?
 
-可以通过 `DEBUG=koa:application node development.js` 来启动项目，这样控制台下会看到 `koa:application use ...` 相关的信息。
+You can view the infomation using `DEBUG=koa:application node development.js` to start the application, in console message as bellow will be printed: `koa:application use ...`.
 
-注意：如果启动了多个 worker，那么会打印多遍。
+Note: if multiple workers are started then middleware info will be printed multiple times.
 
-#### 怎么透传数据到 Logic、Controller 中？
+#### How to pass data between Logic and Controller?
 
-有时候需要在中间件里设置一些数据，然后在后续的 Logic、Controller 中获取，此时可以通过 `ctx.state` 完成，具体请见 [透传数据](/doc/3.0/controller.html#toc-247)。
+Sometimes we want to configure some data in middleware and access it in the subseuent Logic, Controller middleware, this can be done use `ctx.state`, for detail refers to [passing data](/doc/3.0/controller.html#toc-247).
 
-#### 怎么设置数据到 GET/POST 数据中？
 
-在中间件里可以通过 `ctx.param`、`ctx.post` 等方法来获取 query 参数或者表单提交上来的数据，但有些中间件里希望设置一些参数值、表单值以便在后续的 Logic、Controller 中获取，这时候可以通过 `ctx.param`、`ctx.post` 设置：
+#### How to set data in GET/POST?
+
+In the middleware, we can get the parameters of the query or the data submitted by the form through `ctx.param`, `ctx.post`, etc. However, in some middleware, we hope to set some parameter values and form values to be used in subsequent Logic, Controller in this time can be set by `ctx.param`,`ctx.post`:
 
 ```js
-// 设置参数 name=value，后续在 Logic、Controller 中可以通过 this.get('name') 获取该值
-// 如果原本已经有该参数，那么会覆盖
+// set param name=value，so that to get value through this.get('name') in Logic, Controller
+// it will override the value if it already exists.
 ctx.param('name', 'value');
 
-// 设置 post 值，后续 Logic、Controller 中可以通过 this.post('name2') 获取该值
+// set post value，later in Logic or Controller to get value through this.post('name2')
 ctx.post('name2', 'value');
 ```
 
-#### 中间件的配置是否可以放在 config.js 中？
+#### Can I put middleware configuration into config.js?
 
-`不合适`，中间件提供了 `options` 参数用来设置配置，不需要把额外的参数配置放在 config.js 中。
+`Inappropriate`, the middleware provides `options` parameter to set configuration, no need to configure additional parameters in config.js.
 
 ```js
 module.exports = [
   {
     handle: xxxMiddleware,
-    options: { // 传递给中间件的配置
+    options: { // middleware configuration
       key1: value1,
       key2: think.env === 'development' ? value2 : value3
     }
@@ -280,4 +280,4 @@ module.exports = [
 ]
 ```
 
-如果有些配置根 `env` 相关，那么可以在此进行判断。
+If some configuration are `env` related, then you can make judgments here.
