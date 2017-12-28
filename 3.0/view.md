@@ -256,7 +256,7 @@ Some projects just provide API interface function, don't need template rendering
 
 #### How to use the session or cache function in the template?
 
-Sometimes need to get the session or cache related information in the template, but because the operation of the session and cache are asynchronous, so you can't directly call `controller.session` to operate, you need to get the data in the Action and then assign the value in the template, Such as:
+Project sometimes need to get the session or cache related information in the template, but because the operation of the session and cache are asynchronous, so you can't directly call `controller.session` to operate, you need to get the data in the Action and then assign the value in the template, Such as:
 
 ```js
 module.exports = class extends think.Controller {

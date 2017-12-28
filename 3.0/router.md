@@ -1,6 +1,6 @@
 ## Router
 
-When a user accesses an address, you need a corresponding logic to process it. The traditional approach, a request corresponding to a file, such as access is `/user/about.php`, then in the corresponding directory of the project there must have an entity file named `/user/about.php`. Although this approach can solve the problem, but will lead to a lot of files in the project, and may be a lot of files logical function is relatively simple.
+When a user accesses an address, you need a corresponding logic to process it. The traditional approach, a request corresponding to a file, such as access `/user/about.php`, then there must have an entity file named `/user/about.php` in the corresponding directory of the project. Although this approach can solve the problem, but will lead to a lot of files in the project, and may be a lot of files logical function is relatively simple.
 
 In the current MVC development model, these problems are usually solved by router. The solution is: first map all the user's requests to an entry file (eg: `index.php`), and then the framework parses the address of the current request, parses out the corresponding function to perform according to the configuration or convention, and finally calls and responds user's request.
 
