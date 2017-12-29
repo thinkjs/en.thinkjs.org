@@ -1948,10 +1948,10 @@ module.exports = class extends think.Model{
 
 #### model.query(sqlOptions)
 
-* `sqlOptions` {String | Object} sql option to execute
+* `sqlOptions` {String | Object} SQL option to execute
 * `return` {Promise} data to query
 
-Specifying a SQL statement to execute the query, `sqlOptions` is resolved using the [parseSql](/doc/3.0/relation_model.html#toc-ec3) method, which requires that you handle your own security issues when executing SQL statements.
+Specifying a SQL statement to execute the query, `sqlOptions` is resolved via the [parseSql](/doc/3.0/relation_model.html#toc-ec3) method, which requires that you handle your own security issues when executing SQL statements.
 
 ```js
 module.exports = class extends think.Model {
@@ -1964,10 +1964,10 @@ module.exports = class extends think.Model {
 
 #### model.execute(sqlOptions)
 
-* `sqlOptions` {String | Object} 要操作的 sql 选项
+* `sqlOptions` {String | Object} SQL option to operate
 * `return` {Promise}
 
-执行 SQL 语句，`sqlOptions` 会通过 [parseSql](/doc/3.0/relation_model.html#toc-ec3) 方法解析，使用该方法执行 SQL 语句时需要自己处理安全问题。
+Specifying a SQL statement to execute the query, `sqlOptions` is resolved via the [parseSql](/doc/3.0/relation_model.html#toc-ec3) method, which requires that you handle your own security issues when executing SQL statements.
 
 ```js
 module.exports = class extends think.Model {
@@ -1980,11 +1980,11 @@ module.exports = class extends think.Model {
 
 #### model.parseSql(sqlOptions, ...args)
 
-* `sqlOptions` {String | Object} 要解析的 SQL 语句
-* `...args` {Array} 解析的数据
+* `sqlOptions` {String | Object} SQL option to parse
+* `...args` {Array} data to parse
 * `return` {Object}
 
-解析 SQL 语句，将 SQL 语句中的 `__TABLENAME__` 解析为对应的表名。通过 [util.format](https://nodejs.org/api/util.html#util_util_format_format_args) 将 args 数据解析到 sql 中。
+Parsing SQL statements, the SQL statement `__TABLENAME__` resolve to the corresponding table name. Args data is parsed into sql via [util.format](https://nodejs.org/api/util.html#util_util_format_format_args).
 
 ```js
 module.exports = class extends think.Model {
@@ -2003,10 +2003,10 @@ module.exports = class extends think.Model {
 
 #### model.parseOptions(options)
 
-* `options` {Object} 要合并的 options，会合并到 `this.options` 中一起解析
+* `options` {Object} the options to be merged, and will be combined into `this.options` for parsing
 * `return` {Promise}
 
-解析 options。where、limit、group 等操作会将对应的属性设置到 `this.options` 上，该方法会对 `this.options` 进行解析，并追加对应的属性，以便在后续的处理需要这些属性。
+Resolution options. The where, limit, group, and the other operations set the corresponding property to `this.options`, which parses `this.options` and appends the corresponding properties so they are needed for subsequent processing.
 
 ```js
 const options = await this.parseOptions({limit: 1});
@@ -2024,31 +2024,30 @@ options = {
 */
 ```
 
-调用 `this.parseOptions` 解析后，`this.options` 属性会被置为空对象 `{}`。
-
+After calling `this.parseOptions`, the `this.options` property will be set to empty object `{}`.
 
 #### model.startTrans()
 
 * `return` {Promise}
 
-开启事务。
+Start the transaction.
 
 #### model.commit()
 
 * `return` {Promise}
 
-提交事务。
+Commit the transaction.
 
 #### model.rollback()
 
 * `return` {Promise}
 
-回滚事务。
+Rollback the transaction.
 
 ```js
 module.exports = class extends think.Model {
   async addData() {
-    // 如果添加成功则 commit，失败则 rollback
+    // commit if commit is succsessful, rollback if failed
     try {
       await this.startTrans();
       const result = await this.add({});
@@ -2061,14 +2060,14 @@ module.exports = class extends think.Model {
 }
 ```
 
-如果事务操作过程中需要实例化多个模型操作，那么需要让模型之间复用同一个数据库连接，具体见 [model.db](/doc/3.0/relation_model.html#toc-f95)。
+If you need to instantiate multiple model operations during a transaction, you need to reuse the same database connection between models, as described in [model.db](/doc/3.0/relation_model.html#toc-f95).
 
 #### model.transaction(fn)
 
-* `fn` {Function} 要执行的函数，如果有异步操作，需要返回 Promise
+* `fn` {Function} function to be executed, if there is asynchronous operation, you need to return a Promise
 * `return` {Promise}
 
-使用事务来执行传递的函数，函数要返回 Promise。如果函数返回值为 Resolved Promise，那么最后会执行 commit，如果返回值为 Rejected Promise（或者报错），那么最后会执行 rollback。
+Use the transaction to perform the function passed, the function needs to return a Promise. If the function return the value of Resolved Promise, then the final implementation of the commit, if the return value is Rejected Promise (or error), then the final implementation of rollback.
 
 ```js
 module.exports = class extends think.Model {
@@ -2080,14 +2079,15 @@ module.exports = class extends think.Model {
   }
 }
 ```
-由于事务里的操作需要在同一个连接里执行，如果处理过程中涉及多个模型的操作，需要多个模型复用同一个数据库连接，这时可以通过 `model.db` 方法达到复用数据库连接的效果。
+
+Because the operations in the transaction need to be executed in the same connection, if multiple models are involved in the process, multiple models are required to reuse the same database connection. In this case, the database connection can be reused through the `model.db` method.
 
 ```js
 module.exports = class extends think.Model {
   async updateData(data){
     const result = await this.transaction(async () => {
       const insertId = await this.add(data);
-      // 通过 db 方法让 user_cate 模型复用当前模型的数据库连接
+      // through the db method for the user_cate model reuse the current model of the database connection
       const userCate = this.model('user_cate').db(this.db());
       let result = await userCate.add({user_id: insertId, cate_id: 100});
       return result;
