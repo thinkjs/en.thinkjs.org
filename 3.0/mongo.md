@@ -1,69 +1,68 @@
 ## MongoDB
 
-有时候关系数据库并不能满足项目的需求，需要 MongoDB 来存储数据。框架提供了 [think-mongo](https://github.com/thinkjs/think-mongo) 扩展来支持 MongoDB，该模块是基于 [mongodb](https://github.com/mongodb/node-mongodb-native) 实现的。
+If you want to use MongoDB to stroe data in project, framework provide [think-mongo](https://github.com/thinkjs/think-mongo) extend to support MonogDB, this module is based on [mongodb](https://github.com/mongodb/node-mongodb-native).
 
-### 扩展 MongoDB 功能
+### MongoDB Extend features
 
-修改扩展的配置文件 `src/config/extend.js`（多模块项目为 `src/common/config/extend.js`），添加如下的配置：
+Modify extend configuration file`src/config/extend.js` (or `src/common/config/extend.js`in multi-module project), add the following configuration: 
 
 ```js
 const mongo = require('think-mongo');
 
 module.exports = [
-  mongo(think.app) // 让框架支持模型的功能
+  mongo(think.app) // To allow framework support model feature
 ]
 ```
 
-添加完扩展后，会注入 `think.Mongo`、`think.mongo`、`ctx.mongo` 和 `controller.mongo` 方法，其中 think.Mongo 为 Mongo 模型的基类文件，其他为实例化 Mongo 模型的方法，ctx.mongo 和 controller.mongo 是 think.mongo 方法的包装。
+After extend is configured, it will inject `think.Mongo`、`think.mongo`、`ctx.mongo` and `controller.mongo` methods, where think.Mongo is the base class file for instantiating Mongo models, others are the Mongo model instantiating methods, ctx.mongo and controller.mongo is think.mongo method's wrapper.
 
-### 配置 MongoDB 数据库
+### Config MongoDB database
 
-MongoDB 的数据库配置复用了关系数据库模型的配置，为 adapter 配置，放在 model 下。文件路径为 `src/config/adapter.js`（多模块项目下为 `src/common/config/adapter.js`）。
-
+MongoDB database configuration reuse relational database congiguration, it is a adapter configuration in model, file path is `src/config/adapter.js` (or `src/common/config/adapter.js` in multi-module project).
 
 ```js
 exports.model = {
-  type: 'mongo', // 默认使用的类型，调用时可以指定参数切换
-  common: { // 通用配置
-    logConnect: true, // 是否打印数据库连接信息
-    logger: msg => think.logger.info(msg) // 打印信息的 logger
+  type: 'mongo', // The default use type, can be change by parameter on runtime
+  common: { // common setting
+    logConnect: true, // whether to print database connection information
+    logger: msg => think.logger.info(msg) // logger to print message
   },
   mongo: {
     host: '127.0.0.1',
     port: 27017,
     user: '',
     password: '',
-    database: '', // 数据库名称
+    database: '', // database name
     options: ''
   }
 }
 ```
 
-可以支持多个 host 和 port， 如：
+support multiple host and port, such as:
 
 ```js
 exports.model = {
-  type: 'mongo', // 默认使用的类型，调用时可以指定参数切换
-  common: { // 通用配置
-    logConnect: true, // 是否打印数据库连接信息
-    logger: msg => think.logger.info(msg) // 打印信息的 logger
+  type: 'mongo', // The default type
+  common: {
+    logConnect: true,
+    logger: msg => think.logger.info(msg)
   },
   mongo: {
     host: ['127.0.0.1', '10.16.1.2'],
     port: [27017, 27018],
     user: '',
     password: '',
-    database: '', // 数据库名称
+    database: '', // database name
     options: ''
   }
 }
 ```
 
-更多配置选项请见 <http://mongodb.github.io/node-mongodb-native/2.0/tutorials/urls/>。
+More configuration refers to <http://mongodb.github.io/node-mongodb-native/2.0/tutorials/urls/>。
 
-### 创建模型文件
+### Create model file
 
-模型文件放在 `src/model/` 目录下（多模块项目为 `src/common/model` 以及 `src/[module]/model`），继承模型基类 `think.Mongo`，文件格式为：
+The model files are placed in `src/model/` directory (multi-module projects `src/common/model` and `src/[module]/model`), inheriting the model base class `think.Mongo` as bellow:
 
 ```js
 // src/model/user.js
@@ -73,45 +72,45 @@ module.exports = class extends think.Mongo {
   }
 }
 ```
+ 
+If the project is more complex, you want to subdirectory management of the model file, you can create subdirectories in the model directory, such as: `src/model/front/user.js`, `src/model/admin/user.js`, so Create the `front` and` admin` directories under the model directory to manage the foreground and background model files separately.
+Instantiation of a model with subdirectories requires subdirectories path, such as: `think.mongo('front/user')`, see [here](/doc/3.0/relation_model.html#toc-9d9).
 
-如果项目比较复杂，希望对模型文件分目录管理，那么可以在模型目录下建立子目录，如： `src/model/front/user.js`，`src/model/admin/user.js`，这样在模型目录下建立 `front` 和 `admin` 目录，分别管理前台和后台的模型文件。
 
-含有子目录的模型实例化需要带上子目录，如：`think.mongo('front/user')`，具体见[这里](/doc/3.0/relation_model.html#toc-9d9)。
+### Instantiate the model
 
+项目启动时, 会扫描项目下的所有模型文件（目录为 `src/model/`, 多模块项目下目录为 `src/common/model` 以及各种 `src/[module]/model`）, 扫描后会将所有的模型类存放在 `think.app.models` 对象上, 实例化时会从这个对象上查找, 如果找不到则实例化模型基类 `think.Mongo`。
 
-### 实例化模型
-
-项目启动时，会扫描项目下的所有模型文件（目录为 `src/model/`，多模块项目下目录为 `src/common/model` 以及各种 `src/[module]/model`），扫描后会将所有的模型类存放在 `think.app.models` 对象上，实例化时会从这个对象上查找，如果找不到则实例化模型基类 `think.Mongo`。
+When the project starts, it scans for all model files (`src/model/` under the project directory, `src/common/model` and various `src/[module]/model` under the multi-module project) After all the model classes will be stored in `think.app.models` object, from which to search class for instantiation, if not found, `think.Mongo` will be instantiated.
 
 #### think.mongo
 
-实例化模型类。
+Instantiate model class.
 
 ```js
-think.mongo('user'); // 获取模型的实例
-think.mongo('user', 'sqlite'); // 获取模型的实例，修改数据库的类型
-think.mongo('user', { // 获取模型的实例，修改类型并添加其他的参数
+think.mongo('user'); // get model instance
+think.mongo('user', 'sqlite'); // get model instance and change database type
+think.mongo('user', { // get model instance, set type and add other parameters
   type: 'sqlite',
   aaa: 'bbb'
 }); 
-think.mongo('user', {}, 'admin'); // 获取模型的实例，指定为 admin 模块（多模块项目下有效）
+think.mongo('user', {}, 'admin'); // get model instance, specific admin module (only for multi-module project)
 ```
 #### ctx.mongo
 
-实例化模型类，获取配置后调用 `think.mongo` 方法，多模块项目下会获取当前模块下的配置。
-
+Instantiate the model class, call the `think.mongo` method after obtaining the configuration, and get the configuration for the current module under multi-module project.
 ```js
 const user = ctx.mongo('user');
 ```
 
 #### controller.mongo
 
-实例化模型类，获取配置后调用 `think.mongo` 方法，多模块项目下会获取当前模块下的配置。
+Instantiate the model class, call the `think.mongo` method after obtaining the configuration, and get the configuration for the current module under multi-module project.
 
 ```js
 module.exports = class extends think.Controller {
   async indexAction() {
-    const user = this.mongo('user'); // controller 里实例化模型
+    const user = this.mongo('user'); // instantiate model in controller
     const data = await user.select();
     return this.success(data);
   }
@@ -120,29 +119,29 @@ module.exports = class extends think.Controller {
 
 #### service.mongo
 
-实例化模型类，等同于 `think.mongo`
+Equivalent to `think.mongo`.
 
-#### 含有子目录的模型实例化
+#### Model with subdirectories instantiated
 
-如果模型目录下含有子目录，那么实例化时需要带上对应的子目录，如：
+If the model directory contains subdirectories, then you need to bring the corresponding subdirectory when instantiating:
 
 ```js
-const user1 = think.mongo('front/user'); // 实例化前台的 user 模型
-const user2 = think.mongo('admin/user'); // 实例化后台的 user 模型
+const user1 = think.mongo('front/user'); // instantiate front user model
+const user2 = think.mongo('admin/user'); // instantiate backend user model
 
 ```
 
-### 常见问题
+### FAQ
 
-#### 如何在项目中使用 mongoose？
+#### How to use mongoose in project?
 
-提供了 [think-mongoose](https://github.com/thinkjs/think-mongoose) 模块，可以在项目直接使用 Mongoose 里的一些操作。
+[think-mongoose](https://github.com/thinkjs/think-mongoose) module is provided, You can use some of the Mongoose operations directly in the project.
 
 ### API
 
 #### mongo.pk
 
-获取数据表的主键，默认值为 `_id`。如果数据表的主键不是 `_id`，需要自己配置，如：
+Get primary key of the data table, the default value is `_id`. If the data table's primary key is not `_id`, you need to configure yourself, such as:
 
 ```js
 module.exports = class extends think.Mongo {
@@ -152,13 +151,13 @@ module.exports = class extends think.Mongo {
 }
 ```
 
-有时候不想写模型文件，而是在控制器里直接实例化，这时候又想改变主键的名称，那么可以通过设置 `_pk` 属性的方式，如：
+Sometimes do not want to write model files, but in the controller directly instantiated, then want to change the name of the primary key, you can set `_pk` property, such as:
 
 ```js
 module.exports = class extends think.Controller {
   async indexAction() {
     const user = this.mongo('user');
-    user._pk = 'user_id'; // 通过 _pk 属性设置 pk
+    user._pk = 'user_id'; // set pk through _pk property
     const data = await user.select();
   }
 }
@@ -167,7 +166,7 @@ module.exports = class extends think.Controller {
 
 #### mongo.tablePrefix
 
-获取数据表前缀，从配置里的 `prefix` 字段获取。如果要修改的话，可以通过下面的方式：
+Obtain data table prefix, obtained from the `prefix` field in the configuration. If you want to modify it, you can through the following ways:
 
 ```js
 module.exports = class extends think.Mongo {
@@ -179,8 +178,7 @@ module.exports = class extends think.Mongo {
 
 #### mongo.mongo
 
-获取数据表名，值为 `tablePrefix + modelName`。如果要修改的话，可以通过下面的方式：
-
+Get data table name, the value is `tablePrefix + modelName`. If you want to modify it, you can through the following ways:
 ```js
 module.exports = class extends think.Mongo {
   get tableName() {
@@ -192,15 +190,15 @@ module.exports = class extends think.Mongo {
 
 #### mongo.model(name)
 
-* `name` {String} 要实例化的模型名
-* `return` {this} 模型实例
+* `name` {String} model to instanitate
+* `return` {this} model instance
 
-实例化别的模型，支持子目录的模型实例化。
+To instantiate other model, support subdirectory model instantiation.
 
 ```js
 module.exports = class extends think.Mongo {
   async getList() {
-    // 如果含有子目录，那么这里带上子目录，如： this.mongo('front/article')
+    // if subdirecotry you need to add the subdirectory path, such as: this.mongo('front/article')
     const article = this.mongo('article'); 
     const data = await article.select();
     ...
@@ -210,12 +208,11 @@ module.exports = class extends think.Mongo {
 
 #### mongo.db(db)
 
-获取或者设置 db 的实例，db 为 Adapter handle 的实例。
-
+Get or set db instance, db for Adapter handle instance.
 ```js
 module.exports = class extends think.Mongo {
   async getList() {
-    // 让 user 复用当前的 Apdater handle 实例，这样后续可以复用同一个数据库连接
+    // To allow user reuse current Apdater handle instance, so that to reuse database connection
     const user = this.mongo('user').db(this.db()); 
   }
 }
@@ -223,17 +220,17 @@ module.exports = class extends think.Mongo {
 
 #### mongo.modelName
 
-实例化模型时传入的模型名
+Model name on model instantiation.
 
 ```js
 const user = think.mongo('user');
 ```
 
-实例化时传入的模型名为 `user`，那么 `model.modelName` 值为 `user`。
+If instance is instantiate by model name of `user`, then the value of `model.modelName` is `user`.
 
 #### mongo.config
 
-实例化模型时传入的配置，模型实例化时会自动传递，不用手工赋值。
+Incoming configuration of the model instantiation, the model will automatically be instantiated, without manual assignment.
 
 ```js
 {
@@ -245,18 +242,18 @@ const user = think.mongo('user');
 
 #### mongo.limit(offset, length)
 
-* `offset` {Number} 起始位置(类似于 SQL 语句里的 offset)
-* `length` {Number} 长度(类俗语 SQL 语句里的 length)
+* `offset` {Number} start index(similar to SQL offset)
+* `length` {Number} length (similar to SQL length)
 * `return` {this}
 
-设置 SQL 语句里的 `limit`，会赋值到 `this.options.limit` 属性上，便于后续解析。
+Set SQL statement `limit`, will be assigned to `this.options.limit` property, for subsequent parsing.
 
 ```js
 module.exports = class extends think.Mongo() {
   async getList() {
-    // 前 10 条
+    // Top 10
     const list1 = await this.limit(10).select();
-    // 11 ~ 20条
+    // 11 ~ 20
     const list2 = await this.limit(10, 20).select();
   }
 }
@@ -265,22 +262,22 @@ module.exports = class extends think.Mongo() {
 
 #### mongo.page(page, pagesize)
 
-* `page` {Number} 设置当前页数
-* `pagesize` {Number} 每页条数，默认值为 `this.config.pagesize`
+* `page` {Number} Set current page
+* `pagesize` {Number} size of page, default value is `this.config.pagesize`
 * `return` {this}
 
-设置查询分页，会解析为 [limit](/doc/3.0/mongo.html#toc-769) 数据。
+Setting the query page will resolve to [limit](/doc/3.0/mongo.html#toc-769) data.
 
 ```js
 module.exports = class extends think.Mongo() {
   async getList() {
-    const list1 = await this.page(1).select(); // 查询第一页，每页 10 条
-    const list2 = await this.page(2, 20).select(); // 查询第二页，每页 20 条
+    const list1 = await this.page(1).select(); // query first page, 10 records a page.
+    const list2 = await this.page(2, 20).select(); // query second page, 20 records a page
   }
 }
 ```
 
-每页条数可以通过配置项 `pageSize` 更改，如：
+Record number per page can be set through `pageSize`, such as:
 
 ```js
 // src/config/adapter.js
@@ -289,17 +286,17 @@ exports.model = {
   mongo: {
     database: '',
     ...
-    pageSize: 20, // 设置默认每页为 20 条
+    pageSize: 20, // set default page size to 20
   }
 }
 ```
 
 #### model.where(where)
 
-* `where` {String} 设置查询条件
+* `where` {String} set query conditions
 * `return` {this}
 
-设置查询字段，设置后会赋值到 `this.options.where` 属性上，便于后续解析。
+Set query fields, which is stored as `this.options.where` property, for later parsing.
 
 ```js
 module.exports = class extends think.Mongo{
@@ -311,10 +308,10 @@ module.exports = class extends think.Mongo{
 
 #### model.field(field)
 
-* `field` {String} 查询字段。
+* `field` {String} query field
 * `return` {this}
 
-设置查询字段，设置后会赋值到 `this.options.field` 属性上，便于后续解析。
+Set query field, which is stored as `this.options.field` propery, for later parsing.
 
 ```js
 module.exports = class extends think.Mongo{
@@ -329,21 +326,20 @@ module.exports = class extends think.Mongo{
 
 #### model.table(table, hasPrefix)
 
-* `table` {String} 表名，支持值为一个 SELECT 语句
-* `hasPrefix` {Boolean} `table` 里是否已经含有了表前缀，默认值为 `false`
+* `table` {String} table name, support SELECT query
+* `hasPrefix` {Boolean} whether `table` has prefix, default value is `false`.
 * `return` {this}
 
-设置当前模型对应的表名，如果 hasPrefix 为 false，那么表名会追加 `tablePrefix`，最后的值会设置到 `this.options.table` 属性上。
-
-如果没有设置该属性，那么最后解析时通过 `model.tableName` 属性获取表名。
+Set the table name for current model, if hasPrefix is false, the table name will be appended `tablePrefix`, the last value will be set to `this.options.table` property.
+If this property is not set, the name of the table will be obtained by `model.tableName` property at the time of final parsing.
 
 
 #### model.parseOptions(options)
 
-* `options` {Object} 要合并的 options，会合并到 `this.options` 中一起解析
+* `options` {Object} options to be merged to `this.options` for parsing
 * `return` {Promise}
 
-解析 options。where、limit、group 等操作会将对应的属性设置到 `this.options` 上，该方法会对 `this.options` 进行解析，并追加对应的属性，以便在后续的处理需要这些属性。
+Parse options. The where, limit, group, etc. actions sets the corresponding vlaue the `this.options`, which parse `this.options` and appends corresponding properties for subsequent processing.
 
 ```js
 const options = await this.parseOptions({limit: 1});
@@ -361,39 +357,40 @@ options = {
 */
 ```
 
-调用 `this.parseOptions` 解析后，`this.options` 属性会被置为空对象 `{}`。
+After parsing through `this.parseOptions`, the value of `this.options` will be set to emtpy object `{}`.
+
 
 #### model.order(order)
 
-* `order` {String | Array | Object} 排序方式
+* `order` {String | Array | Object} sorting method
 * `return` {this}
 
-设置排序方式。会添加 `this.options.order` 属性，便于后续分析。
+Set the sorting method, will add `this.options.order` property.
 
 #### model.group(group)
 
-* `group` {String} 分组查询的字段
+* `group` {String} group by field
 * `return` {this}
 
-设定分组查询。会设置 `this.options.group` 属性，便于后续分析。
+Set group inquiry. Will add `this.options.group` property for later analysis.
 
 #### model.distinct(distinct)
 
-* `distinct` {String} 去重的字段
+* `distinct` {String} 
 * `return` {this}
 
-去重查询。会设置 `this.options.distinct` 属性，便于后续分析。
+Distinct query. Will add `this.options.distinct` property for later analysis.
 
 
 #### model.add(data, options)
 
-* `data` {Object} 要添加的数据，如果数据里某些字段在数据表里不存在会自动被过滤掉
-* `options` {Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
-* `return` {Promise} 返回插入的 ID
+* `data` {Object} Data to be added, if some fields of data do not exist in data table will automatically be filtered out
+* `options` {Object} will be parse by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method
+* `return` {Promise} ID of added data
 
-添加一条数据，返回值为插入数据的 id。
+Add one record, return id of inserted data.
 
-如果数据表没有主键或者没有设置 `auto increment` 等属性，那么返回值可能为 0。如果插入数据时手动设置主键的值，那么返回值也可能为 0。
+The return value may be 0 if data table has no primary key or `auto nincrement` property not being set. If manually set primary key on data insersion, the return value may also be 0.
 
 ```js
 module.exports = class extends think.Controller {
@@ -407,24 +404,24 @@ module.exports = class extends think.Controller {
 
 #### model.thenAdd(data, where)
 
-* `data` {Object} 要添加的数据
-* `where` {Object} where 条件，会通过 [where](/doc/3.0/relation_model.html#toc-d47) 方法设置 where 条件
+* `data` {Object} data to be added
+* `where` {Object} where condition, which will be set by [where](/doc/3.0/relation_model.html#toc-d47) method.
 * `return` {Promise}
 
-当 where 条件未命中到任何数据时才添加数据。
+Only add data when where condition did not hit any data.
 
 ```js
 module.exports = class extends think.Controller {
   async addAction(){
     const model = this.mongo('user');
-    //第一个参数为要添加的数据，第二个参数为添加的条件，根据第二个参数的条件查询无相关记录时才会添加
+    //first parameter is the data to be added, the second parameter is where condition, which mean to add data when there is record with email of 'xxx'
     const result = await model.thenAdd({name: 'xxx', pwd: 'yyy'}, {email: 'xxx'});
     // result returns {id: 1000, type: 'add'} or {id: 1000, type: 'exist'}
   }
 }
 ```
 
-也可以把 where 条件通过 `this.where` 方法直接指定，如：
+It can also set where condition through `this.where` method, such as:
 
 ```js
 module.exports = class extends think.Controller {
@@ -438,11 +435,11 @@ module.exports = class extends think.Controller {
 
 #### model.addMany(dataList, options)
 
-* `dataList` {Array} 要添加的数据列表
-* `options` {Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
-* `return` {Promise} 返回插入的 ID 列表
+* `dataList` {Array} data list to be added
+* `options` {Object} options which will be parsed by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method.
+* `return` {Promise} return ID list of inserted data
 
-一次添加多条数据。
+Add multiple records at once.
 
 ```js
 module.exports = class extends think.Controller {
@@ -459,10 +456,10 @@ module.exports = class extends think.Controller {
 
 #### model.delete(options)
 
-* `options` {Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
-* `return` {Promise} 返回影响的行数
+* `options` {Object} options which will be parsed by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method
+* `return` {Promise} return the number of rows affected
 
-删除数据。
+Delete data.
 
 ```js
 module.exports = class extends think.Controller {
@@ -476,11 +473,11 @@ module.exports = class extends think.Controller {
 
 #### model.update(data, options)
 
-* `data` {Object} 要更新的数据
-* `options` {Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
-* `return` {Promise} 返回影响的行数
+* `data` {Object} data to update
+* `options` {Object} option to be parsed by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method
+* `return` {Promise} return the number of rows affected
 
-更新数据。
+Update data.
 
 ```js
 module.exports = class extends think.Controller {
@@ -491,7 +488,7 @@ module.exports = class extends think.Controller {
 }
 ```
 
-默认情况下更新数据必须添加 where 条件，以防止误操作导致所有数据被错误的更新。如果确认是更新所有数据的需求，可以添加 `1=1` 的 where 条件进行，如：
+By default updatte must be added where condition to prevent misuse caused all the data is incorrectly updated. If you are sure to update all data, add `1=1` where condition will do the trick. Such as:
 
 ```js
 module.exports = class extends think.Controller {
@@ -502,7 +499,7 @@ module.exports = class extends think.Controller {
 }
 ```
 
-有时候更新值需要借助数据库的函数或者其他字段，这时候可以借助 `exp` 来完成。
+Sometime we need to update value according to other fields or database functions, this can be done with the help of `exp`.
 
 ```js
 module.exports = class extends think.Controller {
@@ -520,23 +517,23 @@ module.exports = class extends think.Controller {
 
 #### model.thenUpdate(data, where)
 
-* `data` {Object} 要更新的数据
-* `where` {Object} where 条件
+* `data` {Object} data to update
+* `where` {Object} where condition
 * `return` {Promise}
 
-当 where 条件未命中到任何数据时添加数据，命中数据则更新该数据。
+Only update data when where condition did not hit any data.
 
 #### model.updateMany(dataList, options)
 
-* `dataList` {Array} 要更新的数据列表
-* `options` {Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
-* `return` {Promise} 影响的行数
+* `dataList` {Array} data list to  update
+* `options` {Object} option to be parsed by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method
+* `return` {Promise} return the number of rows affected
 
-更新多条数据，dataList 里必须包含主键的值，会自动设置为更新条件。
+Update multiple data, the datalist must contain the primary key, it will be automatically parsed as update condition.
 
 ```js
 this.mongo('user').updateMany([{
-  id: 1, // 数据里必须包含主键的值
+  id: 1, // data must contain primary key
   name: 'name1'
 }, {
   id: 2,
@@ -546,32 +543,32 @@ this.mongo('user').updateMany([{
 
 #### model.increment(field, step)
 
-* `field` {String} 字段名
-* `step` {Number} 增加的值，默认为 1
+* `field` {String} field name
+* `step` {Number} value to increase, default is 1
 * `return` {Promise}
 
-字段值增加。
+Increase field value.
 
 ```js
 module.exports = class extends think.Mongo {
   updateViewNums(id){
-    return this.where({id: id}).increment('view_nums', 1); //将阅读数加 1
+    return this.where({id: id}).increment('view_nums', 1); //add 1
   }
 }
 ```
 
 #### model.decrement(field, step)
 
-* `field` {String} 字段名
-* `step` {Number} 增加的值，默认为 1
+* `field` {String} filed name
+* `step` {Number} value to decrease, default is 1
 * `return` {Promise}
 
-字段值减少。
+Decrease field value.
 
 ```js
 module.exports = class extends think.Mongo {
   updateViewNums(id){
-    return this.where({id: id}).decrement('coins', 10); //将金币减 10 
+    return this.where({id: id}).decrement('coins', 10); //To descrease gold by 10
   }
 }
 ```
@@ -579,10 +576,10 @@ module.exports = class extends think.Mongo {
 
 #### model.find(options)
 
-* `options` {Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
-* `return` {Promise} 返回单条数据
+* `options` {Object} options will be parse by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method
+* `return` {Promise} return single data
 
-查询单条数据，返回的数据类型为对象。如果未查询到相关数据，返回值为 `{}`。
+To query single data, the return value type is object. If no data is found, the return value is `{}`.
 
 ```js
 module.exports = class extends think.Controller {
@@ -591,20 +588,20 @@ module.exports = class extends think.Controller {
     let data = await model.where({name: 'thinkjs'}).find();
     //data returns {name: 'thinkjs', email: 'admin@thinkjs.org', ...}
     if(think.isEmpty(data)) {
-      // 内容为空时的处理
+      // handle whne data is empty
     }
   }
 }
 ```
 
-可以通过 [think.isEmpty](/doc/3.0/think.html#toc-df2) 方法判断返回值是否为空。
+You can use [think.isEmpty](/doc/3.0/think.html#toc-df2) method to judge whether value is empty.
 
 #### model.select(options)
 
-* `options` {Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
-* `return` {Promise} 返回多条数据
+* `options` {Object} options will be parse by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method
+* `return` {Promise} return multiple data
 
-查询多条数据，返回的数据类型为数组。如果未查询到相关数据，返回值为 `[]`。
+Query multiple data, return array data type. If no data is found, the return value is `[]`.
 
 ```js
 module.exports = class extends think.Controller {
@@ -619,15 +616,15 @@ module.exports = class extends think.Controller {
 }
 ```
 
-可以通过 [think.isEmpty](/doc/3.0/think.html#toc-df2) 方法判断返回值是否为空。
+You can use [think.isEmpty](/doc/3.0/think.html#toc-df2) method to judge whether value is empty.
 
 #### model.countSelect(options, pageFlag)
 
-* `options` {Number | Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
-* `pageFlag` {Boolean} 当页数不合法时处理，true 为修正到第一页，false 为修正到最后一页，默认不修正
+* `options` {Number | Object} options will be parse by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method
+* `pageFlag` {Boolean} when the number of pages is not legal, true is amended to the first page, false is amended to the last page, the default does not correct
 * `return` {Promise}
 
-分页查询，一般需要结合 `page` 方法一起使用。如：
+Paging queries, in general, need to be combined with the `page` method. Such as:
 
 ```js
 module.exports = class extends think.Controller {
@@ -638,77 +635,80 @@ module.exports = class extends think.Controller {
 }
 ```
 
-返回值数据结构如下：
+
+The return data structure is as follows:
 
 ```js
 {
-  pagesize: 10, //每页显示的条数
-  currentPage: 1, //当前页
-  count: 100, //总条数
-  totalPages: 10, //总页数
-  data: [{ //当前页下的数据列表
+  pagesize: 10, 
+  currentPage: 1,
+  count: 100, 
+  totalPages: 10, 
+  data: [{ 
     name: "thinkjs",
     email: "admin@thinkjs.org"
   }, ...]
 }
 ```
 
-有时候总条数是放在其他表存储的，不需要再查当前表获取总条数了，这个时候可以通过将第一个参数 `options` 设置为总条数来查询。
+Sometimes the total number is stored in other tables, do not need to check the current table to get the total number, this time can be the first parameter `options` set to the total number of queries.
 
 ```js
 module.exports = class extends think.Controller {
   async listAction(){
     const model = this.mongo('user');
     const total = 256;
-    // 指定总条数查询
+    // set total number to 256
     const data = await model.page(this.get('page')).countSelect(total);
   }
 }
 ```
 #### model.sum(field)
 
-* `field` {String} 字段名
-* `return` {Number|Array} 返回求和结果
+* `field` {String} field name
+* `return` {Number|Array} return the summation result
 
-没有分组情况下，默认返回数字，有人组的情况下返回分组信息以及求和结果，如下示例：
+If there is no grouping, the default number will be returned. If there is any group, the group information and the summation result will be returned, as shown in the following example:
 
 ```js
 module.exports = class extends think.Controller {
   async listAction(){
     let model = this.mongo('user');
-    // ret1 = 123  没有分组情况下，返回数字
+    // ret1 = 123  no group, return number
     let ret1 = await m.sum('age');		
+
     // ret2 = [{group:'thinkjs1',total:6},{group:'thinkjs2',total:8}]
-    // 有分组的情况返回[{group:xxx,total:xxx}...]
+    // with group return [{group:xxx,total:xxx}...]
     let ret2 = await m.group('name').sum('age'); 
-	// ret3 = [{group:{name:'thinkjs',version'1.0'},total:6},{group:{name:'thinkjs',version'2.0'},total:8},]
+
+	  // ret3 = [{group:{name:'thinkjs',version'1.0'},total:6},{group:{name:'thinkjs',version'2.0'},total:8},]
     let ret3 = await m.where({name:'thinkjs'}).order('version ASC').group('name,version').sum('age'); 
   }
 }
 ```
 
 #### model.aggregate(options)
-* `options` {Object} 操作选项，会通过 [parseOptions](/doc/3.0/relation_model.html#toc-d91) 方法解析
+* `options` {Object} options will be parse by [parseOptions](/doc/3.0/relation_model.html#toc-d91) method
 * `return` {Promise}
 
-聚合操作，详见[Aggregation](https://docs.mongodb.com/manual/reference/sql-aggregation-comparison/)
+Aggregation operation, see [Aggregation](https://docs.mongodb.com/manual/reference/sql-aggregation-comparison/)
 
 #### model.mapReduce(map,reduce,out)
-* `map` {	function | string} mapping方法
-* `reduce` {	function | string} reduce方法
-* `out` {Object} 其他配置
+* `map` {	function | string} mapping method
+* `reduce` {	function | string} reduce method
+* `out` {Object} other options
 * `return` {Promise}
-* 
-集合中 Map-Reduce 操作，详见[MapReduce](http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html#mapReduce)
+
+Collestion Map-Reduce operations, see [MapReduce](http://mongodb.github.io/node-mongodb-native/2.2/api/Collection.html#mapReduce)
 
 #### model.createIndex(indexes,options)
-* `indexes` {	string | object} 索引名
-* `options` {Object} 操作选项
+* `indexes` {	string | object} index name
+* `options` {Object} 
 * `return` {Promise}
 
-创建索引，详见[ensureIndex](http://mongodb.github.io/node-mongodb-native/2.2/api/Db.html#ensureIndex)
+Create index, see [ensureIndex](http://mongodb.github.io/node-mongodb-native/2.2/api/Db.html#ensureIndex)
 
 #### model.getIndexes()
 * `return` {Promise}
 
-获取索引
+Get Index.
