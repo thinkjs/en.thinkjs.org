@@ -84,10 +84,10 @@ module.exports = class extends Rest {
     const postId = this.get('postId');
     const commentId = this.get('id');
     const comment = this.model('comment');
-    if(commentId) { // 获取单条评论的详细信息
+    if(commentId) { // get detail message
       const data = await comment.where({post_id: postId, id: commentId}).find();
       return this.success(data);
-    } else { // 获取单条文章下的评论列表
+    } else { // get comment list
       const list = await comment.where({post_id: postId}).select();
       return this.success(list);
     }

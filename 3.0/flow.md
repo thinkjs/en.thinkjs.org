@@ -1,4 +1,4 @@
-## 运行流程
+## Executive Process
 
 Node.js provide [http](https://nodejs.org/api/http.html) module to create HTTP service, used to respond to user requests, such as Node.js official website provide examples of creating HTTP services:
 
@@ -20,7 +20,7 @@ server.listen(port, hostname, () => {
 ```
 ThinkJS also use `http.createServer` to create service, so the whole process contains two parts to start service and respond to user requests.
 
-### Start System Service
+### Start system service
 
 * Run `npm start` or `node development.js`.
 * Instantiate ThinkJS [Application](https://github.com/thinkjs/thinkjs/blob/3.0/lib/application.js) clas，and call `run` method.

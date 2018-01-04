@@ -1,4 +1,4 @@
-## multi-process
+## Multi-process
 
 Node provides `cluster` module to create multi-process applications, so as to avoid a single process hangs cause service exceptions. The framework runs the multi-process model from the [think-cluster](https://github.com/thinkjs/think-cluster) module.
 

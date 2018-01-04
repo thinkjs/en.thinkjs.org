@@ -79,8 +79,6 @@ Instantiation of a model with subdirectories requires subdirectories path, such 
 
 ### Instantiate the model
 
-项目启动时, 会扫描项目下的所有模型文件（目录为 `src/model/`, 多模块项目下目录为 `src/common/model` 以及各种 `src/[module]/model`）, 扫描后会将所有的模型类存放在 `think.app.models` 对象上, 实例化时会从这个对象上查找, 如果找不到则实例化模型基类 `think.Mongo`。
-
 When the project starts, it scans for all model files (`src/model/` under the project directory, `src/common/model` and various `src/[module]/model` under the multi-module project) After all the model classes will be stored in `think.app.models` object, from which to search class for instantiation, if not found, `think.Mongo` will be instantiated.
 
 #### think.mongo

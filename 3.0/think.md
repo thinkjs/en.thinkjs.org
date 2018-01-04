@@ -1,4 +1,4 @@
-## think object
+## Think
 
 Frame built-in global object `think`, easy to use in the project anytime, anywhere.
 

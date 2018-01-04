@@ -15,6 +15,6 @@ ThinkJS is a prospective Node.js framework integrated with lots of well encapsul
 * Support [TypeScript](http://www.typescriptlang.org/) (version 3.2 or higher).
  
 
-### 架构
+### Architecture
 
 [![](https://p5.ssl.qhimg.com/t0127dc46905fdcef9c.jpg)](https://p5.ssl.qhimg.com/t0127dc46905fdcef9c.jpg)

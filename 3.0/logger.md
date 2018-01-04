@@ -123,8 +123,6 @@ exports.logger = {
 };
 ```
  
-另外需要注意的是，考虑到分类的用处比较少，我们不支持自定义日志分类，所以在 `categories` 中配置其它分类是无效的，但是默认分类需要存在。
-
 This configuration means that logs level above `error` will be output to` oh-no-not-again.log` and all logs will be output to `all-the-logs.log`. All properties are as same as log4js except `handle` property. You can see more configure properties on [log4js documentation](https://log4js-node.github.io/log4js-node/api.html#configuration-object).
 
 
@@ -185,7 +183,6 @@ Default `Console` output format is `%[[%d] [%z] [%p]%] - %m`, which is `[time] [
 
 ### Customize Handle
 
-如果觉得提供的日志输出类型不满足大家的需求，可以自定义日志处理的 `handle`。自定义 handle 需要实现以下几个方法：
 If you feel that the type of log output provided does not meet your needs, you can implement handle yourself. Custom handle need to achieve the following methods:
 
 ```javascript

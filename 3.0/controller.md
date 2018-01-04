@@ -1,4 +1,4 @@
-## Controller / 控制器
+## Controller
 
 In the MVC model, the controller is the logical processing part of the user's request. For example: the user-related operations are placed in `user.js`, each operation is inside an Action.
 
@@ -162,7 +162,6 @@ Use [get](/doc/3.0/controller.html#toc-b4e) in Action for parameters on URL. The
 
 ### Passing data
 
-由于用户的请求处理经过了中间件、Logic、Controller 等多层的处理，有时候希望在这些环节中透传一些数据，这时候可以通过 `ctx.state.xxx` 来完成。
 Because the user's request processing through the middleware, Logic, Controller and other middleware layers, and sometimes hope to pass data between them, we can use `ctx.state.xxx` for that.
 
 
