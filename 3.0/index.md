@@ -17,4 +17,4 @@ ThinkJS is a prospective Node.js framework integrated with lots of well encapsul
 
 ### Architecture
 
-[![](https://p5.ssl.qhimg.com/t0127dc46905fdcef9c.jpg)](https://p5.ssl.qhimg.com/t0127dc46905fdcef9c.jpg)
+[![](https://p0.ssl.qhimg.com/t01ca276cef27904da6.png)](https://p0.ssl.qhimg.com/t01ca276cef27904da6.png)
