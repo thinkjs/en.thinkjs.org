@@ -390,7 +390,7 @@ export default class extends think.controller.base {
 }
 ```
 
-##### Get absoulte file path ##### 
+##### Get absolute file path ##### 
 
 ```js
 // suppose file path is /foo/bar/app/home/controller/index.js
