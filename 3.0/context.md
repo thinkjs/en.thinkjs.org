@@ -22,7 +22,7 @@ module.exports = class extends think.Controller {
 }
 ```
 
-Framework inhert ctx and use Extend to add many useful propertis and methods.
+Framework inhert ctx and use Extend to add many useful properties and methods.
 
 ### Koa builtin API
 
@@ -50,7 +50,7 @@ Koa‘s [Request](http://koajs.com/#request) class.
 Koa's [Response](http://koajs.com/#response) class.
 
 #### ctx.state
-The suggest namespace for sharing data between middleware or sending message to template. We should avoid to put fields into ctx directly which may override existing properties and cuase weired issues.
+The suggest namespace for sharing data between middleware or sending message to template. We should avoid to put fields into ctx directly which may override existing properties and cause weird issues.
 
 ```js
 ctx.state.user = await User.find(id);
@@ -99,7 +99,7 @@ throw err;
 
 Note, this is user scope error, `err.expose` is marked, so these message can be used to response client request. Apparently you won't use it to expose error message if you don't want to leak error detail.
 
-You can passe `properties` object, which will be merged to error, to pass message to other middlewares with a nice defined error message.
+You can pass `properties` object, which will be merged to error, to pass message to other middlewares with a nice defined error message.
 
 ```js
 ctx.throw(401, 'access_denied', { user: user });
@@ -121,7 +121,7 @@ Koa use [http-assert](https://github.com/jshttp/http-assert) to assert.
 
 If you don't want to use Koa's buildin response, just set `ctx.respond = false`. And then you can use the origin `res` object to response.
 
-Note Koa __doesn't__ suuport this, becuase it may break Koa's middleware and Koa itself. It is a hack way, for those want to use traditional `fn(req, res)` method with middleware.
+Note Koa __doesn't__ suuport this, because it may break Koa's middleware and Koa itself. It is a hack way, for those want to use traditional `fn(req, res)` method with middleware.
 
 #### ctx.header
 
@@ -137,7 +137,7 @@ Get all header information, equivalent to `ctx.header`.
 
 #### ctx.method
 
-Get request type, uppercae. Like: `GET`, `POST`, `DELETE`.
+Get request type, uppercase. Like: `GET`, `POST`, `DELETE`.
 
 ```js
 const method = ctx.method;
@@ -283,9 +283,9 @@ Get request protocal, value is `https` or `http`, when `app.proxy` is ture then 
 
 Specific details, if `req.socket.encrypted` is true, then return `https`, otherwise if `app.proxy` is true, return `X-Forwarded-Proto` header value, default value is `http`.
 
-Usually we don't want Node.js to serve client directly, but using an extrat web server layout (like nginx). Web server provide HTTP(S) service, and communicate with Node.js with HTTP.
+Usually we don't want Node.js to serve client directly, but using an extra web server layout (like nginx). Web server provide HTTP(S) service, and communicate with Node.js with HTTP.
 
-In this situation, Node.js always use `https` as protocal, the actual protocal only known to web server. So we need to defined a special header for it, recommand `X-Forwarded-Proto`. For safty, only if `app.proxy` if true then protocal will read from this header (`production.js` default value is true).
+In this situation, Node.js always use `https` as protocal, the actual protocal only known to web server. So we need to defined a special header for it, recommand `X-Forwarded-Proto`. For safty, only if `app.proxy` if true then protocol will read from this header (`production.js` default value is true).
 
 
 ```sh
@@ -782,7 +782,7 @@ if(isCli){
 * `onlyHost` {Boolean} only return host
 * `return` {String}
 
-get request referer.
+get request referrer.
 
 ```
 const referer1 = ctx.referer(); // http://www.thinkjs.org/doc.html
@@ -900,7 +900,7 @@ The field names `errno` and` errmsg` can be modified by configuring `errnoField`
 
 #### ctx.expires(time)
 
-* `time` {Number} cache time，unit is miliseconds. Support time format like `1s` or `1m`.
+* `time` {Number} cache time，unit is milliseconds. Support time format like `1s` or `1m`.
 * `return` {undefined}
 
 set `Cache-Control` and `Expires` cache header.
@@ -983,7 +983,7 @@ ctx.file('name', value); // Reset the FILE value
 ctx.file({name: 'value', name2: 'value2'}); // Reset multiple FILE values
 ```
 
-文件的数据格式为：
+File Data Format：
 
 ```js
 {
@@ -1023,7 +1023,7 @@ module.exports = class extends think.Controller {
 * `options` {Object} Cookie config
 * `return` {Mixed}
 
-获取、设置 Cookie 值。
+Get and set the cookie value.
 
 ```js
 ctx.cookie('name'); //get Cookie
@@ -1034,11 +1034,9 @@ ctx.cookie(name, null, {
 })
 ```
 
-设置 Cookie 时，如果 value 的长度大于 4094，则触发 `cookieLimit` 事件，该事件可以通过 `think.app.on("cookieLimit")` 来捕获。
-删除 Cookie 时，必须要设置 `domain`、`path` 等参数和设置的时候相同，否则因为浏览器的同源策略无法删除。
 When setting a cookie, if the length of value is greater than 4094, a `cookieLimit` event is fired, which can be captured via `think.app.on ("cookieLimit")`.
 
-When Delete cookie, you must set `domain`,`path` and other parameters and set the same time, otherwise the browser's homologous strategy will reject the delete action.
+When Deleting cookie, you must set parameters such as `domain` and `path` and other parameters and set the same time, otherwise the browser's homologous strategy will reject the delete action.
 
 #### ctx.service(name, m, ...args)
 
