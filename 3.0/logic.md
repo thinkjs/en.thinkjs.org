@@ -286,7 +286,7 @@ module.exports = class extends think.Logic {
 
 #### convert data before validation
 
-For `boolean` type field, value in one of `'yes'`,`'on'`,`'1'`,`'true'`,`true` will be convert to `true`, and in other cases `false`, and then performa the follow-up rule validation;
+For `boolean` type field, value in one of `'yes'`,`'on'`,`'1'`,`'true'`,`true` will be converted to `true`, and in other cases `false`, and then performs the follow-up rule validation;
 
 For `array` type field, if the field itself is an array, it will not be processed. If the field is a string, it will be `split (',')`, otherwise it will be directly converted into `[field value]` , And then perform the follow-up rule validation.
 
@@ -355,7 +355,7 @@ module.exports = class extends think.Logic {
 
 Create a `validator.js` file under the `config` directory in single-module project and `validator.js` under `common/config` directory in multi-module project. Add a custom verification method in `validator.js`:
 
-For example, we want to verify that the `name1` parameter in `GET` request is equal to the string `lucy`. You can add a validation rule as follows; [server address/index/?Name1=jack
+For example, we want to verify that the `name1` parameter in `GET` request is equal to the string `lucy`. You can add a validation rule as follows; `[server address]/index/?Name1=jack`
 
 
 ```js
@@ -411,7 +411,7 @@ Custom validation method parameters is as follow:
 
 Sometimes we want to parse the parameters of the validation rules, only need to create new parse method of the same name with an underscore at the beginning, and the results of the parse can be returned.
 
-For example, if we want to verify that the `name1` parameter in `GET` request is equal to `name2` parameter, we can add the following verification method: Visit [server address]/index/?name1=tom&name2=lily
+For example, if we want to verify that the `name1` parameter in `GET` request is equal to `name2` parameter, we can add the following verification method: Visit `[server address]/index/?name1=tom&name2=lily`
 
 ```js
 // logic index.js
@@ -448,7 +448,6 @@ module.exports = {
 }
 ```
 
-解析参数 `_eqLucy` 注入的第一个参数是当前校验规则的值（对于本例子,validValue 为 'name2'）,其他参数意义同上面的介绍.
 The first parameter in `_eqLucy` is the value of the current validation rule (for this example, the validValue is 'name2'), and the other parameters have the same meanings as above.
 
 #### custom error message
@@ -456,7 +455,7 @@ The first parameter in `_eqLucy` is the value of the current validation rule (fo
 There are three interpolation variables `{name}`, `{args}`, `{pargs}` in the error message. `{name}` will be replaced by the name of the field being checked, `{args}` will be replaced by the value of the checkout rule and `{pargs}` will be replaced by the value returned by the parsing method. If `{args}`, `{pargs}` is not a string, `JSON.stringify` will be processed.
 
 
-For `Object: false` fields, three custom error formats are supported: Rule1: Rule: Error Message; Rule2: Field Name: Error Message; Rule 3: Field Name: {Rule: Error Message}.
+For `Object: false` fields, three custom error formats are supported: Rule1: `Rule: Error Message`; Rule2: `Field Name: Error Message`; Rule 3: `Field Name: {Rule: Error Message}`.
 
 For the case of multiple error messages specified at the same time, priority rule 3 > rule 2 > rule 1.
 
@@ -469,10 +468,10 @@ module.exports = class extends think.Logic {
     }
   }
   let msgs = {
-    required: '{name} can not blank',         // rule 1
-    username: '{name} can not blank',         // rule 2
+    required: '{name} can not be blank',         // rule 1
+    username: '{name} can not be blank',         // rule 2
     username: {
-      required: '{name} can not blank'        // rule 3
+      required: '{name} can not be blank'        // rule 3
     }
   }
   this.validate(rules, msgs);
@@ -510,7 +509,7 @@ module.exports = class extends think.Logic {
 
 #### required
 
-`required: true` field is required,default is `required: false`. `undefined`、`[empty string]` 、`null`、`NaN` will failed `required: true`.
+`required: true` field is required,default is `required: false`. `undefined`、`[empty string]` 、`null`、`NaN` will fail `required: true`.
 
 ```js
 module.exports = class extends think.Logic {
@@ -651,7 +650,7 @@ module.exports = class extends think.Logic {
   }
 }
 ```
-For the above example, the vaule of `name` is required when all the `id` and `email` values in `GET` request do not exist.
+For the above example, the value of `name` is required when all the `id` and `email` values in `GET` request do not exist.
 
 #### contains
 
@@ -740,23 +739,23 @@ The value needs to be after a date, the default is after the current date, `afte
 
 #### alpha
 
-The vlaue can only be [a-zA-Z], `alpha: true`.
+The value can only be [a-zA-Z], `alpha: true`.
 
 #### alphaDash
 
-The vlaue can only be [a-zA-Z_], `alphaDash: true`.
+The value can only be [a-zA-Z_], `alphaDash: true`.
 
 #### alphaNumeric
 
-The vlaue can only be [a-zA-Z0-9], `alphaNumeric: true`.
+The value can only be [a-zA-Z0-9], `alphaNumeric: true`.
 
 #### alphaNumericDash
 
-The vlaue can only be [a-zA-Z0-9_], `alphaNumericDash: true`.
+The value can only be [a-zA-Z0-9_], `alphaNumericDash: true`.
 
 #### ascii
 
-The vlaue can only be ascii character, `ascii: true`.
+The value can only be ascii character, `ascii: true`.
 
 #### base64
 
@@ -819,7 +818,7 @@ Need to be email format, `email: true | options`, `options` refer to `https://gi
 
 #### fqdn
 
-Need to be valid domain, `fqdn: true | options`, `options` refer to `https://github.com/chriso/validator.js`.
+Need to be a valid domain, `fqdn: true | options`, `options` refer to `https://github.com/chriso/validator.js`.
 
 #### float
 
@@ -906,7 +905,7 @@ Need to include both nibble and full-byte characters, `variableWidth: true`.
 
 #### in
 
-in some vlaues, `in: [...]`.
+in some values, `in: [...]`.
 
 ```js
 module.exports = class extends think.Logic {
@@ -1039,7 +1038,6 @@ Need to be string, `string: true`.
 
 #### array
 
-需要为数组,`array: true`,对于指定为 `array` 类型的字段,如果字段对应的值是数组不做处理；如果字段对应的值是字符串,进行 `split(,)` 处理；其他情况转化为 `[字段值]`.
 Array is required, `array: true`, if the value of the field is an array, it will not be processed; `split (,)` will be executed if the value of the field is a string; In other cases is converted to `[field value]`.
 
 #### boolean
