@@ -23,7 +23,7 @@ ThinkJS also use `http.createServer` to create service, so the whole process con
 ### Start system service
 
 * Run `npm start` or `node development.js`.
-* Instantiate ThinkJS [Application](https://github.com/thinkjs/thinkjs/blob/3.0/lib/application.js) clas，and call `run` method.
+* Instantiate ThinkJS [Application](https://github.com/thinkjs/thinkjs/blob/3.0/lib/application.js) class，and call `run` method.
 * Depending on the environment (Master process, Worker process, command-line calls) to deal with different logic.
 * If it is Master process
     - Load config file and produce `think.config`  `think.logger` object.
@@ -61,7 +61,7 @@ After the service starts, the following log is printed:
 [2017-07-02 13:36:40.649] [INFO] - Workers: 8   #worker process number
 ```
 
-### User reqeust processing
+### User request processing
 
 When the user requests service, it will be processed through the following steps.
 * The request arrives at the webserver (eg: nginx) and forwards the request to the node service via the reverse proxy. If you access the node service directly through the port, then there is no such step.
