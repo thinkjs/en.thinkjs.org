@@ -1,5 +1,5 @@
 ## Config
-We have all kinds of confiure in application, including framework configuration and project defined ones. ThinkJS manage all configurations and arrange them into `src/config/` folder (or in `src/common/config/` in multi-module project), these confgs are categorized and divided into following files.
+We have all kinds of configure in application, including framework configuration and project defined ones. ThinkJS manage all configurations and arrange them into `src/config/` folder (or in `src/common/config/` in multi-module project), these configs are categorized and divided into following files.
 
 * `config.js` common config
 * `adapter.js` adapter config
@@ -62,7 +62,7 @@ These are some default configurations need to be aware:
 
 ### Config Merging
 
-When system start up, all configurations will be merged and provided to users. Bellow the the mergin process:
+When system starts up, all configurations will be merged and provided to users. Below is the merging process:
 
 * load `[ThinkJS]/lib/config/config.js`
 * load `src/config/config.js`
@@ -73,7 +73,7 @@ When system start up, all configurations will be merged and provided to users. B
 * load `src/config/adapter.[env].js`
 
 `[env]` is the runtime environment. At last these configurations will be merged together, configs comes later with the same name will override previous ones.
-Configs are loaded by [think-loader](https://github.com/thinkjs/think-loader/) module, and the merged configs are represent by [think-config](https://github.com/thinkjs/think-config/), of which instance is acessible through `think.config`.
+Configs are loaded by [think-loader](https://github.com/thinkjs/think-loader/) module, and the merged configs are represent by [think-config](https://github.com/thinkjs/think-config/), of which instance is accessible through `think.config`.
 
 ### Use Config
 
@@ -99,8 +99,8 @@ module.exports = class extends think.Controller {
 
 ### Dynamic Set Config
 
-Sometimes we need to dynamicly set config, like configurations store in database, we can load them on application start and set them.
-Framework provie dynamic way of set configurations, by using `think.config(key, value)`:
+Sometimes we need to dynamically set config, like configurations store in database, we can load them on application start and set them.
+The Framework provides a dynamic way of set configurations, by using `think.config(key, value)`:
 
 ```
 // src/bootstrap/worker.js
@@ -120,11 +120,11 @@ think.beforeStartServer(async () => {
 
 #### Can congiguration in config.js and adapter.js use the same key？
 
-`No`. Because congurations from config.js and adapter.js will be merged, configuration with the same key will be overrided.
+`No`. Because configurations from config.js and adapter.js will be merged, configuration with the same key will be overridden.
 
 #### How to view the merged config？
 
-System will merge config.js and adapter.js configurations on startup, the final config will be save into `runtime/config/[env].json` file, for example if the current evn is `development`, then the config file will be `runtime/config/development.json`.
+System will merge config.js and adapter.js configurations on startup, the final config will be save into `runtime/config/[env].json` file, for example if the current env is `development`, then the config file will be `runtime/config/development.json`.
 
 Config will be convert to string using `JSON.stringify` and save as file, becuase JSON.stringify doesn't support regular expression or function, so these value will not be visible.
 
