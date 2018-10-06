@@ -117,7 +117,7 @@ The parameters received by the middleware in addition to options, but also a ext
 
 #### enable
 
-Whether to enable current middleware, such as: a middleware only in the development environemnt to take effect.
+Whether to enable current middleware, such as: a middleware only in the development environment to take effect.
 
 ```js
 {
@@ -159,7 +159,7 @@ module.exports = [
 
 #### match
 
-To enable this middleware when specific rules are matched, support two ways, one is path matching, one is a custom funcion matching. Such as:
+To enable this middleware when specific rules are matched, support two ways, one is path matching, one is a custom function matching. Such as:
 
 ```js
 module.exports = [
@@ -195,7 +195,7 @@ module.exports = [
 ```
 
 * [meta](https://github.com/thinkjs/think-meta) Show some meta information, such as: send ThinkJS version number, interface processing time and so on.
-* [resource](https://github.com/thinkjs/think-resource) handle static resouces, suggest disabled it and use webserver in production environment.
+* [resource](https://github.com/thinkjs/think-resource) handle static resources, suggest disabled it and use webserver in production environment.
 * [trace](https://github.com/thinkjs/think-trace) handle error, development environment will print detailed error message, you can also customize the display error page.
 * [payload](https://github.com/thinkjs/think-payload) Handle form submission and file upload, similar to middleware like koa-bodyparser.
 * [router](https://github.com/thinkjs/think-router) route parsing, including custom route parsing
@@ -204,7 +204,7 @@ module.exports = [
 
 ### project defined middleware
 
-Sometimes we need to add middleware according to specific project requirement, it can put them into `src/middleware` direcotry, by which you can reference them through file name.
+Sometimes we need to add middleware according to specific project requirement, it can put them into `src/middleware` directory, by which you can reference them through file name.
 
 Such as: Add `src/middleware/csrf.js`, then you can reference this middleware directly through `csrf` string.
 
@@ -242,13 +242,13 @@ Middleware execution is performed in the order of configuration, so developers n
 
 #### How do I know which middleware in the current environment to take effect?
 
-You can view the infomation using `DEBUG=koa:application node development.js` to start the application, in console message as bellow will be printed: `koa:application use ...`.
+You can view the information using `DEBUG=koa:application node development.js` to start the application, in console message as bellow will be printed: `koa:application use ...`.
 
 Note: if multiple workers are started then middleware info will be printed multiple times.
 
 #### How to pass data between Logic and Controller?
 
-Sometimes we want to configure some data in middleware and access it in the subseuent Logic, Controller middleware, this can be done use `ctx.state`, for detail refers to [passing data](/doc/3.0/controller.html#toc-247).
+Sometimes we want to configure some data in middleware and access it in the subsequent Logic, Controller middleware, this can be done use `ctx.state`, for detail refers to [passing data](/doc/3.0/controller.html#toc-247).
 
 
 #### How to set data in GET/POST?
