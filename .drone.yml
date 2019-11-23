@@ -1,0 +1,18 @@
+---
+kind: pipeline
+name: default
+
+clone:
+  disable: true
+
+steps:
+- name: submodules_push
+  image: lizheming/drone-submodules-push
+  settings:
+    branch: master
+    remote: git@github.com:thinkjs/www.thinkjs.org.git
+    commit_message: "submodule trigger auto-update"
+    ssh_key:
+      from_secret: GIT_PUSH_SSH_KEY
+
+
