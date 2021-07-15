@@ -23,7 +23,7 @@ When done creation, framework will watch file changes to restart service. Access
 
 ### Action Execution
 
-Action execution is done via [think-controller](https://github.com/thinkjs/think-controller) middleware, According to `ctx.action` value to match controller `xxxAction` mehtod, call this method and related hook method, the specific order as bellow:
+Action execution is done via [think-controller](https://github.com/thinkjs/think-controller) middleware, According to `ctx.action` value to match controller `xxxAction` method, call this method and related hook method, the specific order as bellow:
 
 * Instantiate the Controller class, pass in the `ctx` object.
 * Called if the method [__before](/doc/3.0/controller.html#toc-083) exists, and stop it if the return value is false.
