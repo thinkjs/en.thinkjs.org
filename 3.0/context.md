@@ -777,6 +777,10 @@ if(isCli){
 }
 ```
 
+#### ctx.request.rawBody
+
+Return request body raw data, this prop only available when [think-payload](https://github.com/thinkjs/think-payload) module enabled.
+
 #### ctx.referer(onlyHost)
 
 * `onlyHost` {Boolean} only return host
